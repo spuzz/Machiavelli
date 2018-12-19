@@ -104,7 +104,7 @@ public class HexFeatureManager : MonoBehaviour {
 		Transform instance = Instantiate(special[cell.SpecialIndex - 1]);
 		instance.localPosition = HexMetrics.Perturb(position);
 		instance.localRotation = Quaternion.Euler(0f, 360f * hash.e, 0f);
-		instance.SetParent(container, false);
+        instance.SetParent(container, false);
 	}
 
 	public void AddWall (

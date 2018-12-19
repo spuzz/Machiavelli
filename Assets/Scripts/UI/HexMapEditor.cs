@@ -218,7 +218,15 @@ public class HexMapEditor : MonoBehaviour {
 				cell.WaterLevel = activeWaterLevel;
 			}
 			if (applySpecialIndex) {
-				cell.SpecialIndex = activeSpecialIndex;
+                if(activeSpecialIndex == 2)
+                {
+                    hexGrid.AddCity(cell);
+                }
+                else
+                {
+                    hexGrid.RemoveCity(cell);
+                }
+                cell.SpecialIndex = activeSpecialIndex;
 			}
 			if (applyUrbanLevel) {
 				cell.UrbanLevel = activeUrbanLevel;

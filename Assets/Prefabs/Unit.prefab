@@ -922,7 +922,7 @@ Animator:
   m_GameObject: {fileID: 1752502320050534}
   m_Enabled: 1
   m_Avatar: {fileID: 9000000, guid: ba24e610e0a338545b447ff44a3cf1cc, type: 3}
-  m_Controller: {fileID: 0}
+  m_Controller: {fileID: 9100000, guid: da51a02fa711f1f4f8d7c6b00334606a, type: 2}
   m_CullingMode: 1
   m_UpdateMode: 0
   m_ApplyRootMotion: 0
@@ -945,6 +945,7 @@ MonoBehaviour:
   baseMovement: 2
   movementLeft: 0
   hexUnit: {fileID: 114701888605048992}
+  baseMovementFactor: 5
 --- !u!114 &114701888605048992
 MonoBehaviour:
   m_ObjectHideFlags: 1

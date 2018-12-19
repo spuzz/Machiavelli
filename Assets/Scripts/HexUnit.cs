@@ -5,14 +5,19 @@ using System.IO;
 
 public class HexUnit : MonoBehaviour {
 
-	const float rotationSpeed = 180f;
-	const float travelSpeed = 4f;
+	const float rotationSpeed = 360f;
+	const float travelSpeed = 1f;
 
 	public static HexUnit unitPrefab;
 
+    Animator animator;
 	public HexGrid Grid { get; set; }
 
-	public HexCell Location {
+    public void Awake()
+    {
+        animator = GetComponentInChildren<Animator>();
+    }
+    public HexCell Location {
 		get {
 			return location;
 		}
@@ -81,10 +86,11 @@ public class HexUnit : MonoBehaviour {
 	}
 
 	IEnumerator TravelPath () {
+        
 		Vector3 a, b, c = pathToTravel[0].Position;
 		yield return LookAt(pathToTravel[1].Position);
-
-		if (!currentTravelLocation) {
+        animator.SetBool("Walking", true);
+        if (!currentTravelLocation) {
 			currentTravelLocation = pathToTravel[0];
 		}
 		Grid.DecreaseVisibility(currentTravelLocation, VisionRange);
@@ -141,7 +147,8 @@ public class HexUnit : MonoBehaviour {
 		orientation = transform.localRotation.eulerAngles.y;
 		ListPool<HexCell>.Add(pathToTravel);
 		pathToTravel = null;
-	}
+        animator.SetBool("Walking", false);
+    }
 
 	IEnumerator LookAt (Vector3 point) {
 		if (HexMetrics.Wrapping) {

@@ -3,6 +3,7 @@ using UnityEngine.UI;
 using System.IO;
 using System.Collections;
 using System.Collections.Generic;
+using System;
 
 public class HexGrid : MonoBehaviour {
 
@@ -15,8 +16,9 @@ public class HexGrid : MonoBehaviour {
 	public Text cellLabelPrefab;
 	public HexGridChunk chunkPrefab;
 	public HexUnit unitPrefab;
+    public City cityPrefab;
 
-	public Texture2D noiseSource;
+    public Texture2D noiseSource;
 
 	public int seed;
 
@@ -63,6 +65,28 @@ public class HexGrid : MonoBehaviour {
         unit.transform.SetParent(player.transform);
         player.AddUnit(unit);
 	}
+
+    public void AddCity(HexCell cell)
+    {
+        City instance = Instantiate(cityPrefab);
+        instance.transform.localPosition  = HexMetrics.Perturb(cell.Position);
+        gameController.AddCity(instance);
+        instance.SetHexCell(cell);
+    }
+
+    public void AddCity(HexCell cell, CityState cityState)
+    {
+        City instance = Instantiate(cityPrefab);
+        instance.transform.localPosition = HexMetrics.Perturb(cell.Position);
+        instance.SetCityState(cityState);
+        gameController.AddCity(instance);
+        instance.SetHexCell(cell);
+    }
+
+    public void RemoveCity(HexCell cell)
+    {
+        gameController.RemoveCity(cell);
+    }
 
 	public void RemoveUnit (HexUnit unit) {
 		units.Remove(unit);
@@ -136,7 +160,13 @@ public class HexGrid : MonoBehaviour {
 		units.Clear();
 	}
 
-	void OnEnable () {
+    private void ClearCitiesAndStates()
+    {
+        gameController.ClearCitiesAndStates();
+    }
+
+
+    void OnEnable () {
 		if (!HexMetrics.noiseSource) {
 			HexMetrics.noiseSource = noiseSource;
 			HexMetrics.InitializeHashGrid(seed);
@@ -269,12 +299,15 @@ public class HexGrid : MonoBehaviour {
 		for (int i = 0; i < units.Count; i++) {
 			units[i].Save(writer);
 		}
-	}
+
+        gameController.Save(writer);
+    }
 
 	public void Load (BinaryReader reader, int header) {
 		ClearPath();
 		ClearUnits();
-		int x = 20, z = 15;
+        ClearCitiesAndStates();
+        int x = 20, z = 15;
 		if (header >= 1) {
 			x = reader.ReadInt32();
 			z = reader.ReadInt32();
@@ -302,11 +335,20 @@ public class HexGrid : MonoBehaviour {
 				HexUnit.Load(reader, this, header);
 			}
 		}
-
-		cellShaderData.ImmediateMode = originalImmediateMode;
+        if (header >= 7)
+        {
+            gameController.Load(reader, header);
+            int cityCount = reader.ReadInt32();
+            for (int i = 0; i < cityCount; i++)
+            {
+                City.Load(reader, gameController, this, header);
+            }
+        }
+        cellShaderData.ImmediateMode = originalImmediateMode;
 	}
 
-	public List<HexCell> GetPath () {
+
+    public List<HexCell> GetPath () {
 		if (!currentPathExists) {
 			return null;
 		}

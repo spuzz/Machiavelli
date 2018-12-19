@@ -198,7 +198,7 @@ public class HexCell : MonoBehaviour {
 		set {
 			if (specialIndex != value && !HasRiver) {
 				specialIndex = value;
-				RemoveRoads();
+				//RemoveRoads();
 				RefreshSelfOnly();
 			}
 		}
@@ -210,7 +210,8 @@ public class HexCell : MonoBehaviour {
 		}
 	}
 
-	public bool Walled {
+
+    public bool Walled {
 		get {
 			return walled;
 		}
@@ -427,7 +428,7 @@ public class HexCell : MonoBehaviour {
 
 	public void AddRoad (HexDirection direction) {
 		if (
-			!roads[(int)direction] && !HasRiverThroughEdge(direction) && !GetNeighbor(direction).IsSpecial &&
+			!roads[(int)direction] && !HasRiverThroughEdge(direction) &&
 			GetElevationDifference(direction) <= 1
 		) {
 			SetRoad((int)direction, true);
@@ -542,6 +543,7 @@ public class HexCell : MonoBehaviour {
 		}
 		writer.Write((byte)roadFlags);
 		writer.Write(IsExplored);
+
 	}
 
 	public void Load (BinaryReader reader, int header) {
