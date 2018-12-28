@@ -1,11 +1,13 @@
 ﻿using UnityEngine;
 using UnityEngine.EventSystems;
 using System.IO;
+using UnityEngine.UI;
+using System.Collections.Generic;
 
 public class HexMapEditor : MonoBehaviour {
 
 	public HexGrid hexGrid;
-
+    public GameController gameController;
 	public Material terrainMaterial;
 
 	int activeElevation;
@@ -13,16 +15,21 @@ public class HexMapEditor : MonoBehaviour {
 
 	int activeUrbanLevel, activeFarmLevel, activePlantLevel, activeSpecialIndex;
 
-	int activeTerrainTypeIndex;
+	int activeTerrainTypeIndex = -1;
 
 	int brushSize;
 
-	bool applyElevation = true;
-	bool applyWaterLevel = true;
+	bool applyElevation = false;
+	bool applyWaterLevel = false;
 
 	bool applyUrbanLevel, applyFarmLevel, applyPlantLevel, applySpecialIndex;
 
-	enum OptionalToggle {
+    [SerializeField] Dropdown playerUnits;
+    [SerializeField] Dropdown players;
+    [SerializeField] Dropdown cityStateUnits;
+    [SerializeField] Dropdown cityStates;
+
+    enum OptionalToggle {
 		Ignore, Yes, No
 	}
 
@@ -113,11 +120,30 @@ public class HexMapEditor : MonoBehaviour {
 		}
 	}
 
-	void Awake () {
-		terrainMaterial.DisableKeyword("GRID_ON");
-		Shader.EnableKeyword("HEX_MAP_EDIT_MODE");
-		SetEditMode(true);
-	}
+    void Awake()
+    {
+        terrainMaterial.DisableKeyword("GRID_ON");
+        Shader.EnableKeyword("HEX_MAP_EDIT_MODE");
+        SetEditMode(true);
+
+        string myPath = "Assets/Resources/";
+        DirectoryInfo dir = new DirectoryInfo(myPath);
+        FileInfo[] info = dir.GetFiles("*.prefab");
+        List<string> files = new List<string>();
+        foreach (FileInfo f in info)
+        {
+            files.Add(f.Name.Split('.')[0]);
+        }
+        playerUnits.ClearOptions();
+        playerUnits.AddOptions(files);
+        playerUnits.value = 0;
+        cityStateUnits.ClearOptions();
+        cityStateUnits.AddOptions(files);
+        cityStateUnits.value = 0;
+
+        cityStates.ClearOptions();
+    }
+
 
 	void Update () {
 		if (!EventSystem.current.IsPointerOverGameObject()) {
@@ -134,8 +160,33 @@ public class HexMapEditor : MonoBehaviour {
 				}
 				return;
 			}
-		}
-		previousCell = null;
+            if (Input.GetKeyDown(KeyCode.H))
+            {
+                if (Input.GetKey(KeyCode.LeftShift))
+                {
+                    DestroyCityStateUnit();
+                }
+                else
+                {
+                    CreateCityStateUnit();
+                }
+                return;
+            }
+        }
+
+        if(cityStates.options.Count != gameController.CityStateCount())
+        {
+            cityStates.ClearOptions();
+            cityStates.AddOptions(gameController.CityStateNames());
+        }
+
+        if (players.options.Count != gameController.PlayerCount())
+        {
+            players.ClearOptions();
+            players.AddOptions(gameController.PlayerNames());
+        }
+
+        previousCell = null;
 	}
 
 	HexCell GetCellUnderCursor () {
@@ -145,13 +196,34 @@ public class HexMapEditor : MonoBehaviour {
 
 	void CreateUnit () {
 		HexCell cell = GetCellUnderCursor();
-		if (cell && !cell.Unit) {
-			hexGrid.AddUnit(
-				Instantiate(HexUnit.unitPrefab), cell, Random.Range(0f, 360f),0
-			);
-		}
-	}
+		if (players.options.Count > 0 && cell && !cell.Unit) {
+            string name = playerUnits.options[playerUnits.value].text;
+            string playerName = players.options[players.value].text;
+            Player player;
+            if(playerName == "Human Player")
+            {
+                player = gameController.HumanPlayer;
+            }
+            else
+            {
+                int playerID = System.Convert.ToInt32(players.options[players.value].text);
+                player = gameController.GetAIPlayer(playerID);
+            }
+            
+            HexUnit hexUnit = Instantiate(Resources.Load(name) as GameObject).GetComponent<HexUnit>();
+            hexUnit.UnitPrefabName = name;
+            hexGrid.AddUnit(hexUnit, cell, Random.Range(0f, 360f));
 
+            gameController.CreateAgent(hexUnit, player);
+
+
+        }
+    }
+
+    public void CreateAIPlayer()
+    {
+        gameController.CreateAIPlayer();
+    }
 	void DestroyUnit () {
 		HexCell cell = GetCellUnderCursor();
 		if (cell && cell.Unit) {
@@ -159,7 +231,31 @@ public class HexMapEditor : MonoBehaviour {
 		}
 	}
 
-	void HandleInput () {
+    void CreateCityStateUnit()
+    {
+        HexCell cell = GetCellUnderCursor();
+        if (cityStates.options.Count > 0 && cell && !cell.Unit)
+        {
+            string name = cityStateUnits.options[cityStateUnits.value].text;
+            int cityStateID = System.Convert.ToInt32(cityStates.options[cityStates.value].text);
+            HexUnit hexUnit = Instantiate(Resources.Load(name) as GameObject).GetComponent<HexUnit>();
+            hexUnit.UnitPrefabName = name;
+            hexGrid.AddUnit(hexUnit, cell, Random.Range(0f, 360f));
+            gameController.CreateCityStateUnit(hexUnit, cityStateID);
+        }
+    }
+
+    void DestroyCityStateUnit()
+    {
+        HexCell cell = GetCellUnderCursor();
+        if (cell && cell.Unit)
+        {
+            hexGrid.RemoveUnit(cell.Unit);
+        }
+    }
+
+
+    void HandleInput () {
 		HexCell currentCell = GetCellUnderCursor();
 		if (currentCell) {
 			if (previousCell && previousCell != currentCell) {
@@ -220,6 +316,7 @@ public class HexMapEditor : MonoBehaviour {
 			if (applySpecialIndex) {
                 if(activeSpecialIndex == 2)
                 {
+                    hexGrid.RemoveCity(cell);
                     hexGrid.AddCity(cell);
                 }
                 else

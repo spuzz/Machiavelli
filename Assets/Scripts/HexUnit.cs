@@ -8,7 +8,7 @@ public class HexUnit : MonoBehaviour {
 	const float rotationSpeed = 360f;
 	const float travelSpeed = 1f;
 
-	public static HexUnit unitPrefab;
+	
 
     Animator animator;
 	public HexGrid Grid { get; set; }
@@ -23,12 +23,12 @@ public class HexUnit : MonoBehaviour {
 		}
 		set {
 			if (location) {
-				Grid.DecreaseVisibility(location, VisionRange);
+				ChangeVisibility(location, false);
 				location.Unit = null;
 			}
 			location = value;
 			value.Unit = this;
-			Grid.IncreaseVisibility(value, VisionRange);
+            ChangeVisibility(value, true);
 			transform.localPosition = value.Position;
 			Grid.MakeChildOfColumn(transform, value.ColumnIndex);
 		}
@@ -36,7 +36,20 @@ public class HexUnit : MonoBehaviour {
 
 	HexCell location, currentTravelLocation;
 
-	public float Orientation {
+    private string unitPrefabName;
+    public string UnitPrefabName
+    {
+        get
+        {
+            return unitPrefabName;
+        }
+        set
+        {
+            unitPrefabName = value;
+        }
+    }
+
+    public float Orientation {
 		get {
 			return orientation;
 		}
@@ -63,6 +76,41 @@ public class HexUnit : MonoBehaviour {
 		}
 
 	}
+
+    bool visible = false;
+    public bool Visible
+    {
+        get { return visible; }
+        set {
+            if (visible != value)
+            {
+                if(Grid && visible == true)
+                {
+                    Grid.DecreaseVisibility(location, VisionRange);
+                }
+                else if (Grid && visible == false)
+                {
+                    Grid.IncreaseVisibility(location, VisionRange);
+                }
+                visible = value;
+            }
+        }
+    }
+
+    public bool Controllable
+    {
+        get
+        {
+            return controllable;
+        }
+
+        set
+        {
+            controllable = value;
+        }
+    }
+
+    bool controllable = false;
 
 	float orientation;
 
@@ -93,7 +141,7 @@ public class HexUnit : MonoBehaviour {
         if (!currentTravelLocation) {
 			currentTravelLocation = pathToTravel[0];
 		}
-		Grid.DecreaseVisibility(currentTravelLocation, VisionRange);
+        ChangeVisibility(currentTravelLocation, false);
 		int currentColumn = currentTravelLocation.ColumnIndex;
 
 		float t = Time.deltaTime * travelSpeed;
@@ -117,7 +165,7 @@ public class HexUnit : MonoBehaviour {
 			}
 
 			c = (b + currentTravelLocation.Position) * 0.5f;
-			Grid.IncreaseVisibility(pathToTravel[i], VisionRange);
+            ChangeVisibility(pathToTravel[i], true);
 
 			for (; t < 1f; t += Time.deltaTime * travelSpeed) {
 				transform.localPosition = Bezier.GetPoint(a, b, c, t);
@@ -126,7 +174,7 @@ public class HexUnit : MonoBehaviour {
 				transform.localRotation = Quaternion.LookRotation(d);
 				yield return null;
 			}
-			Grid.DecreaseVisibility(pathToTravel[i], VisionRange);
+            ChangeVisibility(pathToTravel[i], false);
 			t -= 1f;
 		}
 		currentTravelLocation = null;
@@ -134,7 +182,7 @@ public class HexUnit : MonoBehaviour {
 		a = c;
 		b = location.Position;
 		c = b;
-		Grid.IncreaseVisibility(location, VisionRange);
+        ChangeVisibility(location, true);
 		for (; t < 1f; t += Time.deltaTime * travelSpeed) {
 			transform.localPosition = Bezier.GetPoint(a, b, c, t);
 			Vector3 d = Bezier.GetDerivative(a, b, c, t);
@@ -209,9 +257,28 @@ public class HexUnit : MonoBehaviour {
 		return moveCost;
 	}
 
+    private void ChangeVisibility(HexCell cell, bool increase)
+    {
+        if(Visible)
+        {
+            if (increase)
+            {
+                Grid.IncreaseVisibility(cell, VisionRange);
+            }
+            else
+            {
+                Grid.DecreaseVisibility(cell, VisionRange);
+            }
+        }
+        
+    }
+    public void KillUnit()
+    {
+        Grid.RemoveUnit(this);
+    }
 	public void Die () {
 		if (location) {
-			Grid.DecreaseVisibility(location, VisionRange);
+            ChangeVisibility(location, false);
 		}
 		location.Unit = null;
 		Destroy(gameObject);
@@ -220,28 +287,26 @@ public class HexUnit : MonoBehaviour {
 	public void Save (BinaryWriter writer) {
 		location.coordinates.Save(writer);
 		writer.Write(orientation);
-        writer.Write(GetComponent<Unit>().GetPlayer().GetPlayerNumber());
+        writer.Write(UnitPrefabName);
 	}
 
-	public static void Load (BinaryReader reader, HexGrid grid, int header) {
+	public static HexUnit Load (BinaryReader reader, HexGrid grid, int header) {
 		HexCoordinates coordinates = HexCoordinates.Load(reader);
 		float orientation = reader.ReadSingle();
-        int player = 0;
-        if (header >= 6)
-        {
-            player = reader.ReadInt32();
-        }
-        grid.AddUnit(
-            Instantiate(unitPrefab), grid.GetCell(coordinates), orientation, player
-        );
+        string unitName = reader.ReadString();
+        HexUnit unit;
+        unit = Instantiate(Resources.Load(unitName) as GameObject).GetComponent<HexUnit>();
+        unit.UnitPrefabName = unitName;
+        grid.AddUnit(unit, grid.GetCell(coordinates), orientation);
+        return unit;
     }
 
 	void OnEnable () {
 		if (location) {
 			transform.localPosition = location.Position;
 			if (currentTravelLocation) {
-				Grid.IncreaseVisibility(location, VisionRange);
-				Grid.DecreaseVisibility(currentTravelLocation, VisionRange);
+                ChangeVisibility(location, true);
+                ChangeVisibility(currentTravelLocation, false);
 				currentTravelLocation = null;
 			}
 		}

@@ -550,9 +550,7 @@ public class HexCell : MonoBehaviour {
 		terrainTypeIndex = reader.ReadByte();
 		ShaderData.RefreshTerrain(this);
 		elevation = reader.ReadByte();
-		if (header >= 4) {
-			elevation -= 127;
-		}
+		elevation -= 127;
 		RefreshPosition();
 		waterLevel = reader.ReadByte();
 		urbanLevel = reader.ReadByte();
@@ -584,7 +582,7 @@ public class HexCell : MonoBehaviour {
 			roads[i] = (roadFlags & (1 << i)) != 0;
 		}
 
-		IsExplored = header >= 3 ? reader.ReadBoolean() : false;
+        IsExplored = reader.ReadBoolean();
 		ShaderData.RefreshVisibility(this);
 	}
 

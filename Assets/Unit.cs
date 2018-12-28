@@ -11,6 +11,19 @@ public class Unit : MonoBehaviour {
     List<HexCell> path;
     Player player;
 
+    CityState cityState;
+    public CityState CityState
+    {
+        get
+        {
+            return cityState;
+        }
+
+        set
+        {
+            cityState = value;
+        }
+    }
 
     public int GetMovementLeft()
     {

@@ -7,19 +7,43 @@ using UnityEngine;
 public class GameController : MonoBehaviour
 {
 
-    [SerializeField] Player humanPlayer;
+    [SerializeField] List<Player> players = new List<Player>();
     [SerializeField] GameObject cityStatesObject;
     [SerializeField] GameObject citiesObject;
+    [SerializeField] GameObject playersObject;
+    [SerializeField] AIPlayer aiPlayerPrefab;
 
     public CityState cityStatePrefab;
 
     List<CityState> cityStates = new List<CityState>();
     List<City> cities = new List<City>();
 
+    [SerializeField] HumanPlayer humanPlayer;
+
+    public HumanPlayer HumanPlayer
+    {
+        get { return humanPlayer; }
+    }
     int turn = 1;
     void Start()
     {
         turn = 1;
+    }
+
+    public int PlayerCount()
+    {
+        return players.Count + 1;
+    }
+
+    public List<string> PlayerNames()
+    {
+        List<string> names = new List<string>();
+        names.Add("Human Player");
+        foreach (Player player in players)
+        {
+            names.Add(player.PlayerNumber.ToString());
+        }
+        return names;
     }
 
     public CityState GetCityState(int cityStateID)
@@ -77,6 +101,21 @@ public class GameController : MonoBehaviour
         }
     }
 
+    public int CityStateCount()
+    {
+        return cityStates.Count;
+    }
+
+    public List<string> CityStateNames()
+    {
+        List<string> names = new List<string>();
+        foreach(CityState cityState in cityStates)
+        {
+            names.Add(cityState.CityStateID.ToString());
+        }
+        return names;
+    }
+
     public CityState CreateCityState()
     {
         CityState instance = Instantiate(cityStatePrefab);
@@ -94,9 +133,40 @@ public class GameController : MonoBehaviour
         cityStates.Remove(cityState);
     }
 
-    public Player GetPlayer(int playerNumber)
+    public void CreateAgent(HexUnit hexUnit, Player player)
     {
-        return humanPlayer;
+        if (player.IsHuman)
+        {
+            hexUnit.Visible = true;
+            hexUnit.Controllable = true;
+        }
+        Agent agent = hexUnit.GetComponent<Agent>();
+        player.AddAgent(agent);
+    }
+
+    public void CreateCityStateUnit(HexUnit hexUnit, int cityStateID)
+    {
+        CityState cityState = cityStates.Find(c => c.CityStateID == cityStateID);
+        cityState.AddUnit(hexUnit.GetComponent<CombatUnit>());
+    }
+
+
+    public AIPlayer CreateAIPlayer()
+    {
+        AIPlayer instance = Instantiate(aiPlayerPrefab);
+        instance.transform.SetParent(playersObject.transform);
+        players.Add(instance);
+        return instance;
+    }
+
+    public Player GetAIPlayer(int playerNumber)
+    {
+        Player player = players.Find(p => p.PlayerNumber == playerNumber);
+        if(!player)
+        {
+            throw new ArgumentException("No Player With That ID");
+        }
+        return player;
     }
 
     public void EndPlayerTurn()
@@ -119,10 +189,15 @@ public class GameController : MonoBehaviour
 
     public void Save(BinaryWriter writer)
     {
+        HumanPlayer.Save(writer);
+        foreach(AIPlayer aiPlayer in players)
+        {
+            aiPlayer.Save(writer);
+        }
         writer.Write(cityStates.Count);
         foreach (CityState cityState in cityStates)
         {
-            writer.Write(cityState.CityStateID);
+            cityState.Save(writer);
         }
 
         writer.Write(cities.Count);
@@ -133,16 +208,18 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void Load(BinaryReader reader, int header)
+    public void Load(BinaryReader reader, int header, HexGrid hexGrid)
     {
-        if (header >= 7)
+        HumanPlayer.Load(reader, this, hexGrid, header);
+        foreach (AIPlayer aiPlayer in players)
         {
-            int cityStateCount = reader.ReadInt32();
-            for (int i = 0; i < cityStateCount; i++)
-            {
-                CityState.Load(reader, this, header);
-            }
+            AIPlayer.Load(reader, this, hexGrid, header);
+        }
 
+        int cityStateCount = reader.ReadInt32();
+        for (int i = 0; i < cityStateCount; i++)
+        {
+            CityState.Load(reader, this,hexGrid, header);
         }
     }
 

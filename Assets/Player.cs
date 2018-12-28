@@ -1,43 +1,68 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using System.IO;
 using UnityEngine;
 
-public class Player : MonoBehaviour {
+public abstract class Player : MonoBehaviour {
 
-    [SerializeField] int playerNumber = 0;
-    List<Unit> units = new List<Unit>();
+    public static int nextPlayerNumber = 1;
 
-    public int GetPlayerNumber()
+    int playerNumber = 0;
+    bool isHuman = false;
+    public bool IsHuman
     {
-        return playerNumber;
+        get { return isHuman; }
+        set { isHuman = value; }
     }
+    public int PlayerNumber
+    {
+        get { return playerNumber;  }
+        set { playerNumber = value;  }
+    }
+
+    public List<Agent> agents = new List<Agent>();
+    private void Awake()
+    {
+        playerNumber = nextPlayerNumber;
+        nextPlayerNumber++;
+    }
+
     public void StartTurn()
     {
-        foreach(Unit unit in units)
+        foreach(Agent agent in agents)
         {
-            unit.StartTurn();
+            agent.StartTurn();
         }
     }
 
     public void EndTurn()
     {
-        foreach (Unit unit in units)
+        foreach (Agent agent in agents)
         {
-            unit.MoveUnit();
+            agent.MoveUnit();
         }
     }
 
-    public void AddUnit(HexUnit hexUnit)
+    public void AddAgent(Agent agent)
     {
-        Unit unit = hexUnit.GetComponent<Unit>();
-        hexUnit.GetComponent<Unit>().SetPlayer(this);
-        units.Add(unit);
+        agent.SetPlayer(this);
+        agents.Add(agent);
     }
 
-    public void RemoveUnit(HexUnit hexUnit)
+    public void RemoveAgent(Agent agent)
     {
-        Unit unit = hexUnit.GetComponent<Unit>();
-        hexUnit.GetComponent<Unit>().SetPlayer(null);
-        units.Remove(unit);
+        agent.GetComponent<HexUnit>().KillUnit();
+        agents.Remove(agent);
     }
+
+    public void ClearAgents()
+    {
+        foreach (Agent agent in agents)
+        {
+            agent.GetComponent<HexUnit>().KillUnit();
+        }
+        agents.Clear();
+    }
+    public abstract void Save(BinaryWriter writer);
+
 }

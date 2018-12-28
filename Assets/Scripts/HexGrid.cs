@@ -50,20 +50,16 @@ public class HexGrid : MonoBehaviour {
 	void Awake () {
 		HexMetrics.noiseSource = noiseSource;
 		HexMetrics.InitializeHashGrid(seed);
-		HexUnit.unitPrefab = unitPrefab;
 		cellShaderData = gameObject.AddComponent<HexCellShaderData>();
 		cellShaderData.Grid = this;
 		CreateMap(cellCountX, cellCountZ, wrapping);
 	}
 
-	public void AddUnit (HexUnit unit, HexCell location, float orientation, int playerNumber) {
+	public void AddUnit (HexUnit unit, HexCell location, float orientation) {
 		units.Add(unit);
 		unit.Grid = this;
 		unit.Location = location;
 		unit.Orientation = orientation;
-        Player player = gameController.GetPlayer(playerNumber);
-        unit.transform.SetParent(player.transform);
-        player.AddUnit(unit);
 	}
 
     public void AddCity(HexCell cell)
@@ -170,7 +166,6 @@ public class HexGrid : MonoBehaviour {
 		if (!HexMetrics.noiseSource) {
 			HexMetrics.noiseSource = noiseSource;
 			HexMetrics.InitializeHashGrid(seed);
-			HexUnit.unitPrefab = unitPrefab;
 			HexMetrics.wrapSize = wrapping ? cellCountX : 0;
 			ResetVisibility();
 		}
@@ -295,10 +290,10 @@ public class HexGrid : MonoBehaviour {
 			cells[i].Save(writer);
 		}
 
-		writer.Write(units.Count);
-		for (int i = 0; i < units.Count; i++) {
-			units[i].Save(writer);
-		}
+		//writer.Write(units.Count);
+		//for (int i = 0; i < units.Count; i++) {
+		//	units[i].Save(writer);
+		//}
 
         gameController.Save(writer);
     }
@@ -308,11 +303,9 @@ public class HexGrid : MonoBehaviour {
 		ClearUnits();
         ClearCitiesAndStates();
         int x = 20, z = 15;
-		if (header >= 1) {
-			x = reader.ReadInt32();
-			z = reader.ReadInt32();
-		}
-		bool wrapping = header >= 5 ? reader.ReadBoolean() : false;
+        x = reader.ReadInt32();
+        z = reader.ReadInt32();
+        bool wrapping = reader.ReadBoolean();
 		if (x != cellCountX || z != cellCountZ || this.wrapping != wrapping) {
 			if (!CreateMap(x, z, wrapping)) {
 				return;
@@ -329,20 +322,11 @@ public class HexGrid : MonoBehaviour {
 			chunks[i].Refresh();
 		}
 
-		if (header >= 2) {
-			int unitCount = reader.ReadInt32();
-			for (int i = 0; i < unitCount; i++) {
-				HexUnit.Load(reader, this, header);
-			}
-		}
-        if (header >= 7)
+        gameController.Load(reader, header, this);
+        int cityCount = reader.ReadInt32();
+        for (int i = 0; i < cityCount; i++)
         {
-            gameController.Load(reader, header);
-            int cityCount = reader.ReadInt32();
-            for (int i = 0; i < cityCount; i++)
-            {
-                City.Load(reader, gameController, this, header);
-            }
+            City.Load(reader, gameController, this, header);
         }
         cellShaderData.ImmediateMode = originalImmediateMode;
 	}
