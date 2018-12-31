@@ -6,8 +6,8 @@ Material:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: Urban
-  m_Shader: {fileID: 4800000, guid: d94279759e5a64a69ab00da5cf1fcf16, type: 3}
+  m_Name: Wall
+  m_Shader: {fileID: 4800000, guid: dd3815f24cdb6fd41b4ef540433b3904, type: 3}
   m_ShaderKeywords: _EMISSION
   m_LightmapFlags: 1
   m_EnableInstancingVariants: 0

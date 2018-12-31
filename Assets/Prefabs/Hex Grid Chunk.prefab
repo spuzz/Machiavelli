@@ -432,7 +432,7 @@ MeshRenderer:
   m_ReflectionProbeUsage: 1
   m_RenderingLayerMask: 4294967295
   m_Materials:
-  - {fileID: 2100000, guid: 1898e7bc099ca4ac7b3cde78088ff4ea, type: 2}
+  - {fileID: 2100000, guid: e86f8e51ffe683e49b5f17f2ada94ded, type: 2}
   m_StaticBatchInfo:
     firstSubMesh: 0
     subMeshCount: 0
@@ -768,6 +768,7 @@ MonoBehaviour:
   - {fileID: 4000013750885840, guid: f2967fed6444e43559e32916c2465d27, type: 2}
   - {fileID: 4000011263270592, guid: 4c44e7abe9d6c464aafa47b7c0ec0b95, type: 2}
   - {fileID: 4000011263270592, guid: cb7be9a74fd6e4cbdb5be2ac7319e699, type: 2}
+  featureColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &114000013445900128
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -795,7 +796,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   useCollider: 0
-  useCellData: 0
+  useCellData: 1
   useUVCoordinates: 0
   useUV2Coordinates: 0
 --- !u!223 &223000012302594078

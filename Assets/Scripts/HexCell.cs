@@ -59,7 +59,36 @@ public class HexCell : MonoBehaviour {
 		}
 	}
 
-	public int ViewElevation {
+    Color cellColor = Color.black;
+    public Color CellColor
+    {
+        get
+        {
+            return cellColor;
+        }
+
+        set
+        {
+            cellColor = value;
+        }
+    }
+
+    Color cellSecondColor = Color.black;
+    public Color CellSecondColor
+    {
+        get
+        {
+            return cellSecondColor;
+        }
+
+        set
+        {
+            cellSecondColor = value;
+        }
+    }
+
+
+    public int ViewElevation {
 		get {
 			return elevation >= waterLevel ? elevation : waterLevel;
 		}
@@ -279,7 +308,8 @@ public class HexCell : MonoBehaviour {
 
 	public HexCellShaderData ShaderData { get; set; }
 
-	int terrainTypeIndex;
+
+    int terrainTypeIndex;
 
 	int elevation = int.MinValue;
 	int waterLevel;

@@ -20,6 +20,21 @@ public abstract class Player : MonoBehaviour {
         set { playerNumber = value;  }
     }
 
+    public Color Color
+    {
+        get
+        {
+            return color;
+        }
+
+        set
+        {
+            color = value;
+        }
+    }
+
+    Color color;
+
     public List<Agent> agents = new List<Agent>();
     private void Awake()
     {

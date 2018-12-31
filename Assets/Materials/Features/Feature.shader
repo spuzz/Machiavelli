@@ -29,6 +29,7 @@
 		struct Input {
 			float2 uv_MainTex;
 			float2 visibility;
+			float4 color : COLOR;
 		};
 
 		void vert (inout appdata_full v, out Input data) {
@@ -46,10 +47,12 @@
 			data.visibility.x = cellData.x;
 			data.visibility.x = lerp(0.25, 1, data.visibility.x);
 			data.visibility.y = cellData.y;
+
+			data.color[0].x = 0.1;
 		}
 
 		void surf (Input IN, inout SurfaceOutputStandardSpecular o) {
-			fixed4 c = tex2D (_MainTex, IN.uv_MainTex) * _Color;
+			fixed4 c = tex2D(_MainTex, IN.uv_MainTex) * _Color;
 			float explored = IN.visibility.y;
 			o.Albedo = c.rgb * (IN.visibility.x * explored);
 			o.Specular = _Specular * explored;

@@ -13,7 +13,10 @@ public class HexFeatureManager : MonoBehaviour {
 
 	Transform container;
 
-	public void Clear () {
+    public Color featureColor;
+    public Color secondaryColor;
+
+    public void Clear () {
 		if (container) {
 			Destroy(container.gameObject);
 		}
@@ -110,9 +113,11 @@ public class HexFeatureManager : MonoBehaviour {
 	public void AddWall (
 		EdgeVertices near, HexCell nearCell,
 		EdgeVertices far, HexCell farCell,
-		bool hasRiver, bool hasRoad
+		bool hasRiver, bool hasRoad, Color featureColor, Color secondaryColor
 	) {
-		if (
+        this.featureColor = featureColor;
+        this.secondaryColor = secondaryColor;
+        if (
 			nearCell.Walled != farCell.Walled &&
 			!nearCell.IsUnderwater && !farCell.IsUnderwater &&
 			nearCell.GetEdgeType(farCell) != HexEdgeType.Cliff
@@ -133,9 +138,12 @@ public class HexFeatureManager : MonoBehaviour {
 	public void AddWall (
 		Vector3 c1, HexCell cell1,
 		Vector3 c2, HexCell cell2,
-		Vector3 c3, HexCell cell3
-	) {
-		if (cell1.Walled) {
+		Vector3 c3, HexCell cell3,
+        Color featureColor, Color secondaryColor
+    ) {
+        this.featureColor = featureColor;
+        this.secondaryColor = secondaryColor;
+        if (cell1.Walled) {
 			if (cell2.Walled) {
 				if (!cell3.Walled) {
 					AddWallSegment(c3, cell3, c1, cell1, c2, cell2);
@@ -187,23 +195,29 @@ public class HexFeatureManager : MonoBehaviour {
 		v3.y = leftTop;
 		v4.y = rightTop;
 		walls.AddQuadUnperturbed(v1, v2, v3, v4);
-
-		Vector3 t1 = v3, t2 = v4;
+        walls.AddQuadCellData(v1, new Color(0,0,0, 1), new Color(featureColor.r/ 2, featureColor.g/2,featureColor.b/2,1), new Color(featureColor.r / 2, featureColor.g / 2, featureColor.b / 2, 1), featureColor);
+        Vector3 t1 = v3, t2 = v4;
 
 		v1 = v3 = left + leftThicknessOffset;
 		v2 = v4 = right + rightThicknessOffset;
 		v3.y = leftTop;
 		v4.y = rightTop;
 		walls.AddQuadUnperturbed(v2, v1, v4, v3);
+        walls.AddQuadCellData(v1, new Color(0, 0, 0, 1f), new Color(featureColor.r / 2, featureColor.g / 2, featureColor.b / 2, 1), new Color(featureColor.r / 2, featureColor.g / 2, featureColor.b / 2, 1), featureColor);
 
-		walls.AddQuadUnperturbed(t1, t2, v3, v4);
+        walls.AddQuadUnperturbed(t1, t2, v3, v4);
+        walls.AddQuadCellData(v1, new Color(0, 0, 0, 1f), new Color(featureColor.r / 2, featureColor.g / 2, featureColor.b / 2, 1), new Color(featureColor.r / 2, featureColor.g / 2, featureColor.b / 2, 1), featureColor);
 
-		if (addTower) {
+        if (addTower) {
 			Transform towerInstance = Instantiate(wallTower);
 			towerInstance.transform.localPosition = (left + right) * 0.5f;
 			Vector3 rightDirection = right - left;
 			rightDirection.y = 0f;
 			towerInstance.transform.right = rightDirection;
+            foreach(MeshRenderer renderer in towerInstance.GetComponentsInChildren<MeshRenderer>())
+            {
+                renderer.material.color = secondaryColor;
+            }
 			towerInstance.SetParent(container, false);
 		}
 	}
@@ -263,7 +277,8 @@ public class HexFeatureManager : MonoBehaviour {
 		v2 = v4 = center + thickness;
 		v3.y = v4.y = center.y + HexMetrics.wallHeight;
 		walls.AddQuadUnperturbed(v1, v2, v3, v4);
-	}
+        walls.AddQuadCellData(v1, featureColor, featureColor, featureColor, featureColor);
+    }
 
 	void AddWallWedge (Vector3 near, Vector3 far, Vector3 point) {
 		near = HexMetrics.Perturb(near);
@@ -282,7 +297,10 @@ public class HexFeatureManager : MonoBehaviour {
 		v3.y = v4.y = pointTop.y = center.y + HexMetrics.wallHeight;
 
 		walls.AddQuadUnperturbed(v1, point, v3, pointTop);
-		walls.AddQuadUnperturbed(point, v2, pointTop, v4);
-		walls.AddTriangleUnperturbed(pointTop, v3, v4);
+        walls.AddQuadCellData(v1, featureColor, featureColor, featureColor, featureColor);
+        walls.AddQuadUnperturbed(point, v2, pointTop, v4);
+        walls.AddQuadCellData(v1, featureColor, featureColor, featureColor, featureColor);
+        walls.AddTriangleUnperturbed(pointTop, v3, v4);
+        walls.AddTriangleCellData(v1, featureColor);
 	}
 }

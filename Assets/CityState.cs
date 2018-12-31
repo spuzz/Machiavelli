@@ -6,22 +6,50 @@ using UnityEngine;
 
 public class CityState : MonoBehaviour
 {
-
+    static int cityStateIDCounter = 1;
     List<City> cities = new List<City>();
     [SerializeField] List<CombatUnit> units = new List<CombatUnit>();
-    Color color;
+    
     int cityStateID;
 
     GameController gameController;
 
+    
+
     private void Awake()
     {
         gameController = FindObjectOfType<GameController>();
+        cityStateID = cityStateIDCounter;
+        cityStateIDCounter++;
     }
+
+    Color color = Color.black;
     public Color Color
     {
         get { return color; }
         set { color = value; }
+    }
+
+    Color towerColor = Color.black;
+    public Color TowerColor
+    {
+        get { return towerColor; }
+        set { towerColor = value; }
+    }
+
+    Player player;
+    public Player Player
+    {
+        get
+        {
+            return player;
+        }
+
+        set
+        {
+            player = value;
+            towerColor = player.Color;
+        }
     }
 
     public int CityStateID
@@ -30,6 +58,12 @@ public class CityState : MonoBehaviour
         set { cityStateID = value; }
     }
 
+
+    public void PickColor()
+    {
+
+        Color = gameController.GetNewCityStateColor();
+    }
     public void AddCity(City city)
     {
         cities.Add(city);
@@ -46,6 +80,7 @@ public class CityState : MonoBehaviour
     }
     public void DestroyCityState()
     {
+        gameController.ReturnCityStateColor(color);
         Destroy(gameObject);
     }
 
@@ -58,6 +93,9 @@ public class CityState : MonoBehaviour
     public void Save(BinaryWriter writer)
     {
         writer.Write(CityStateID);
+        writer.Write(Color.r);
+        writer.Write(Color.g);
+        writer.Write(Color.b);
         writer.Write(units.Count);
         for (int i = 0; i < units.Count; i++)
         {
@@ -69,6 +107,9 @@ public class CityState : MonoBehaviour
     {
         CityState instance = gameController.CreateCityState();
         instance.CityStateID = reader.ReadInt32();
+        Color color = new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), 1.0f);
+        gameController.RemoveCityStateColor(color);
+        instance.Color = color;
         int unitCount = reader.ReadInt32();
         for (int i = 0; i < unitCount; i++)
         {

@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
+using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
 {
@@ -13,6 +14,8 @@ public class GameController : MonoBehaviour
     [SerializeField] GameObject playersObject;
     [SerializeField] AIPlayer aiPlayerPrefab;
 
+    [SerializeField] List<Color> possibleCityStateColors;
+    [SerializeField] List<Color> possiblePlayerColors;
     public CityState cityStatePrefab;
 
     List<CityState> cityStates = new List<CityState>();
@@ -28,6 +31,7 @@ public class GameController : MonoBehaviour
     void Start()
     {
         turn = 1;
+        humanPlayer.Color = GetNewPlayerColor();
     }
 
     public int PlayerCount()
@@ -95,10 +99,16 @@ public class GameController : MonoBehaviour
             cityState.RemoveCity(city);
             if(cityState.GetCityCount() == 0)
             {
-                cityStates.Remove(cityState);
-                cityState.DestroyCityState();
+                DestroyCityState(cityState);
             }
         }
+    }
+
+    private void DestroyCityState(CityState cityState)
+    {
+        cityStates.Remove(cityState);
+        possibleCityStateColors.Add(cityState.Color);
+        cityState.DestroyCityState();
     }
 
     public int CityStateCount()
@@ -120,7 +130,9 @@ public class GameController : MonoBehaviour
     {
         CityState instance = Instantiate(cityStatePrefab);
         instance.transform.SetParent(cityStatesObject.transform);
-        cityStates.Add(instance);
+        instance.PickColor();
+        instance.Player = humanPlayer;
+        cityStates.Add(instance); 
         return instance;
     }
 
@@ -130,6 +142,7 @@ public class GameController : MonoBehaviour
     }
     public void RemoveCityState(CityState cityState)
     {
+        possibleCityStateColors.Add(cityState.Color);
         cityStates.Remove(cityState);
     }
 
@@ -155,7 +168,9 @@ public class GameController : MonoBehaviour
     {
         AIPlayer instance = Instantiate(aiPlayerPrefab);
         instance.transform.SetParent(playersObject.transform);
+        instance.Color = GetNewPlayerColor();
         players.Add(instance);
+        
         return instance;
     }
 
@@ -187,6 +202,31 @@ public class GameController : MonoBehaviour
 
     }
 
+    public Color GetNewCityStateColor()
+    {
+        int colorIndex = Random.Range(0, possibleCityStateColors.Count - 1);
+        Color color = possibleCityStateColors[colorIndex];
+        possibleCityStateColors.Remove(color);
+        return color;
+    }
+
+    public Color GetNewPlayerColor()
+    {
+        int colorIndex = Random.Range(0, possiblePlayerColors.Count - 1);
+        Color color = possiblePlayerColors[colorIndex];
+        possiblePlayerColors.Remove(color);
+        return color;
+    }
+
+    public void ReturnCityStateColor(Color color)
+    {
+        possibleCityStateColors.Add(color);
+    }
+
+    public void RemoveCityStateColor(Color color)
+    {
+        possibleCityStateColors.Remove(color);
+    }
     public void Save(BinaryWriter writer)
     {
         HumanPlayer.Save(writer);

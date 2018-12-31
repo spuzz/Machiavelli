@@ -35,11 +35,15 @@ public class City : MonoBehaviour {
     {
         hexCell = cell;
         hexCell.Walled = true;
+        hexCell.CellColor = cityStateOwner.Color;
+        hexCell.CellSecondColor = cityStateOwner.TowerColor;
         ownedCells.Clear();
         for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
         {
             HexCell neighbour = hexCell.GetNeighbor(d);
-            if(neighbour)
+            neighbour.CellColor = cityStateOwner.Color;
+            neighbour.CellSecondColor = cityStateOwner.TowerColor;
+            if (neighbour)
             {
                 ownedCells.Add(neighbour);
             }

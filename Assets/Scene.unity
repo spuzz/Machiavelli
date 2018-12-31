@@ -8837,6 +8837,21 @@ MonoBehaviour:
   playersObject: {fileID: 1242915879}
   aiPlayerPrefab: {fileID: 114520537494477776, guid: b9471c10c1f52a444bbc7af1ac73783e,
     type: 2}
+  possibleCityStateColors:
+  - {r: 1, g: 0.0047169924, b: 0.0047169924, a: 0}
+  - {r: 1, g: 0.7812411, b: 0, a: 0}
+  - {r: 0.041301847, g: 1, b: 0, a: 0}
+  - {r: 1, g: 0, b: 0.8634262, a: 0}
+  - {r: 0.43138638, g: 0, b: 0.7735849, a: 0}
+  - {r: 0, g: 0.06273818, b: 1, a: 0}
+  - {r: 1, g: 0.9504018, b: 0, a: 0}
+  - {r: 0, g: 1, b: 0.95873094, a: 0}
+  - {r: 0.088730074, g: 0.38679248, b: 0, a: 0}
+  - {r: 0.5188679, g: 0.0042562773, b: 0, a: 0}
+  possiblePlayerColors:
+  - {r: 0, g: 1, b: 0, a: 0}
+  - {r: 0, g: 0, b: 1, a: 0}
+  - {r: 1, g: 0.7606493, b: 0, a: 0}
   cityStatePrefab: {fileID: 114520082041238686, guid: d96be0838ad31724f8698ca73d20e7d2,
     type: 2}
   humanPlayer: {fileID: 557473047}

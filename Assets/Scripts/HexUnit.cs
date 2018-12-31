@@ -247,7 +247,7 @@ public class HexUnit : MonoBehaviour {
 			moveCost = 1;
 		}
 		else if (fromCell.Walled != toCell.Walled) {
-			return -1;
+			return 10;
 		}
 		else {
 			moveCost = (edgeType == HexEdgeType.Flat || fromCell.Elevation > toCell.Elevation) ? 5 : 10;
