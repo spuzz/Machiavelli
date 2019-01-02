@@ -162,14 +162,7 @@ public class HexMapEditor : MonoBehaviour {
 			}
             if (Input.GetKeyDown(KeyCode.H))
             {
-                if (Input.GetKey(KeyCode.LeftShift))
-                {
-                    DestroyCityStateUnit();
-                }
-                else
-                {
-                    CreateCityStateUnit();
-                }
+                CreateCityStateUnit();
                 return;
             }
         }
@@ -196,7 +189,7 @@ public class HexMapEditor : MonoBehaviour {
 
 	void CreateUnit () {
 		HexCell cell = GetCellUnderCursor();
-		if (players.options.Count > 0 && cell && !cell.Unit) {
+		if (players.options.Count > 0 && cell && cell.CanUnitMoveToCell(HexUnit.UnitType.AGENT)) {
             string name = playerUnits.options[playerUnits.value].text;
             string playerName = players.options[players.value].text;
             Player player;
@@ -226,15 +219,15 @@ public class HexMapEditor : MonoBehaviour {
     }
 	void DestroyUnit () {
 		HexCell cell = GetCellUnderCursor();
-		if (cell && cell.Unit) {
-			hexGrid.RemoveUnit(cell.Unit);
+		if (cell && cell.GetTopUnit()) {
+			hexGrid.RemoveUnit(cell.GetTopUnit());
 		}
 	}
 
     void CreateCityStateUnit()
     {
         HexCell cell = GetCellUnderCursor();
-        if (cityStates.options.Count > 0 && cell && !cell.Unit)
+        if (cityStates.options.Count > 0 && cell && cell.CanUnitMoveToCell(HexUnit.UnitType.COMBAT))
         {
             string name = cityStateUnits.options[cityStateUnits.value].text;
             int cityStateID = System.Convert.ToInt32(cityStates.options[cityStates.value].text);
@@ -244,16 +237,6 @@ public class HexMapEditor : MonoBehaviour {
             gameController.CreateCityStateUnit(hexUnit, cityStateID);
         }
     }
-
-    void DestroyCityStateUnit()
-    {
-        HexCell cell = GetCellUnderCursor();
-        if (cell && cell.Unit)
-        {
-            hexGrid.RemoveUnit(cell.Unit);
-        }
-    }
-
 
     void HandleInput () {
 		HexCell currentCell = GetCellUnderCursor();

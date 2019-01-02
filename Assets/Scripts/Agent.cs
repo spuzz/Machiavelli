@@ -16,4 +16,13 @@ public class Agent : Unit {
         Agent agent = unit.GetComponent<Agent>();
         return agent;
     }
+
+    public override bool CanAttack(Unit unit)
+    {
+        if (unit.GetPlayer() && unit.GetPlayer() != GetPlayer())
+        {
+            return true;
+        }
+        return false;
+    }
 }

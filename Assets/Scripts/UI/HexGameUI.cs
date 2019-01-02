@@ -40,8 +40,8 @@ public class HexGameUI : MonoBehaviour {
 	void DoSelection () {
 		grid.ClearPath();
 		UpdateCurrentCell();
-		if (currentCell && currentCell.Unit && currentCell.Unit.Controllable) {
-			selectedUnit = currentCell.Unit;
+		if (currentCell && currentCell.GetTopUnit() && currentCell.GetTopUnit().Controllable) {
+			selectedUnit = currentCell.GetTopUnit();
 		}
 	}
 

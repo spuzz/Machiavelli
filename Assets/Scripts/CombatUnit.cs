@@ -18,4 +18,13 @@ public class CombatUnit : Unit
         CombatUnit combatUnit = unit.GetComponent<CombatUnit>();
         return combatUnit;
     }
+
+    public override bool CanAttack(Unit unit)
+    {
+        if(unit.CityState && unit.CityState != CityState)
+        {
+            return true;
+        }
+        return false;
+    }
 }

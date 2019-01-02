@@ -54,7 +54,11 @@ public abstract class Player : MonoBehaviour {
     {
         foreach (Agent agent in agents)
         {
-            agent.MoveUnit();
+            if(agent.CheckPath())
+            {
+                agent.MoveUnit();
+            }
+            
         }
     }
 

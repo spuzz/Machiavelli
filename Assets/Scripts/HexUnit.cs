@@ -2,13 +2,20 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System;
 
 public class HexUnit : MonoBehaviour {
 
 	const float rotationSpeed = 360f;
 	const float travelSpeed = 1f;
+    const float fightSpeed = 2f;
+    public enum UnitType
+    {
+        COMBAT,
+        AGENT
+    }
 
-	
+    [SerializeField] Transform meshChild;
 
     Animator animator;
 	public HexGrid Grid { get; set; }
@@ -24,10 +31,10 @@ public class HexUnit : MonoBehaviour {
 		set {
 			if (location) {
 				ChangeVisibility(location, false);
-				location.Unit = null;
+                location.RemoveUnit(this);
 			}
 			location = value;
-			value.Unit = this;
+            value.AddUnit(this);
             ChangeVisibility(value, true);
 			transform.localPosition = value.Position;
 			Grid.MakeChildOfColumn(transform, value.ColumnIndex);
@@ -97,6 +104,10 @@ public class HexUnit : MonoBehaviour {
         }
     }
 
+    public void EnableMesh(bool enable)
+    {
+        meshChild.gameObject.SetActive(enable);
+    }
     public bool Controllable
     {
         get
@@ -110,24 +121,50 @@ public class HexUnit : MonoBehaviour {
         }
     }
 
+    UnitType hexUnitType = UnitType.COMBAT;
+
+    public UnitType HexUnitType
+    {
+        get
+        {
+            return hexUnitType;
+        }
+
+        set
+        {
+            hexUnitType = value;
+        }
+    }
+
     bool controllable = false;
 
 	float orientation;
 
 	List<HexCell> pathToTravel;
 
+    HexCell attackCell;
 	public void ValidateLocation () {
 		transform.localPosition = location.Position;
 	}
 
 	public bool IsValidDestination (HexCell cell) {
-		return cell.IsExplored && !cell.IsUnderwater && !cell.Unit;
+		return cell.IsExplored && !cell.IsUnderwater && cell.CanUnitMoveToCell(this.HexUnitType);
 	}
 
-	public void Travel (List<HexCell> path) {
-		location.Unit = null;
+    public bool IsValidAttackDestination(HexCell cell)
+    {
+        if(cell.GetFightableUnit(this))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public void Travel (List<HexCell> path, HexCell attackCell = null) {
+        this.attackCell = attackCell;
+        location.RemoveUnit(this);
 		location = path[path.Count - 1];
-		location.Unit = this;
+        location.AddUnit(this);
 		pathToTravel = path;
 		StopAllCoroutines();
 		StartCoroutine(TravelPath());
@@ -166,7 +203,14 @@ public class HexUnit : MonoBehaviour {
 
 			c = (b + currentTravelLocation.Position) * 0.5f;
             ChangeVisibility(pathToTravel[i], true);
-
+            if(pathToTravel[i].IsVisible)
+            {
+                EnableMesh(true);
+            }
+            else
+            {
+                EnableMesh(false);
+            }
 			for (; t < 1f; t += Time.deltaTime * travelSpeed) {
 				transform.localPosition = Bezier.GetPoint(a, b, c, t);
 				Vector3 d = Bezier.GetDerivative(a, b, c, t);
@@ -177,13 +221,45 @@ public class HexUnit : MonoBehaviour {
             ChangeVisibility(pathToTravel[i], false);
 			t -= 1f;
 		}
-		currentTravelLocation = null;
-
-		a = c;
-		b = location.Position;
-		c = b;
+        a = c;
+        b = location.Position;
+        c = b;
         ChangeVisibility(location, true);
-		for (; t < 1f; t += Time.deltaTime * travelSpeed) {
+        if (location.IsVisible)
+        {
+            EnableMesh(true);
+        }
+
+        if (attackCell)
+        {
+            
+            HexUnit unitToFight = attackCell.GetFightableUnit(this);
+            yield return LookAt(unitToFight.Location.Position);
+            yield return unitToFight.LookAt(location.Position);
+            if (unitToFight)
+            {
+                float attackTime = 0;
+                animator.SetBool("Attacking", true);
+                unitToFight.animator.SetBool("Attacking", true);
+                for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
+                {
+                    yield return null;
+                }
+                animator.SetBool("Attacking", false);
+                unitToFight.animator.SetBool("Attacking", false);
+                if (unitToFight.GetComponent<Unit>().HitPoints <= 0)
+                {
+                    unitToFight.Die();
+                    unitToFight.DieAnimationAndRemove();
+                }
+            }
+        }
+        currentTravelLocation = null;
+
+
+
+
+        for (; t < 1f; t += Time.deltaTime * travelSpeed) {
 			transform.localPosition = Bezier.GetPoint(a, b, c, t);
 			Vector3 d = Bezier.GetDerivative(a, b, c, t);
 			d.y = 0f;
@@ -192,7 +268,8 @@ public class HexUnit : MonoBehaviour {
 		}
 
 		transform.localPosition = location.Position;
-		orientation = transform.localRotation.eulerAngles.y;
+        location.UpdateVision();
+        orientation = transform.localRotation.eulerAngles.y;
 		ListPool<HexCell>.Add(pathToTravel);
 		pathToTravel = null;
         animator.SetBool("Walking", false);
@@ -280,11 +357,24 @@ public class HexUnit : MonoBehaviour {
 		if (location) {
             ChangeVisibility(location, false);
 		}
-		location.Unit = null;
-		Destroy(gameObject);
+        location.RemoveUnit(this);
+		
 	}
 
-	public void Save (BinaryWriter writer) {
+    public void DieAnimationAndRemove()
+    {
+        StartCoroutine(Death());
+        
+    }
+
+    IEnumerator Death()
+    {
+        animator.SetBool("Dying", true);
+        yield return new WaitForSeconds(2);
+        Destroy(gameObject);
+    }
+
+    public void Save (BinaryWriter writer) {
 		location.coordinates.Save(writer);
 		writer.Write(orientation);
         writer.Write(UnitPrefabName);

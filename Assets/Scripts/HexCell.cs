@@ -2,6 +2,8 @@
 using UnityEngine.UI;
 using System.IO;
 using System;
+using System.Collections.Generic;
+using System.Linq;
 
 public class HexCell : MonoBehaviour {
 
@@ -290,7 +292,7 @@ public class HexCell : MonoBehaviour {
 		}
 	}
 
-	public HexUnit Unit { get; set; }
+    public List<HexUnit> hexUnits = new List<HexUnit>();
 
 	public HexCell PathFrom { get; set; }
 
@@ -334,27 +336,61 @@ public class HexCell : MonoBehaviour {
 
 	[SerializeField]
 	bool[] roads;
+    private void DisableVision()
+    {
+        foreach (HexUnit unit in hexUnits)
+        {
+            unit.EnableMesh(false);
+        }
+    }
 
-	public void IncreaseVisibility () {
+    public void UpdateVision()
+    {
+        if(visibility > 0)
+        {
+            bool lastVisibleUnit = false;
+            for (int a = hexUnits.Count - 1; a >= 0; a--)
+            {
+                
+                if(lastVisibleUnit == false)
+                {
+                    if(hexUnits[a].transform.localPosition == this.Position)
+                    {
+                        lastVisibleUnit = true;
+                        hexUnits[a].EnableMesh(true);
+                    }
+                }
+                else
+                {
+                    hexUnits[a].EnableMesh(false);
+                }
+            }
+        }
+    }
+    public void IncreaseVisibility () {
 		visibility += 1;
-		if (visibility == 1) {
-			IsExplored = true;
-			ShaderData.RefreshVisibility(this);
-		}
-	}
+		if (visibility == 1)
+        {
+            IsExplored = true;
+            ShaderData.RefreshVisibility(this);
+            UpdateVision();
+        }
+    }
 
-	public void DecreaseVisibility () {
+    public void DecreaseVisibility () {
 		visibility -= 1;
 		if (visibility == 0) {
 			ShaderData.RefreshVisibility(this);
-		}
+            DisableVision();
+        }
 	}
 
 	public void ResetVisibility () {
 		if (visibility > 0) {
 			visibility = 0;
 			ShaderData.RefreshVisibility(this);
-		}
+            DisableVision();
+        }
 	}
 
 	public HexCell GetNeighbor (HexDirection direction) {
@@ -506,7 +542,54 @@ public class HexCell : MonoBehaviour {
 		RefreshSelfOnly();
 	}
 
-	void RefreshPosition () {
+    public bool CanUnitMoveToCell(HexUnit.UnitType unitType)
+    {
+        if(hexUnits.Find(c => c.HexUnitType == unitType))
+        {
+            return false;
+        }
+        return true;
+    }
+
+    public HexUnit GetFightableUnit(HexUnit unit)
+    {
+        foreach(HexUnit hexUnit in hexUnits)
+        {
+            if(hexUnit.GetComponent<Unit>().CanAttack(unit.GetComponent<Unit>()))
+            {
+                return hexUnit;
+            }
+        }
+        return null;
+    }
+    
+
+
+    public void AddUnit(HexUnit hexUnit)
+    {
+        hexUnits.Add(hexUnit);
+        hexUnits = hexUnits.OrderBy(u => u.HexUnitType).ToList();
+    }
+
+    public void RemoveUnit(HexUnit hexUnit)
+    {
+        hexUnits.Remove(hexUnit);
+        hexUnits = hexUnits.OrderBy(u => u.HexUnitType).ToList();
+        UpdateVision();
+    }
+
+    public HexUnit GetTopUnit()
+    {
+        if(hexUnits.Count == 0)
+        {
+            return null;
+            
+        }
+        return hexUnits[hexUnits.Count - 1];
+
+    }
+
+    void RefreshPosition () {
 		Vector3 position = transform.localPosition;
 		position.y = elevation * HexMetrics.elevationStep;
 		position.y +=
@@ -528,18 +611,27 @@ public class HexCell : MonoBehaviour {
 					neighbor.chunk.Refresh();
 				}
 			}
-			if (Unit) {
-				Unit.ValidateLocation();
+			if (hexUnits.Count > 0) {
+                foreach(HexUnit unit in hexUnits)
+                {
+                    unit.ValidateLocation();
+                }
+				
 			}
 		}
 	}
 
 	void RefreshSelfOnly () {
 		chunk.Refresh();
-		if (Unit) {
-			Unit.ValidateLocation();
-		}
-	}
+        if (hexUnits.Count > 0)
+        {
+            foreach (HexUnit unit in hexUnits)
+            {
+                unit.ValidateLocation();
+            }
+
+        }
+    }
 
 	public void Save (BinaryWriter writer) {
 		writer.Write((byte)terrainTypeIndex);

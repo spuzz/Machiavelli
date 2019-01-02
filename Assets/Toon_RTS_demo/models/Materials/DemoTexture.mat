@@ -7,7 +7,7 @@ Material:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
   m_Name: DemoTexture
-  m_Shader: {fileID: 4800000, guid: d94279759e5a64a69ab00da5cf1fcf16, type: 3}
+  m_Shader: {fileID: 4800000, guid: 5205e1d4186c69c4280d55a41a155401, type: 3}
   m_ShaderKeywords: 
   m_LightmapFlags: 5
   m_EnableInstancingVariants: 0

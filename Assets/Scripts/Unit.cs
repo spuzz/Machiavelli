@@ -2,15 +2,17 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class Unit : MonoBehaviour {
+public abstract class Unit : MonoBehaviour {
 
     [SerializeField] int baseMovement = 2;
     [SerializeField] int movementLeft = 0;
     [SerializeField] HexUnit hexUnit;
     [SerializeField] int baseMovementFactor = 5;
-    List<HexCell> path;
+    [SerializeField] int baseHitPoints = 100;
+    List<HexCell> path = new List<HexCell>();
     Player player;
-
+    HexGrid hexGrid;
+    HexCell fightInCell;
     CityState cityState;
     public CityState CityState
     {
@@ -25,12 +27,28 @@ public class Unit : MonoBehaviour {
         }
     }
 
+    int hitPoints = 1;
+    public int HitPoints
+    {
+        get
+        {
+            return hitPoints;
+        }
+
+        set
+        {
+            hitPoints = value;
+        }
+    }
+
     public int GetMovementLeft()
     {
         return movementLeft;
     }
     void Start () {
         hexUnit.Speed = (baseMovement * baseMovementFactor);
+        hitPoints = baseHitPoints;
+        hexGrid = FindObjectOfType<HexGrid>();
         StartTurn();
     }
 	
@@ -56,6 +74,24 @@ public class Unit : MonoBehaviour {
         movementLeft = baseMovement * baseMovementFactor;
     }
 
+    public bool CheckPath()
+    {
+        if (path.Count == 0)
+        {
+            return false;
+        }
+
+        hexGrid.FindPath(hexUnit.Location, path[path.Count - 1],hexUnit);
+        path = hexGrid.GetPath();
+        if (path.Count == 0)
+        {
+            return false;
+        }
+        else
+        {
+            return true;
+        }
+    }
     public void MoveUnit()
     {
         if(path.Count == 0)
@@ -86,11 +122,22 @@ public class Unit : MonoBehaviour {
                 break;
             }
         }
+        
         if(move.Count > 1)
         {
-            hexUnit.Travel(move);
+            HexCell attackCell = null;
+            HexUnit unitToFight = move[move.Count - 1].GetFightableUnit(hexUnit);
+            if (unitToFight)
+            {
+                attackCell = move[move.Count - 1];
+                unitToFight.GetComponent<Unit>().HitPoints -= 50;
+                move[move.Count - 1] = move[move.Count - 2];
+            }
+            hexUnit.Travel(move, attackCell);
             path.RemoveRange(0, move.Count - 1);
         }
 
     }
+
+    public abstract bool CanAttack(Unit unit);
 }

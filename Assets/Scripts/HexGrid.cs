@@ -385,7 +385,7 @@ public class HexGrid : MonoBehaviour {
 		ShowPath(unit.Speed);
 	}
 
-	bool Search (HexCell fromCell, HexCell toCell, HexUnit unit) {
+    bool Search (HexCell fromCell, HexCell toCell, HexUnit unit) {
 		int speed = unit.Speed;
 		searchFrontierPhase += 2;
 		if (searchFrontier == null) {
@@ -417,7 +417,11 @@ public class HexGrid : MonoBehaviour {
 					continue;
 				}
 				if (!unit.IsValidDestination(neighbor)) {
-					continue;
+                    if(neighbor != toCell || !unit.IsValidAttackDestination(neighbor))
+                    {
+                        continue;
+                    }
+					
 				}
 				int moveCost = unit.GetMoveCost(current, neighbor, d);
 				if (moveCost < 0) {

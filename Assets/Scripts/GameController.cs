@@ -152,6 +152,7 @@ public class GameController : MonoBehaviour
         {
             hexUnit.Visible = true;
             hexUnit.Controllable = true;
+            hexUnit.HexUnitType = HexUnit.UnitType.AGENT;
         }
         Agent agent = hexUnit.GetComponent<Agent>();
         player.AddAgent(agent);

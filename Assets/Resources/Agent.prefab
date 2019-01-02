@@ -2538,6 +2538,7 @@ MonoBehaviour:
   movementLeft: 0
   hexUnit: {fileID: 114784200629424832}
   baseMovementFactor: 5
+  baseHitPoints: 100
 --- !u!114 &114784200629424832
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2549,6 +2550,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 434bba114c5e84a0f8fb19ef55b2766a, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  meshChild: {fileID: 4831991373295930}
 --- !u!137 &137388095377761864
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1
