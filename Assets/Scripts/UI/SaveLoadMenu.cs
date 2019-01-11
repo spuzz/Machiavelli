@@ -5,7 +5,7 @@ using System.IO;
 
 public class SaveLoadMenu : MonoBehaviour {
 
-	const int mapFileVersion = 1;
+	const int mapFileVersion = 2;
 
 	public Text menuLabel, actionButtonLabel;
 
@@ -17,6 +17,7 @@ public class SaveLoadMenu : MonoBehaviour {
 
 	public HexGrid hexGrid;
 
+    public HexMapEditor hexMapEditor;
 	bool saveMode;
 
 	public void Open (bool saveMode) {
@@ -84,7 +85,7 @@ public class SaveLoadMenu : MonoBehaviour {
 		}
 	}
 
-	string GetSelectedPath () {
+	public string GetSelectedPath () {
 		string mapName = nameInput.text;
 		if (mapName.Length == 0) {
 			return null;
@@ -92,7 +93,7 @@ public class SaveLoadMenu : MonoBehaviour {
 		return Path.Combine(Application.persistentDataPath, mapName + ".map");
 	}
 
-	void Save (string path) {
+    void Save (string path) {
 		using (
 			BinaryWriter writer =
 			new BinaryWriter(File.Open(path, FileMode.Create))
@@ -102,7 +103,7 @@ public class SaveLoadMenu : MonoBehaviour {
 		}
 	}
 
-	void Load (string path) {
+	public void Load (string path) {
 		if (!File.Exists(path)) {
 			Debug.LogError("File does not exist " + path);
 			return;
@@ -111,6 +112,7 @@ public class SaveLoadMenu : MonoBehaviour {
 			int header = reader.ReadInt32();
 			if (header <= mapFileVersion) {
 				hexGrid.Load(reader, header);
+                hexGrid.EditMode = hexMapEditor.enabled;
 				HexMapCamera.ValidatePosition();
 			}
 			else {
@@ -118,4 +120,10 @@ public class SaveLoadMenu : MonoBehaviour {
 			}
 		}
 	}
+
+    public void LoadDefaultMap()
+    {
+        string map = Path.Combine(Application.persistentDataPath, "test2.map");
+        Load(map);
+    }
 }

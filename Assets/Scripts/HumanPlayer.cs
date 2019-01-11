@@ -25,7 +25,8 @@ public class HumanPlayer : Player {
         for (int i = 0; i < unitCount; i++)
         {
             Agent agent = Agent.Load(reader, hexGrid, header);
-            agent.GetComponent<HexUnit>().Visible = true;
+            agent.HexUnit.Visible = true;
+            agent.HexUnit.Controllable = true;
             AddAgent(agent);
         }
     }

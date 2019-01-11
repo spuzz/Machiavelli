@@ -22,12 +22,58 @@ public class HexGrid : MonoBehaviour {
 
 	public int seed;
 
+    public MapSetup mapSetup;
 	public bool HasPath {
 		get {
 			return currentPathExists;
 		}
 	}
 
+    public bool EditMode
+    {
+        get
+        {
+            return editMode;
+        }
+
+        set
+        {
+            editMode = value;
+            foreach (HexCell hexCell in cells)
+            {
+                hexCell.EditMode = value;
+            }
+            if (editMode == true)
+            {
+                foreach (City city in cities)
+                {
+                    city.EnableUI(true);
+                }
+
+                foreach (HexUnit hexUnit in units)
+                {
+                    hexUnit.EnableMesh(true);
+                    hexUnit.GetComponent<Unit>().EnableUI(true);
+                }
+            }
+            else
+            {
+                foreach (City city in cities)
+                {
+                    city.EnableUI(false);
+                }
+                foreach (HexUnit hexUnit in units)
+                {
+
+                    hexUnit.EnableMesh(false);
+                    hexUnit.GetComponent<Unit>().EnableUI(false);
+                    hexUnit.Location.UpdateVision();
+                }
+            }
+        }
+    }
+
+    bool editMode;
 	Transform[] columns;
 	HexGridChunk[] chunks;
 	HexCell[] cells;
@@ -44,18 +90,30 @@ public class HexGrid : MonoBehaviour {
 	int currentCenterColumnIndex = -1;
 
 	List<HexUnit> units = new List<HexUnit>();
+    List<City> cities = new List<City>();
 
-	HexCellShaderData cellShaderData;
-
+    HexCellShaderData cellShaderData;
 	void Awake () {
 		HexMetrics.noiseSource = noiseSource;
 		HexMetrics.InitializeHashGrid(seed);
 		cellShaderData = gameObject.AddComponent<HexCellShaderData>();
 		cellShaderData.Grid = this;
-		CreateMap(cellCountX, cellCountZ, wrapping);
+        CreateMap(cellCountX, cellCountZ, wrapping);
+        
+		
 	}
 
-	public void AddUnit (HexUnit unit, HexCell location, float orientation) {
+    private void Start()
+    {
+        StartCoroutine(SetupMap());
+    }
+
+    private IEnumerator SetupMap()
+    {
+        yield return mapSetup.SetupMap();
+
+    }
+    public void AddUnit (HexUnit unit, HexCell location, float orientation) {
 		units.Add(unit);
 		unit.Grid = this;
 		unit.Location = location;
@@ -66,21 +124,30 @@ public class HexGrid : MonoBehaviour {
     {
         City instance = Instantiate(cityPrefab);
         instance.transform.localPosition  = HexMetrics.Perturb(cell.Position);
-        gameController.AddCity(instance);
         instance.SetHexCell(cell);
+        cities.Add(instance);
+        gameController.AddCity(instance);
+        
     }
 
     public void AddCity(HexCell cell, CityState cityState)
     {
         City instance = Instantiate(cityPrefab);
         instance.transform.localPosition = HexMetrics.Perturb(cell.Position);
-        instance.SetCityState(cityState);
-        gameController.AddCity(instance);
         instance.SetHexCell(cell);
+        instance.SetCityState(cityState);
+        instance.UpdateUI();
+        cities.Add(instance);
+        gameController.AddCity(instance);
+        
     }
 
     public void RemoveCity(HexCell cell)
     {
+        if(cell.City)
+        {
+            cities.Remove(cell.City);
+        }
         gameController.RemoveCity(cell);
     }
 
@@ -331,7 +398,6 @@ public class HexGrid : MonoBehaviour {
         cellShaderData.ImmediateMode = originalImmediateMode;
 	}
 
-
     public List<HexCell> GetPath () {
 		if (!currentPathExists) {
 			return null;
@@ -377,15 +443,19 @@ public class HexGrid : MonoBehaviour {
 		currentPathTo.EnableHighlight(Color.red);
 	}
 
-	public void FindPath (HexCell fromCell, HexCell toCell, HexUnit unit) {
+	public void FindPath (HexCell fromCell, HexCell toCell, HexUnit unit, bool allowUnexplored = false, bool showPath = true) {
 		ClearPath();
 		currentPathFrom = fromCell;
 		currentPathTo = toCell;
-		currentPathExists = Search(fromCell, toCell, unit);
-		ShowPath(unit.Speed);
+		currentPathExists = Search(fromCell, toCell, unit, allowUnexplored);
+        if(showPath == true)
+        {
+            ShowPath(unit.Speed);
+        }
+		
 	}
 
-    bool Search (HexCell fromCell, HexCell toCell, HexUnit unit) {
+    bool Search (HexCell fromCell, HexCell toCell, HexUnit unit, bool allowUnexplored) {
 		int speed = unit.Speed;
 		searchFrontierPhase += 2;
 		if (searchFrontier == null) {
@@ -416,14 +486,14 @@ public class HexGrid : MonoBehaviour {
 				) {
 					continue;
 				}
-				if (!unit.IsValidDestination(neighbor)) {
+				if (!unit.IsValidDestination(neighbor, allowUnexplored)) {
                     if(neighbor != toCell || !unit.IsValidAttackDestination(neighbor))
                     {
                         continue;
                     }
 					
 				}
-				int moveCost = unit.GetMoveCost(current, neighbor, d);
+				int moveCost = unit.GetMoveCost(current, neighbor, d,allowUnexplored);
 				if (moveCost < 0) {
 					continue;
 				}
@@ -562,4 +632,5 @@ public class HexGrid : MonoBehaviour {
 			columns[i].localPosition = position;
 		}
 	}
+
 }

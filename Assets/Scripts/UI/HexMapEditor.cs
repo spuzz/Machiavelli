@@ -200,7 +200,7 @@ public class HexMapEditor : MonoBehaviour {
             else
             {
                 int playerID = System.Convert.ToInt32(players.options[players.value].text);
-                player = gameController.GetAIPlayer(playerID);
+                player = gameController.GetPlayer(playerID);
             }
             
             HexUnit hexUnit = Instantiate(Resources.Load(name) as GameObject).GetComponent<HexUnit>();
@@ -235,6 +235,28 @@ public class HexMapEditor : MonoBehaviour {
             hexUnit.UnitPrefabName = name;
             hexGrid.AddUnit(hexUnit, cell, Random.Range(0f, 360f));
             gameController.CreateCityStateUnit(hexUnit, cityStateID);
+        }
+    }
+
+    public void SetCityStatePlayer()
+    {
+        int cityStateID = System.Convert.ToInt32(cityStates.options[cityStates.value].text);
+        string playerName = players.options[players.value].text;
+        Player player;
+        if (playerName == "Human Player")
+        {
+            player = gameController.HumanPlayer;
+        }
+        else
+        {
+            int playerID = System.Convert.ToInt32(players.options[players.value].text);
+            player = gameController.GetPlayer(playerID);
+        }
+
+
+        if(player)
+        {
+            gameController.SetCityStatePlayer(player, cityStateID);
         }
     }
 

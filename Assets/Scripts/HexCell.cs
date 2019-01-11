@@ -72,6 +72,7 @@ public class HexCell : MonoBehaviour {
         set
         {
             cellColor = value;
+            Refresh();
         }
     }
 
@@ -86,6 +87,7 @@ public class HexCell : MonoBehaviour {
         set
         {
             cellSecondColor = value;
+            Refresh();
         }
     }
 
@@ -310,6 +312,33 @@ public class HexCell : MonoBehaviour {
 
 	public HexCellShaderData ShaderData { get; set; }
 
+    bool editMode;
+    public bool EditMode
+    {
+        get
+        {
+            return editMode;
+        }
+
+        set
+        {
+            editMode = value;
+        }
+    }
+
+    City city;
+    public City City
+    {
+        get
+        {
+            return city;
+        }
+
+        set
+        {
+            city = value;
+        }
+    }
 
     int terrainTypeIndex;
 
@@ -336,37 +365,62 @@ public class HexCell : MonoBehaviour {
 
 	[SerializeField]
 	bool[] roads;
-    private void DisableVision()
-    {
-        foreach (HexUnit unit in hexUnits)
-        {
-            unit.EnableMesh(false);
-        }
-    }
+
+
 
     public void UpdateVision()
     {
-        if(visibility > 0)
+        if (visibility > 0)
         {
+            if (City)
+            {
+                City.EnableUI(true);
+            }
             bool lastVisibleUnit = false;
             for (int a = hexUnits.Count - 1; a >= 0; a--)
             {
-                
-                if(lastVisibleUnit == false)
+
+                if (lastVisibleUnit == false)
                 {
-                    if(hexUnits[a].transform.localPosition == this.Position)
+                    if (hexUnits[a].transform.localPosition == this.Position)
                     {
                         lastVisibleUnit = true;
-                        hexUnits[a].EnableMesh(true);
+                        if (EditMode == false)
+                        {
+                            hexUnits[a].EnableMesh(true);
+                            hexUnits[a].GetComponent<Unit>().EnableUI(true);
+                        }
+
                     }
                 }
                 else
                 {
+                    if (EditMode == false)
+                    {
+
+                        hexUnits[a].EnableMesh(false);
+                        hexUnits[a].GetComponent<Unit>().EnableUI(false);
+                    }
+                }
+            }
+        }
+        else
+        {
+            for (int a = hexUnits.Count - 1; a >= 0; a--)
+            {
+                if (EditMode == false && hexUnits[a].Visible == false)
+                {
                     hexUnits[a].EnableMesh(false);
+                    hexUnits[a].GetComponent<Unit>().EnableUI(false);
+                    if(City)
+                    {
+                        City.EnableUI(false);
+                    }
                 }
             }
         }
     }
+
     public void IncreaseVisibility () {
 		visibility += 1;
 		if (visibility == 1)
@@ -381,7 +435,7 @@ public class HexCell : MonoBehaviour {
 		visibility -= 1;
 		if (visibility == 0) {
 			ShaderData.RefreshVisibility(this);
-            DisableVision();
+            UpdateVision();
         }
 	}
 
@@ -389,7 +443,7 @@ public class HexCell : MonoBehaviour {
 		if (visibility > 0) {
 			visibility = 0;
 			ShaderData.RefreshVisibility(this);
-            DisableVision();
+            UpdateVision();
         }
 	}
 
@@ -544,7 +598,8 @@ public class HexCell : MonoBehaviour {
 
     public bool CanUnitMoveToCell(HexUnit.UnitType unitType)
     {
-        if(hexUnits.Find(c => c.HexUnitType == unitType))
+        HexUnit hexUnit = hexUnits.Find(c => c.HexUnitType == unitType);
+        if (hexUnit)
         {
             return false;
         }

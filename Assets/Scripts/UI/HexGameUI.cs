@@ -3,17 +3,25 @@ using UnityEngine.EventSystems;
 
 public class HexGameUI : MonoBehaviour {
 
-	public HexGrid grid;
+    public HexGrid grid;
 
-	HexCell currentCell;
+    HexCell currentCell;
 
-	HexUnit selectedUnit;
+    HexUnit selectedUnit;
 
-	public void SetEditMode (bool toggle) {
-		enabled = !toggle;
+    [SerializeField] GameController gameController;
+    [SerializeField] HUD HUD;
+
+    private bool editMode;
+
+    public void SetEditMode(bool toggle) {
+        editMode = toggle;
+        enabled = !toggle;
 		grid.ShowUI(!toggle);
 		grid.ClearPath();
-		if (toggle) {
+        grid.EditMode = toggle;
+
+        if (toggle) {
 			Shader.EnableKeyword("HEX_MAP_EDIT_MODE");
 		}
 		else {
@@ -35,13 +43,19 @@ public class HexGameUI : MonoBehaviour {
 				}
 			}
 		}
-	}
+        if(grid.EditMode != editMode)
+        {
+            SetEditMode(grid.EditMode);
+        }
+
+    }
 
 	void DoSelection () {
 		grid.ClearPath();
 		UpdateCurrentCell();
 		if (currentCell && currentCell.GetTopUnit() && currentCell.GetTopUnit().Controllable) {
 			selectedUnit = currentCell.GetTopUnit();
+            HUD.Unit = selectedUnit.GetComponent<Unit>();
 		}
 	}
 

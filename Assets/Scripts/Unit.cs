@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -9,10 +10,61 @@ public abstract class Unit : MonoBehaviour {
     [SerializeField] HexUnit hexUnit;
     [SerializeField] int baseMovementFactor = 5;
     [SerializeField] int baseHitPoints = 100;
+    [SerializeField] GameObject unitUiPrefab;
+    [SerializeField] Texture backGround;
+    [SerializeField] Texture symbol;
+    UnitBehaviour behaviour;
+
+    HexCell attackCell;
+    public HexCell AttackCell
+    {
+        get
+        {
+            return attackCell;
+        }
+
+        set
+        {
+            attackCell = value;
+        }
+    }
+
+    public Texture BackGround
+    {
+        get { return backGround; }
+        set { backGround = value; }
+    }
+
+    public Texture Symbol
+    {
+        get { return symbol; }
+        set { symbol = value; }
+    }
+
+    
+
     List<HexCell> path = new List<HexCell>();
     Player player;
     HexGrid hexGrid;
     HexCell fightInCell;
+    UnitUI unitUI;
+
+    GameController gameController;
+    public float HealthAsPercentage
+    {
+        get { return (float)hitPoints / (float)baseHitPoints; }
+    }
+
+
+    public void EnableUI(bool vision)
+    {
+
+        unitUI.Visible = vision;
+
+    }
+
+
+
     CityState cityState;
     public CityState CityState
     {
@@ -24,6 +76,10 @@ public abstract class Unit : MonoBehaviour {
         set
         {
             cityState = value;
+            if (unitUI)
+            {
+                unitUI.SetColour(cityState.Color);
+            }
         }
     }
 
@@ -41,22 +97,94 @@ public abstract class Unit : MonoBehaviour {
         }
     }
 
+    public HexUnit HexUnit
+    {
+        get
+        {
+            return hexUnit;
+        }
+
+        set
+        {
+            hexUnit = value;
+        }
+    }
+
+    public GameController GameController
+    {
+        get
+        {
+            return gameController;
+        }
+
+        set
+        {
+            gameController = value;
+        }
+    }
+
+    public UnitBehaviour Behaviour
+    {
+        get
+        {
+            return behaviour;
+        }
+
+        set
+        {
+            behaviour = value;
+        }
+    }
+
+
+
     public int GetMovementLeft()
     {
         return movementLeft;
     }
+
+    private void Awake()
+    {
+        Behaviour = gameObject.AddComponent<UnitBehaviour>();
+        GameController = FindObjectOfType<GameController>();
+        unitUI = Instantiate(unitUiPrefab).GetComponent<UnitUI>();
+        unitUI.Unit = this;
+        if (player)
+        {
+            unitUI.SetColour(player.Color);
+        }
+        if (cityState)
+        {
+            unitUI.SetColour(cityState.Color);
+        }
+    }
     void Start () {
-        hexUnit.Speed = (baseMovement * baseMovementFactor);
+        HexUnit.Speed = (baseMovement * baseMovementFactor);
         hitPoints = baseHitPoints;
         hexGrid = FindObjectOfType<HexGrid>();
+
+        
         StartTurn();
     }
 	
     public void SetPlayer(Player player)
     {
         this.player = player;
+        if(unitUI)
+        {
+            unitUI.SetColour(player.Color);
+        }
+        
     }
 
+    private void OnDestroy()
+    {
+        if(unitUI)
+        {
+            Destroy(unitUI.gameObject);
+        }
+        
+    }
     public Player GetPlayer()
     {
         return player;
@@ -69,9 +197,24 @@ public abstract class Unit : MonoBehaviour {
 
     }
 
+    public void SetPath(HexCell path)
+    {
+        this.path.Clear();
+        this.path.Add(HexUnit.Location);
+        this.path.Add(path);
+        MoveUnit();
+
+    }
+
+
     public void StartTurn()
     {
         movementLeft = baseMovement * baseMovementFactor;
+    }
+
+    public void EndTurn()
+    {
+        movementLeft = 0;
     }
 
     public bool CheckPath()
@@ -81,7 +224,7 @@ public abstract class Unit : MonoBehaviour {
             return false;
         }
 
-        hexGrid.FindPath(hexUnit.Location, path[path.Count - 1],hexUnit);
+        hexGrid.FindPath(HexUnit.Location, path[path.Count - 1],HexUnit);
         path = hexGrid.GetPath();
         if (path.Count == 0)
         {
@@ -94,7 +237,8 @@ public abstract class Unit : MonoBehaviour {
     }
     public void MoveUnit()
     {
-        if(path.Count == 0)
+        AttackCell = null;
+        if (path.Count == 0)
         {
             return;
         }
@@ -105,7 +249,7 @@ public abstract class Unit : MonoBehaviour {
         {
            if(path.Count > cellNumber)
             {
-                int movementCost = hexUnit.GetMoveCost(path[cellNumber - 1], path[cellNumber], path[cellNumber - 1].GetNeighborDirection(path[cellNumber]));
+                int movementCost = HexUnit.GetMoveCost(path[cellNumber - 1], path[cellNumber], path[cellNumber - 1].GetNeighborDirection(path[cellNumber]),true);
                 if (movementCost == -1 || movementCost > movementLeft)
                 {
                     break;
@@ -125,19 +269,36 @@ public abstract class Unit : MonoBehaviour {
         
         if(move.Count > 1)
         {
-            HexCell attackCell = null;
-            HexUnit unitToFight = move[move.Count - 1].GetFightableUnit(hexUnit);
-            if (unitToFight)
+            AttackCell = null;
+            City city = move[move.Count - 1].City;
+            if (city && hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && cityState != city.GetCityState())
             {
-                attackCell = move[move.Count - 1];
-                unitToFight.GetComponent<Unit>().HitPoints -= 50;
-                move[move.Count - 1] = move[move.Count - 2];
+                AttackCell = move[move.Count - 1];
+                city.HitPoints -= 50;
+
             }
-            hexUnit.Travel(move, attackCell);
+            else
+            {
+                HexUnit unitToFight = move[move.Count - 1].GetFightableUnit(HexUnit);
+                if (unitToFight)
+                {
+                    AttackCell = move[move.Count - 1];
+                    unitToFight.GetComponent<Unit>().HitPoints -= 50;
+                }
+            }
+
             path.RemoveRange(0, move.Count - 1);
+            HexUnit.Travel(move, AttackCell);
+            
         }
 
     }
 
+    public void UpdateUI()
+    {
+        unitUI.UpdateHealthBar();
+    }
     public abstract bool CanAttack(Unit unit);
+
+    public abstract void UseAbility(int abilityNumber, HexCell hexCell);
 }

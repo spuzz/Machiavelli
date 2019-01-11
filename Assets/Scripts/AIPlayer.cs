@@ -14,6 +14,11 @@ public class AIPlayer : Player
     public override void Save(BinaryWriter writer)
     {
         writer.Write(PlayerNumber);
+        writer.Write(agents.Count);
+        foreach(Agent agent in agents)
+        {
+            agent.Save(writer);
+        }
     }
 
     public static void Load(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
@@ -24,7 +29,7 @@ public class AIPlayer : Player
         for (int i = 0; i < unitCount; i++)
         {
             Agent agent = Agent.Load(reader, hexGrid, header);
-            agent.GetComponent<HexUnit>().Visible = true;
+            agent.HexUnit.Visible = false;
             instance.AddAgent(agent);
         }
         

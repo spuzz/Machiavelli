@@ -23,6 +23,7 @@ public class GameController : MonoBehaviour
 
     [SerializeField] HumanPlayer humanPlayer;
 
+
     public HumanPlayer HumanPlayer
     {
         get { return humanPlayer; }
@@ -32,6 +33,38 @@ public class GameController : MonoBehaviour
     {
         turn = 1;
         humanPlayer.Color = GetNewPlayerColor();
+    }
+    public void EndPlayerTurn()
+    {
+        humanPlayer.EndTurn();
+        StartCoroutine(NewTurn());
+
+
+    }
+
+    IEnumerator NewTurn()
+    {
+        foreach (CityState cityState in cityStates)
+        {
+            yield return StartCoroutine(cityState.TakeTurn());
+        }
+
+        turn += 1;
+        foreach (CityState cityState in cityStates)
+        {
+            cityState.StartTurn();
+        }
+        humanPlayer.StartTurn();
+    }
+
+    public int GetTurn()
+    {
+        return turn;
+    }
+
+    public void EndGame()
+    {
+
     }
 
     public int PlayerCount()
@@ -61,12 +94,19 @@ public class GameController : MonoBehaviour
         }
         return null;
     }
+
+    public City GetCity(HexCell hexCell)
+    {
+        return cities.Find(c => c.GetHexCell() == hexCell);
+    }
+
     public void AddCity(City city)
     {
         city.transform.SetParent(citiesObject.transform);
         if (!city.GetCityState())
         {
             city.SetCityState(CreateCityState());
+            city.UpdateUI();
         }
         cities.Add(city);
     }
@@ -107,7 +147,6 @@ public class GameController : MonoBehaviour
     private void DestroyCityState(CityState cityState)
     {
         cityStates.Remove(cityState);
-        possibleCityStateColors.Add(cityState.Color);
         cityState.DestroyCityState();
     }
 
@@ -131,7 +170,6 @@ public class GameController : MonoBehaviour
         CityState instance = Instantiate(cityStatePrefab);
         instance.transform.SetParent(cityStatesObject.transform);
         instance.PickColor();
-        instance.Player = humanPlayer;
         cityStates.Add(instance); 
         return instance;
     }
@@ -148,13 +186,14 @@ public class GameController : MonoBehaviour
 
     public void CreateAgent(HexUnit hexUnit, Player player)
     {
+        Agent agent = hexUnit.GetComponent<Agent>();
         if (player.IsHuman)
         {
-            hexUnit.Visible = true;
+            agent.HexUnit.Visible = true;
             hexUnit.Controllable = true;
-            hexUnit.HexUnitType = HexUnit.UnitType.AGENT;
         }
-        Agent agent = hexUnit.GetComponent<Agent>();
+
+        hexUnit.HexUnitType = HexUnit.UnitType.AGENT;
         player.AddAgent(agent);
     }
 
@@ -164,6 +203,14 @@ public class GameController : MonoBehaviour
         cityState.AddUnit(hexUnit.GetComponent<CombatUnit>());
     }
 
+    public void SetCityStatePlayer(Player player, int cityStateID)
+    {
+        CityState cityState = cityStates.Find(c => c.CityStateID == cityStateID);
+        if(cityState && cityState.Player != player)
+        {
+            cityState.Player = player;
+        }
+    }
 
     public AIPlayer CreateAIPlayer()
     {
@@ -175,8 +222,12 @@ public class GameController : MonoBehaviour
         return instance;
     }
 
-    public Player GetAIPlayer(int playerNumber)
+    public Player GetPlayer(int playerNumber)
     {
+        if(playerNumber == 0)
+        {
+            return humanPlayer;
+        }
         Player player = players.Find(p => p.PlayerNumber == playerNumber);
         if(!player)
         {
@@ -185,23 +236,7 @@ public class GameController : MonoBehaviour
         return player;
     }
 
-    public void EndPlayerTurn()
-    {
-        humanPlayer.EndTurn();
-        // Do AI
-        turn += 1;
-        humanPlayer.StartTurn();
-    }
 
-    public int GetTurn()
-    {
-        return turn;
-    }
-
-    public void EndGame()
-    {
-
-    }
 
     public Color GetNewCityStateColor()
     {
@@ -231,7 +266,8 @@ public class GameController : MonoBehaviour
     public void Save(BinaryWriter writer)
     {
         HumanPlayer.Save(writer);
-        foreach(AIPlayer aiPlayer in players)
+        writer.Write(players.Count);
+        foreach (AIPlayer aiPlayer in players)
         {
             aiPlayer.Save(writer);
         }
@@ -252,10 +288,15 @@ public class GameController : MonoBehaviour
     public void Load(BinaryReader reader, int header, HexGrid hexGrid)
     {
         HumanPlayer.Load(reader, this, hexGrid, header);
-        foreach (AIPlayer aiPlayer in players)
+        if(header >= 2)
         {
-            AIPlayer.Load(reader, this, hexGrid, header);
+            int playerCount = reader.ReadInt32();
+            for (int i = 0; i < playerCount; i++)
+            {
+                AIPlayer.Load(reader, this, hexGrid, header);
+            }
         }
+
 
         int cityStateCount = reader.ReadInt32();
         for (int i = 0; i < cityStateCount; i++)
@@ -263,7 +304,6 @@ public class GameController : MonoBehaviour
             CityState.Load(reader, this,hexGrid, header);
         }
     }
-
     public void ClearCitiesAndStates()
     {
         foreach (City city in cities)

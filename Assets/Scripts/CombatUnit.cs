@@ -27,4 +27,9 @@ public class CombatUnit : Unit
         }
         return false;
     }
+
+    public override void UseAbility(int abilityNumber, HexCell hexCell)
+    {
+        
+    }
 }
