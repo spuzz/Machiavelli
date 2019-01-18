@@ -9,12 +9,15 @@ public class CityState : MonoBehaviour
     static int cityStateIDCounter = 1;
     List<City> cities = new List<City>();
     [SerializeField] List<CombatUnit> units = new List<CombatUnit>();
-    
+    [SerializeField] CityStateAIController cityStateAIController;
     int cityStateID;
 
     GameController gameController;
 
-    
+    public IEnumerable GetUnits()
+    {
+        return units;
+    }
 
     private void Awake()
     {
@@ -33,16 +36,17 @@ public class CityState : MonoBehaviour
 
     public IEnumerator TakeTurn()
     {
-        foreach (CombatUnit unit in units)
-        {
-            int currentMovement = -1;
-            List<HexCell> path = new List<HexCell>();
-            while (unit.GetMovementLeft() > 0 && currentMovement != unit.GetMovementLeft())
-            {
-                currentMovement = unit.GetMovementLeft();
-                yield return StartCoroutine(MoveUnit(unit));
-            }
-        }
+        yield return StartCoroutine(cityStateAIController.UpdateUnits());
+        //foreach (CombatUnit unit in units)
+        //{
+        //    int currentMovement = -1;
+        //    List<HexCell> path = new List<HexCell>();
+        //    while (unit.GetMovementLeft() > 0 && currentMovement != unit.GetMovementLeft())
+        //    {
+        //        currentMovement = unit.GetMovementLeft();
+        //        yield return StartCoroutine(MoveUnit(unit));
+        //    }
+        //}
     }
 
     public void KillLocalUnits(City city)
@@ -58,7 +62,7 @@ public class CityState : MonoBehaviour
         }
     }
 
-    IEnumerator MoveUnit(CombatUnit unit)
+    public IEnumerator MoveUnit(CombatUnit unit)
     {
         HexCell nextMove = null;
         if (CityStateID == 1)

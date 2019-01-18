@@ -125,5 +125,6 @@ public class SaveLoadMenu : MonoBehaviour {
     {
         string map = Path.Combine(Application.persistentDataPath, "test2.map");
         Load(map);
+       
     }
 }

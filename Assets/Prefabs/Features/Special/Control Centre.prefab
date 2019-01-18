@@ -20,7 +20,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4000011263270592}
   m_Layer: 0
-  m_Name: Spy Centre
+  m_Name: Control Centre
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0

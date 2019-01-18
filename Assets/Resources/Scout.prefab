@@ -278,7 +278,7 @@ GameObject:
   - component: {fileID: 114701888605048992}
   - component: {fileID: 114202423551481496}
   m_Layer: 0
-  m_Name: Unit
+  m_Name: Scout
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -877,6 +877,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   meshChild: {fileID: 4050775932957432}
+  pathToTravel: []
 --- !u!137 &137242769703270820
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1

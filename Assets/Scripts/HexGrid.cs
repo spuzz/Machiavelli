@@ -603,6 +603,11 @@ public class HexGrid : MonoBehaviour {
 		return visibleCells;
 	}
 
+    public List<HexCell> GetNearestUnexplored(HexCell centreCell,int distanceFromCentre)
+    {
+        List < HexCell > cells = new List<HexCell>();
+        return cells;
+    }
 	public void CenterMap (float xPosition) {
 		int centerColumnIndex = (int)
 			(xPosition / (HexMetrics.innerDiameter * HexMetrics.chunkSizeX));

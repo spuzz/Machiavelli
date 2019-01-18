@@ -43,7 +43,7 @@ public class UnitBehaviour : MonoBehaviour
 
     public HexCell ExploreArea(HexCell centreCell, int distanceFromCentre)
     {
-        //HexCell exploreCell = hexGrid.GetNearestUnxplored(centreCell, distanceFromCentre);
+        List<HexCell> exploreCell = hexGrid.GetNearestUnexplored(centreCell, distanceFromCentre);
         return unit.HexUnit.Location;
     }
 
