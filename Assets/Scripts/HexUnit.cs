@@ -6,8 +6,8 @@ using System;
 
 public class HexUnit : MonoBehaviour {
 
-	const float rotationSpeed = 360f;
-	const float travelSpeed = 1f;
+	const float rotationSpeed = 540f;
+	const float travelSpeed = 2f;
     const float fightSpeed = 3f;
     public enum UnitType
     {
@@ -157,7 +157,7 @@ public class HexUnit : MonoBehaviour {
 	}
 
 	public bool IsValidDestination (HexCell cell, bool allowUnxplored = false) {
-		return (cell.IsExplored || allowUnxplored) && !cell.IsUnderwater && cell.CanUnitMoveToCell(this.HexUnitType);
+		return (cell.IsExplored || allowUnxplored) && !cell.IsUnderwater && cell.CanUnitMoveToCell(this);
 	}
 
 
@@ -207,7 +207,10 @@ public class HexUnit : MonoBehaviour {
             }
 
             ChangeVisibility(currentTravelLocation, false);
-
+            if (currentTravelLocation.IsVisible == true || Visible)
+            {
+                EnableMesh(true);
+            }
             int currentColumn = currentTravelLocation.ColumnIndex;
 
             float t = Time.deltaTime * travelSpeed;
@@ -260,6 +263,10 @@ public class HexUnit : MonoBehaviour {
                     t -= 1f;
                 }
                 ChangeVisibility(pathToTravel[i], false);
+                if (currentTravelLocation.IsVisible == true || Visible)
+                {
+                    EnableMesh(true);
+                }
 
             }
             a = c;
@@ -345,7 +352,7 @@ public class HexUnit : MonoBehaviour {
 
             currentTravelLocation = null;
 
-            for (; t < 1f; t += Time.deltaTime * travelSpeed)
+            for (; t < 1f; t += Time.deltaTime * (travelSpeed * 2))
             {
                 transform.localPosition = Bezier.GetPoint(a, b, c, t);
                 Vector3 d = Bezier.GetDerivative(a, b, c, t);
@@ -438,7 +445,7 @@ public class HexUnit : MonoBehaviour {
                 Grid.DecreaseVisibility(cell, VisionRange);
             }
         }
-        
+        GetComponent<Unit>().UpdateOwnerVisiblity(cell, increase);
     }
     public void KillUnit()
     {

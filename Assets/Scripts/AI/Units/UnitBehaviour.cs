@@ -41,10 +41,57 @@ public class UnitBehaviour : MonoBehaviour
         ActiveUnit = GetComponent<Unit>();
     }
 
-    public HexCell ExploreArea(HexCell centreCell, int distanceFromCentre)
+    public HexCell ExploreArea(HexCell startCell, HexCell centreCell, int distanceFromCentre, List<HexCell> visibleCells)
     {
-        List<HexCell> exploreCell = hexGrid.GetNearestUnexplored(centreCell, distanceFromCentre);
-        return unit.HexUnit.Location;
+        List<HexCell> cells = new List<HexCell>();
+        List<HexCell> openCells = new List<HexCell>();
+        List<HexCell> searchedCells = new List<HexCell>();
+        openCells.Add(startCell);
+        List<HexCell> hiddenCells = new List<HexCell>();
+        while (hiddenCells.Count == 0&& openCells.Count > 0)
+        {
+            hiddenCells = openCells.FindAll(c => !visibleCells.Contains(c));
+            if (hiddenCells.Count == 0)
+            {
+                List<HexCell> neighbourCells = new List<HexCell>();
+                for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+                {
+
+
+                    foreach (HexCell openCell in openCells)
+                    {
+                        HexCell neighbour = openCell.GetNeighbor(d);
+                        if (neighbour && !neighbourCells.Contains(neighbour) 
+                                        && !openCells.Contains(neighbour)
+                                        && !searchedCells.Contains(neighbour) 
+                                        && neighbour.coordinates.DistanceTo(centreCell.coordinates) <= distanceFromCentre)
+                        {
+                            neighbourCells.Add(neighbour);
+                        }
+                        searchedCells.Add(openCell);
+                    }
+                }
+                openCells = neighbourCells;
+
+            }
+                
+        }
+        if(hiddenCells.Count == 0)
+        {
+            return null;
+        }
+        HexCell hiddenCellToGetTo = null;
+        HexCell target = null;
+
+        while (target == null && hiddenCells.Count > 0)
+        {
+            hiddenCellToGetTo = hiddenCells[UnityEngine.Random.Range(0, hiddenCells.Count)];
+            hiddenCells.Remove(hiddenCellToGetTo);
+            hexGrid.FindPath(unit.HexUnit.Location, hiddenCellToGetTo, unit.HexUnit, true, false);
+            target = GetFirstCellFromPath();
+        }
+        return GetFirstCellFromPath();
+       // return unit.HexUnit.Location;
     }
 
     public HexCell Explore()

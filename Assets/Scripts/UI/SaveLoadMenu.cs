@@ -113,7 +113,6 @@ public class SaveLoadMenu : MonoBehaviour {
 			if (header <= mapFileVersion) {
 				hexGrid.Load(reader, header);
                 hexGrid.EditMode = hexMapEditor.enabled;
-				HexMapCamera.ValidatePosition();
 			}
 			else {
 				Debug.LogWarning("Unknown map format " + header);

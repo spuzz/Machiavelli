@@ -36,11 +36,67 @@ public abstract class Player : MonoBehaviour {
     Color color;
 
     public List<Agent> agents = new List<Agent>();
+    public List<CityState> cityStates = new List<CityState>();
+
+    public Dictionary<HexCell, int> visibleCells = new Dictionary<HexCell, int>();
+    public List<HexCell> exploredCells = new List<HexCell>();
+
+    public void AddVisibleCell(HexCell cell)
+    {
+        if(!exploredCells.Contains(cell))
+        {
+            exploredCells.Add(cell);
+        }
+
+        if (!visibleCells.ContainsKey(cell))
+        {
+            visibleCells[cell] = 0;
+        }
+        else
+        {
+            visibleCells[cell] += 1;
+        }
+    }
+
+    public void RemoveVisibleCell(HexCell cell)
+    {
+        if (visibleCells.ContainsKey(cell))
+        {
+            visibleCells[cell] -= 1;
+            if(visibleCells[cell] <= 0)
+            {
+                visibleCells.Remove(cell);
+            }
+        }
+
+    }
+
+    public IEnumerable<Agent> GetAgents()
+    {
+        return agents;
+    }
+
+    public void AddCityState(CityState cityState)
+    {
+        cityStates.Add(cityState);
+    }
+
+    public void RemoveCityState(CityState cityState)
+    {
+        cityStates.Remove(cityState);
+    }
+
+    public IEnumerable<CityState> GetCityStates()
+    {
+        return cityStates;
+    }
+
     private void Awake()
     {
         playerNumber = nextPlayerNumber;
         nextPlayerNumber++;
     }
+
 
     public void StartTurn()
     {

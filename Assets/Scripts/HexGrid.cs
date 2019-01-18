@@ -396,6 +396,7 @@ public class HexGrid : MonoBehaviour {
             City.Load(reader, gameController, this, header);
         }
         cellShaderData.ImmediateMode = originalImmediateMode;
+        gameController.CentreMap();
 	}
 
     public List<HexCell> GetPath () {
@@ -549,7 +550,7 @@ public class HexGrid : MonoBehaviour {
 		}
 	}
 
-	List<HexCell> GetVisibleCells (HexCell fromCell, int range) {
+	public List<HexCell> GetVisibleCells (HexCell fromCell, int range) {
 		List<HexCell> visibleCells = ListPool<HexCell>.Get();
 
 		searchFrontierPhase += 2;
@@ -603,11 +604,6 @@ public class HexGrid : MonoBehaviour {
 		return visibleCells;
 	}
 
-    public List<HexCell> GetNearestUnexplored(HexCell centreCell,int distanceFromCentre)
-    {
-        List < HexCell > cells = new List<HexCell>();
-        return cells;
-    }
 	public void CenterMap (float xPosition) {
 		int centerColumnIndex = (int)
 			(xPosition / (HexMetrics.innerDiameter * HexMetrics.chunkSizeX));

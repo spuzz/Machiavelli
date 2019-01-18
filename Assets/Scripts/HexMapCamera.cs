@@ -14,7 +14,7 @@ public class HexMapCamera : MonoBehaviour {
 
 	public HexGrid grid;
 
-	float zoom = 1f;
+	float zoom = 0.8f;
 
 	float rotationAngle;
 
@@ -119,4 +119,11 @@ public class HexMapCamera : MonoBehaviour {
 		grid.CenterMap(position.x);
 		return position;
 	}
+
+    public void MoveCamera(HexCell hexCell)
+    {
+        Vector3 position = new Vector3(hexCell.transform.position.x,0, hexCell.transform.position.z);
+        transform.localPosition =
+            grid.wrapping ? WrapPosition(position) : ClampPosition(position);
+    }
 }

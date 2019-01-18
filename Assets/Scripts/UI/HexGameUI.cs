@@ -43,11 +43,19 @@ public class HexGameUI : MonoBehaviour {
 				}
 			}
 		}
+
         if(grid.EditMode != editMode)
         {
             SetEditMode(grid.EditMode);
         }
 
+
+
+    }
+
+    public void ToggleEditMode()
+    {
+        SetEditMode(!editMode);
     }
 
 	void DoSelection () {

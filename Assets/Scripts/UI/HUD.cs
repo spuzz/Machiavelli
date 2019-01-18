@@ -7,8 +7,8 @@ public class HUD : MonoBehaviour {
 
     [SerializeField] GameController gameController;
     [SerializeField] Text turn;
-    
 
+    [SerializeField] HexGameUI HexGameUI;
     Unit unit;
 
     public Unit Unit
@@ -43,7 +43,10 @@ public class HUD : MonoBehaviour {
     // Update is called once per frame
     void Update () {
         turn.text = "Turn : " + gameController.GetTurn().ToString();
-        
+        if (Input.GetKeyUp(KeyCode.L))
+        {
+            HexGameUI.ToggleEditMode();
+        }
     }
 
     public void EndTurn()

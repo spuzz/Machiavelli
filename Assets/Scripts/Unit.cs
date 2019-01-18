@@ -75,7 +75,14 @@ public abstract class Unit : MonoBehaviour {
 
         set
         {
+            if(cityState)
+            {
+                UpdateOwnerVisiblity(hexUnit.Location, false);
+            }
+
+            
             cityState = value;
+            UpdateOwnerVisiblity(hexUnit.Location, true);
             if (unitUI)
             {
                 unitUI.SetColour(cityState.Color);
@@ -145,6 +152,7 @@ public abstract class Unit : MonoBehaviour {
 
     private void Awake()
     {
+        hexGrid = FindObjectOfType<HexGrid>();
         Behaviour = gameObject.AddComponent<UnitBehaviour>();
         GameController = FindObjectOfType<GameController>();
         unitUI = Instantiate(unitUiPrefab).GetComponent<UnitUI>();
@@ -161,7 +169,7 @@ public abstract class Unit : MonoBehaviour {
     void Start () {
         HexUnit.Speed = (baseMovement * baseMovementFactor);
         hitPoints = baseHitPoints;
-        hexGrid = FindObjectOfType<HexGrid>();
+        
 
         
         StartTurn();
@@ -169,8 +177,14 @@ public abstract class Unit : MonoBehaviour {
 	
     public void SetPlayer(Player player)
     {
+        if(player)
+        {
+            UpdateOwnerVisiblity(hexUnit.Location, false);
+        }
         this.player = player;
-        if(unitUI)
+
+        UpdateOwnerVisiblity(hexUnit.Location, true);
+        if (unitUI)
         {
             unitUI.SetColour(player.Color);
         }
@@ -298,6 +312,46 @@ public abstract class Unit : MonoBehaviour {
     {
         unitUI.UpdateHealthBar();
     }
+
+    public void UpdateOwnerVisiblity(HexCell hexCell, bool increase)
+    {
+        if(player)
+        {
+            List<HexCell> cells = hexGrid.GetVisibleCells(hexCell, hexUnit.VisionRange);
+            for (int i = 0; i < cells.Count; i++)
+            {
+                if (increase)
+                {
+                    player.AddVisibleCell(cells[i]);
+                }
+                else
+                {
+                    player.RemoveVisibleCell(cells[i]);
+                }
+            }
+            ListPool<HexCell>.Add(cells);
+
+        }
+        if (cityState)
+        {
+            List<HexCell> cells = hexGrid.GetVisibleCells(hexCell, hexUnit.VisionRange);
+            for (int i = 0; i < cells.Count; i++)
+            {
+                if (increase)
+                {
+                    cityState.AddVisibleCell(cells[i]);
+                }
+                else
+                {
+                    cityState.RemoveVisibleCell(cells[i]);
+                }
+            }
+            ListPool<HexCell>.Add(cells);
+
+        }
+
+    }
+
     public abstract bool CanAttack(Unit unit);
 
     public abstract void UseAbility(int abilityNumber, HexCell hexCell);

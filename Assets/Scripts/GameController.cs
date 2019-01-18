@@ -2,6 +2,7 @@
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 using Random = UnityEngine.Random;
 
@@ -16,6 +17,7 @@ public class GameController : MonoBehaviour
 
     [SerializeField] List<Color> possibleCityStateColors;
     [SerializeField] List<Color> possiblePlayerColors;
+    [SerializeField] HexMapCamera hexMapCamera;
     public CityState cityStatePrefab;
 
     List<CityState> cityStates = new List<CityState>();
@@ -46,7 +48,11 @@ public class GameController : MonoBehaviour
     {
         foreach (CityState cityState in cityStates)
         {
-            yield return StartCoroutine(cityState.TakeTurn());
+            if(cityState)
+            {
+                yield return StartCoroutine(cityState.TakeTurn());
+            }
+            
         }
 
         turn += 1;
@@ -282,6 +288,40 @@ public class GameController : MonoBehaviour
         {
             city.GetHexCell().coordinates.Save(writer);
             writer.Write(city.GetCityState().CityStateID);
+        }
+    }
+
+    public void CentreMap()
+    {
+        CityState cityState = humanPlayer.GetCityStates().FirstOrDefault();
+        if(cityState)
+        {
+            hexMapCamera.MoveCamera(cityState.GetCity().GetHexCell());
+        }
+        else
+        {
+            Agent agent = humanPlayer.GetAgents().FirstOrDefault();
+            if(agent)
+            {
+                hexMapCamera.MoveCamera(agent.HexUnit.Location);
+            }
+            else
+            {
+                HexMapCamera.ValidatePosition();
+            }
+        }
+    }
+
+    public void CentreMap(HexCell hexCell)
+    {
+
+    }
+
+    public void CentreMap(City city)
+    {
+        if(city)
+        {
+            CentreMap(city.GetHexCell());
         }
     }
 

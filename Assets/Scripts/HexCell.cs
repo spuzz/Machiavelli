@@ -606,6 +606,22 @@ public class HexCell : MonoBehaviour {
         return true;
     }
 
+
+    public bool CanUnitMoveToCell(HexUnit unit)
+    {
+        HexUnit hexUnit = hexUnits.Find(c => c.HexUnitType == unit.HexUnitType);
+        if (hexUnit)
+        {
+            return false;
+        }
+        if(City && unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.GetComponent<Unit>().CityState != City.GetCityState())
+        {
+            return false;
+        }
+        return true;
+    }
+
+
     public HexUnit GetFightableUnit(HexUnit unit)
     {
         foreach(HexUnit hexUnit in hexUnits)

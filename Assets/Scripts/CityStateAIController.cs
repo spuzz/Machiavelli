@@ -2,7 +2,8 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CityStateAIController : MonoBehaviour {
+public class CityStateAIController : MonoBehaviour
+{
 
     [SerializeField] CityState cityState;
 
@@ -14,10 +15,19 @@ public class CityStateAIController : MonoBehaviour {
             List<HexCell> path = new List<HexCell>();
             while (unit.GetMovementLeft() > 0 && currentMovement != unit.GetMovementLeft())
             {
-                currentMovement = unit.GetMovementLeft();
-                yield return StartCoroutine(cityState.MoveUnit(unit));
+
+                if (unit.HexUnit.pathToTravel == null || unit.HexUnit.pathToTravel.Count == 0)
+                {
+                    currentMovement = unit.GetMovementLeft();
+                    yield return StartCoroutine(cityState.MoveUnit(unit));
+                }
+                else
+                {
+                    yield return new WaitForEndOfFrame();
+                }
             }
         }
+
     }
-    
+
 }
