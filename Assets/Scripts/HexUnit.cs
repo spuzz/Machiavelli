@@ -195,23 +195,26 @@ public class HexUnit : MonoBehaviour {
 	IEnumerator TravelPath () {
 
         Vector3 lookTowards = new Vector3(0, 0, 0);
+        if (!currentTravelLocation)
+        {
+            currentTravelLocation = pathToTravel[0];
+        }
+        int currentColumn = currentTravelLocation.ColumnIndex;
+        int nextColumn;
         if (Location.IsVisible == true || Visible)
         {
 
             Vector3 a, b, c = pathToTravel[0].Position;
             yield return LookAt(pathToTravel[1].Position);
             animator.SetBool("Walking", true);
-            if (!currentTravelLocation)
-            {
-                currentTravelLocation = pathToTravel[0];
-            }
+
 
             ChangeVisibility(currentTravelLocation, false);
             if (currentTravelLocation.IsVisible == true || Visible)
             {
                 EnableMesh(true);
             }
-            int currentColumn = currentTravelLocation.ColumnIndex;
+            
 
             float t = Time.deltaTime * travelSpeed;
             for (int i = 1; i < pathToTravel.Count; i++)
@@ -220,7 +223,7 @@ public class HexUnit : MonoBehaviour {
                 a = c;
                 b = pathToTravel[i - 1].Position;
 
-                int nextColumn = currentTravelLocation.ColumnIndex;
+                nextColumn = currentTravelLocation.ColumnIndex;
                 if (currentColumn != nextColumn)
                 {
                     if (nextColumn < currentColumn - 1)
@@ -319,19 +322,25 @@ public class HexUnit : MonoBehaviour {
                         }
                         animator.SetBool("Attacking", false);
                         unitToFight.animator.SetBool("Attacking", false);
-                        GetComponent<Unit>().UpdateUI();
+                        
                         unitToFight.GetComponent<Unit>().UpdateUI();
                         if (unitToFight.GetComponent<Unit>().HitPoints <= 0)
                         {
-                            unitToFight.Die();
                             unitToFight.DieAnimationAndRemove();
                         }
+
                     }
                 }
+                GetComponent<Unit>().UpdateUI();
+                if (GetComponent<Unit>().HitPoints <= 0)
+                {
+                    DieAnimationAndRemove();
+                }
+
+
+               
+                nextColumn = Location.ColumnIndex;
                 
-
-
-                int nextColumn = Location.ColumnIndex;
                 if (currentColumn != nextColumn)
                 {
                     if (nextColumn < currentColumn - 1)
@@ -361,6 +370,21 @@ public class HexUnit : MonoBehaviour {
                 yield return null;
             }
         }
+        else
+        {
+            currentTravelLocation = null;
+            if (GetComponent<Unit>().CityState && GetComponent<Unit>().CityState.CityStateID == 5 )
+            {
+                int trap = 1;
+            }
+            nextColumn = Location.ColumnIndex;
+            if (currentColumn != nextColumn)
+            {
+                Grid.MakeChildOfColumn(transform, nextColumn);
+                currentColumn = nextColumn;
+            }
+        }
+
         transform.localPosition = location.Position;
         location.UpdateVision();
         orientation = transform.localRotation.eulerAngles.y;
@@ -419,7 +443,7 @@ public class HexUnit : MonoBehaviour {
 		}
 		int moveCost;
 		if (fromCell.HasRoadThroughEdge(direction)) {
-			moveCost = 1;
+			moveCost = 3;
 		}
 		else if (fromCell.Walled != toCell.Walled) {
 			return 10;
@@ -452,12 +476,14 @@ public class HexUnit : MonoBehaviour {
         Grid.RemoveUnit(this);
     }
 	public void Die () {
-		if (location) {
+        GetComponent<Unit>().KillUnit();
+        if (location) {
             ChangeVisibility(location, false);
 		}
         location.RemoveUnit(this);
-		
-	}
+        
+
+    }
 
     public void DieAnimationAndRemove()
     {
@@ -467,16 +493,13 @@ public class HexUnit : MonoBehaviour {
 
     public void DieAndRemove()
     {
-        if (location)
-        {
-            ChangeVisibility(location, false);
-        }
-        location.RemoveUnit(this);
+        Die();
         Destroy(gameObject);
     }
 
     IEnumerator Death()
     {
+        Die();
         animator.SetBool("Dying", true);
         yield return new WaitForSeconds(2);
         Destroy(gameObject);

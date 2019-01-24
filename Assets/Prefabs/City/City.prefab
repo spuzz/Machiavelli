@@ -55,6 +55,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4363802538032816}
   - component: {fileID: 114574744724499650}
+  - component: {fileID: 114911446695508362}
   m_Layer: 0
   m_Name: City
   m_TagString: Untagged
@@ -223,6 +224,20 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseHitPoints: 100
   cityUI: {fileID: 114176040660542350}
+  baseStrength: 25
+  buildingManager: {fileID: 114911446695508362}
+  hexGrid: {fileID: 0}
+--- !u!114 &114911446695508362
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1778271005254408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ce7c8c9ca56e0a64b9fa63cb25782779, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!222 &222038326183577680
 CanvasRenderer:
   m_ObjectHideFlags: 1

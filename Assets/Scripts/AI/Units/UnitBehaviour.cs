@@ -41,16 +41,29 @@ public class UnitBehaviour : MonoBehaviour
         ActiveUnit = GetComponent<Unit>();
     }
 
-    public HexCell ExploreArea(HexCell startCell, HexCell centreCell, int distanceFromCentre, List<HexCell> visibleCells)
+    public HexCell ExploreArea(HexCell startCell, HexCell centreCell, int distanceFromCentre, IEnumerable<HexCell> visibleCells)
     {
         List<HexCell> cells = new List<HexCell>();
         List<HexCell> openCells = new List<HexCell>();
         List<HexCell> searchedCells = new List<HexCell>();
         openCells.Add(startCell);
         List<HexCell> hiddenCells = new List<HexCell>();
-        while (hiddenCells.Count == 0&& openCells.Count > 0)
+        HexCell hiddenCellToGetTo = null;
+        HexCell target = null;
+        while (openCells.Count > 0)
         {
             hiddenCells = openCells.FindAll(c => !visibleCells.Contains(c));
+            while (hiddenCells.Count > 0)
+            {
+                hiddenCellToGetTo = hiddenCells[UnityEngine.Random.Range(0, hiddenCells.Count)];
+                hiddenCells.Remove(hiddenCellToGetTo);
+                hexGrid.FindPath(unit.HexUnit.Location, hiddenCellToGetTo, unit.HexUnit, true, false);
+                target = GetFirstCellFromPath();
+                if(target)
+                {
+                    return target;
+                }
+            }
             if (hiddenCells.Count == 0)
             {
                 List<HexCell> neighbourCells = new List<HexCell>();
@@ -74,23 +87,10 @@ public class UnitBehaviour : MonoBehaviour
                 openCells = neighbourCells;
 
             }
+
                 
         }
-        if(hiddenCells.Count == 0)
-        {
-            return null;
-        }
-        HexCell hiddenCellToGetTo = null;
-        HexCell target = null;
-
-        while (target == null && hiddenCells.Count > 0)
-        {
-            hiddenCellToGetTo = hiddenCells[UnityEngine.Random.Range(0, hiddenCells.Count)];
-            hiddenCells.Remove(hiddenCellToGetTo);
-            hexGrid.FindPath(unit.HexUnit.Location, hiddenCellToGetTo, unit.HexUnit, true, false);
-            target = GetFirstCellFromPath();
-        }
-        return GetFirstCellFromPath();
+        return null;
        // return unit.HexUnit.Location;
     }
 
@@ -105,11 +105,16 @@ public class UnitBehaviour : MonoBehaviour
 
     public HexCell Attack(Unit target)
     {
-        hexGrid.FindPath(unit.HexUnit.Location, target.HexUnit.Location, unit.HexUnit);
+        hexGrid.FindPath(unit.HexUnit.Location, target.HexUnit.Location, unit.HexUnit, true, false);
         return GetFirstCellFromPath();
-        
-        
     }
+
+    public HexCell Attack(HexCell hexCell)
+    {
+        hexGrid.FindPath(unit.HexUnit.Location, hexCell, unit.HexUnit, true, false);
+        return GetFirstCellFromPath();
+    }
+
 
     private HexCell GetFirstCellFromPath()
     {
@@ -132,12 +137,63 @@ public class UnitBehaviour : MonoBehaviour
 
     public HexCell Defend(City city)
     {
-        hexGrid.FindPath(unit.HexUnit.Location, city.GetHexCell(), unit.HexUnit);
-        return GetFirstCellFromPath();
+        HexCell target = null;
+        List<HexUnit> units = hexGrid.GetUnitsInRange(city.GetHexCell(), 2);
+        foreach (HexUnit unit in units)
+        {
+            if (unit.HexUnitType == HexUnit.UnitType.COMBAT)
+            {
+                if (unit.GetComponent<Unit>().CityState && unit.GetComponent<Unit>().CityState.CityStateID != ActiveUnit.GetComponent<Unit>().CityState.CityStateID)
+                {
+                    hexGrid.FindPath(ActiveUnit.HexUnit.Location, unit.Location, ActiveUnit.HexUnit, true, false);
+                    target = GetFirstCellFromPath();
+                    if(target)
+                    {
+                        return target;
+                    }
+                }
+            }
+        }
+
+        if (city.GetHexCell().CanUnitMoveToCell(ActiveUnit.HexUnit))
+        {
+            hexGrid.FindPath(ActiveUnit.HexUnit.Location, city.GetHexCell(), ActiveUnit.HexUnit, true, false);
+            target = GetFirstCellFromPath();
+            if (target)
+            {
+                return target;
+            }
+        }
+
+
+        foreach(HexCell cell in PathFindingUtilities.GetCellsInRange(city.GetHexCell(),1))
+        {
+            if (cell.CanUnitMoveToCell(ActiveUnit.HexUnit))
+            {
+                hexGrid.FindPath(ActiveUnit.HexUnit.Location, city.GetHexCell(), ActiveUnit.HexUnit, true, false);
+                target = GetFirstCellFromPath();
+                if (target)
+                {
+                    return target;
+                }
+            }
+        }
+        return target;
     }
 
     public HexCell Patrol(HexCell hexCell, int radius)
     {
+        List<HexUnit> units = hexGrid.GetUnitsInRange(hexCell, radius);
+        foreach (HexUnit unit in units)
+        {
+            if (unit.HexUnitType == HexUnit.UnitType.COMBAT)
+            {
+                if (unit.GetComponent<Unit>().CityState && unit.GetComponent<Unit>().CityState.CityStateID != ActiveUnit.GetComponent<Unit>().CityState.CityStateID)
+                {
+                    return unit.Location;
+                }
+            }
+        }
         if (hexCell.coordinates.DistanceTo(unit.HexUnit.Location.coordinates) > radius)
         {
             hexGrid.FindPath(unit.HexUnit.Location, hexCell, unit.HexUnit);

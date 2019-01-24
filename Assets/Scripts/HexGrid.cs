@@ -153,7 +153,7 @@ public class HexGrid : MonoBehaviour {
 
 	public void RemoveUnit (HexUnit unit) {
 		units.Remove(unit);
-		unit.Die();
+		//unit.Die();
 	}
 
 	public void MakeChildOfColumn (Transform child, int columnIndex) {
@@ -604,6 +604,20 @@ public class HexGrid : MonoBehaviour {
 		return visibleCells;
 	}
 
+    public List<HexUnit> GetUnitsInRange(HexCell hexCell, int range)
+    {
+        List<HexUnit> units = new List<HexUnit>();
+        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(hexCell, range);
+        foreach(HexCell cell in cells)
+        {
+            foreach(HexUnit hexUnit in cell.hexUnits)
+            {
+                units.Add(hexUnit);
+            }
+            
+        }
+        return units;
+    }
 	public void CenterMap (float xPosition) {
 		int centerColumnIndex = (int)
 			(xPosition / (HexMetrics.innerDiameter * HexMetrics.chunkSizeX));
@@ -633,5 +647,6 @@ public class HexGrid : MonoBehaviour {
 			columns[i].localPosition = position;
 		}
 	}
+
 
 }

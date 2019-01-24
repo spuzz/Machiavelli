@@ -17,11 +17,23 @@ public class CityState : MonoBehaviour
     public Dictionary<HexCell, int> visibleCells = new Dictionary<HexCell, int>();
     public List<HexCell> exploredCells = new List<HexCell>();
 
-    List<City> enemyCities = new List<City>();
-    public IEnumerable<City> getEnemyCities()
+    List<City> visibleCities = new List<City>();
+
+    public IEnumerable<HexCell> GetExploredCells()
     {
-        return enemyCities;
+        return exploredCells;
     }
+
+    public IEnumerable<City> GetEnemyCities()
+    {
+        return visibleCities.FindAll(c => c.GetCityState() != this);
+    }
+    public List<City> GetEnemyCitiesOrderByDistance(HexCoordinates unitCoordinates)
+    {
+        return visibleCities.FindAll(c => c.GetCityState() != this).OrderBy(c => c.GetHexCell().coordinates.DistanceTo(unitCoordinates)).ToList();
+    }
+
+
     public void AddVisibleCell(HexCell cell)
     {
         if (!exploredCells.Contains(cell))
@@ -29,7 +41,7 @@ public class CityState : MonoBehaviour
             exploredCells.Add(cell);
             if(cell.City)
             {
-                enemyCities.Add(cell.City);
+                visibleCities.Add(cell.City);
             }
         }
 
@@ -56,7 +68,7 @@ public class CityState : MonoBehaviour
 
     }
 
-    public IEnumerable GetUnits()
+    public IEnumerable<CombatUnit> GetUnits()
     {
         return units;
     }
@@ -70,15 +82,25 @@ public class CityState : MonoBehaviour
 
     public void StartTurn()
     {
+        
         foreach (CombatUnit unit in units)
         {
             unit.StartTurn();
         }
+
+        foreach (City city in cities)
+        {
+            city.StartTurn();
+        }
+
     }
 
     public IEnumerator TakeTurn()
     {
+        units.RemoveAll(c => c.Alive == false);
         yield return StartCoroutine(cityStateAIController.UpdateUnits());
+        cityStateAIController.UpdateCities();
+        gameController.cityStateTurnFinished(this);
         //foreach (CombatUnit unit in units)
         //{
         //    int currentMovement = -1;
@@ -104,42 +126,7 @@ public class CityState : MonoBehaviour
         }
     }
 
-    public IEnumerator MoveUnit(CombatUnit unit)
-    {
-        HexCell nextMove = null;
-        if(cityStateID == 4)
-        {
-            if(enemyCities.Count > 0)
-            {
-                var sortedList = enemyCities.OrderBy(c => c.GetHexCell().coordinates.DistanceTo(unit.HexUnit.Location.coordinates));
-                City city = sortedList.First();
-                nextMove = unit.Behaviour.Attack(city);
-            }
-            else
-            {
-                nextMove = unit.Behaviour.ExploreArea(unit.HexUnit.Location, cities[0].GetHexCell(), 6, exploredCells);
-            }
-            
-        }
-        
-        if(!nextMove)
-        {
-            nextMove = unit.Behaviour.Patrol(cities[0].GetHexCell(), 4);
-        }
-        if (!nextMove || nextMove == unit.HexUnit.Location)
-        {
-            unit.EndTurn();
-        }
-        else
-        {
-            unit.SetPath(nextMove);
-            while (unit.AttackCell && unit.HexUnit.pathToTravel != null && unit.HexUnit.pathToTravel.Count != 0)
-            {
-                yield return new WaitForFixedUpdate();
-            }
 
-        }
-    }
 
     Color color = Color.black;
     public Color Color
@@ -217,6 +204,16 @@ public class CityState : MonoBehaviour
 
         Color = gameController.GetNewCityStateColor();
     }
+
+    public void RemoveUnit(Unit unit)
+    {
+        CombatUnit combatUnit = unit.GetComponent<CombatUnit>();
+        if(combatUnit)
+        {
+            units.Remove(combatUnit);
+        }
+        
+    }
     public void AddCity(City city)
     {
         cities.Add(city);
@@ -249,6 +246,11 @@ public class CityState : MonoBehaviour
     {
         return cities[0];
     }
+    public IEnumerable<City> GetCities()
+    {
+        return cities;
+    }
+
     public void DestroyCityState()
     {
         if(player)
@@ -261,7 +263,7 @@ public class CityState : MonoBehaviour
         {
             city.DestroyCity();
         }
-        foreach(Unit unit in units)
+        foreach (Unit unit in units)
         {
             unit.HexUnit.DieAndRemove();
         }

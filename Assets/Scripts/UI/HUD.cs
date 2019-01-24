@@ -9,6 +9,7 @@ public class HUD : MonoBehaviour {
     [SerializeField] Text turn;
 
     [SerializeField] HexGameUI HexGameUI;
+    [SerializeField] Button endTurnButton;
     Unit unit;
 
     public Unit Unit
@@ -51,7 +52,13 @@ public class HUD : MonoBehaviour {
 
     public void EndTurn()
     {
+        endTurnButton.interactable = false;
         gameController.EndPlayerTurn();
+    }
+
+    public void StartTurn()
+    {
+        endTurnButton.interactable = true;
     }
 
     public void UseAbility(int abilityNumber)

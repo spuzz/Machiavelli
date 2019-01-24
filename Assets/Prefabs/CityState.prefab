@@ -53,6 +53,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   cityState: {fileID: 114520082041238686}
+  attackTarget: {fileID: 0}
+  buildConfigs:
+  - {fileID: 11400000, guid: 7e182dfb478144c48a1ee59a569c56b0, type: 2}
 --- !u!114 &114520082041238686
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -66,3 +69,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   units: []
   cityStateAIController: {fileID: 114417357601618206}
+  exploredCells: []

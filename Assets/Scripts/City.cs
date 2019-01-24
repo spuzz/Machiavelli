@@ -6,8 +6,11 @@ using System.IO;
 
 public class City : MonoBehaviour {
 
-    [SerializeField] int baseHitPoints = 100;
+    [SerializeField] int baseHitPoints = 200;
     [SerializeField] CityUI cityUI;
+    [SerializeField] int baseStrength = 25;
+    [SerializeField] BuildingManager buildingManager;
+    [SerializeField] HexGrid hexGrid;
     public float HealthAsPercentage
     {
         get { return (float)hitPoints / (float)baseHitPoints; }
@@ -26,6 +29,11 @@ public class City : MonoBehaviour {
             hitPoints = value;
         }
     }
+    public int Strength
+    {
+        get { return baseStrength; }
+    }
+
     CityState cityStateOwner;
     GameController gameController;
     HexCell hexCell;
@@ -96,11 +104,41 @@ public class City : MonoBehaviour {
             }
         }
     }
+
+    public BuildingManager BuildingManager
+    {
+        get
+        {
+            return buildingManager;
+        }
+
+        set
+        {
+            buildingManager = value;
+        }
+    }
+
     private void Awake()
     {
         gameController = FindObjectOfType<GameController>();
+        hexGrid = FindObjectOfType<HexGrid>();
         hitPoints = baseHitPoints;
         
+    }
+
+    public void StartTurn()
+    {
+        BuildingManager.DayPassed();
+        BuildConfig buildConfig = BuildingManager.GetCompletedBuild();
+        while(buildConfig)
+        {
+            GameObject gameObjectPrefab = buildConfig.GameObjectPrefab;
+            if(gameObjectPrefab.GetComponent<CombatUnit>())
+            {
+                CreateUnit(buildConfig);
+            }
+            buildConfig = BuildingManager.GetCompletedBuild();
+        }
     }
 
 
@@ -183,6 +221,38 @@ public class City : MonoBehaviour {
         Destroy(gameObject);
         
     }
+
+    public bool CreateUnit(BuildConfig buildConfig)
+    {
+        HexUnit hexUnit = Instantiate(buildConfig.GameObjectPrefab.GetComponent<HexUnit>());
+        hexUnit.UnitPrefabName = buildConfig.UnitPreFabName;
+        HexCell cell = FindFreeCell(hexUnit);
+        if(!cell)
+        {
+            return false;
+        }
+        hexGrid.AddUnit(hexUnit, cell, UnityEngine.Random.Range(0f, 360f));
+        gameController.CreateCityStateUnit(hexUnit, cityStateOwner.CityStateID);
+        return true;
+    }
+
+    private HexCell FindFreeCell(HexUnit hexUnit)
+    {
+        if(hexCell.hexUnits.Count == 0)
+        {
+            return hexCell;
+        }
+        for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+        {
+            HexCell neighbour = hexCell.GetNeighbor(d);
+            if (neighbour && neighbour.CanUnitMoveToCell(hexUnit))
+            {
+                return neighbour;
+            }
+        }
+        return null;
+    }
+
     public void Save(BinaryWriter writer)
     {
         writer.Write(cityStateOwner.CityStateID);

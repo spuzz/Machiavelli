@@ -6,6 +6,21 @@ using UnityEngine;
 public class CombatUnit : Unit
 {
 
+    public enum Stance
+    {
+        UNASSIGNED,
+        OFFENCE,
+        DEFENCE,
+        EXPLORE
+    }
+
+    Stance currentStance = Stance.UNASSIGNED;
+
+    public Stance CurrentStance
+    {
+        get { return currentStance; }
+        set { currentStance = value; }
+    }
 
     public void Save(BinaryWriter writer)
     {

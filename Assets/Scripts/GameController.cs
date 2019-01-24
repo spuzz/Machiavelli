@@ -18,6 +18,7 @@ public class GameController : MonoBehaviour
     [SerializeField] List<Color> possibleCityStateColors;
     [SerializeField] List<Color> possiblePlayerColors;
     [SerializeField] HexMapCamera hexMapCamera;
+    [SerializeField] HUD hud;
     public CityState cityStatePrefab;
 
     List<CityState> cityStates = new List<CityState>();
@@ -25,7 +26,9 @@ public class GameController : MonoBehaviour
 
     [SerializeField] HumanPlayer humanPlayer;
 
+    List<CityState> cityStatesTakingturns = new List<CityState>();
 
+    
     public HumanPlayer HumanPlayer
     {
         get { return humanPlayer; }
@@ -46,21 +49,33 @@ public class GameController : MonoBehaviour
 
     IEnumerator NewTurn()
     {
+        
+        cityStatesTakingturns.Clear();
         foreach (CityState cityState in cityStates)
         {
             if(cityState)
             {
+                cityStatesTakingturns.Add(cityState);
                 yield return StartCoroutine(cityState.TakeTurn());
             }
             
         }
-
+        while(cityStatesTakingturns.Count > 0)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+        hud.StartTurn();
         turn += 1;
         foreach (CityState cityState in cityStates)
         {
             cityState.StartTurn();
         }
         humanPlayer.StartTurn();
+    }
+
+    public void cityStateTurnFinished(CityState cityState)
+    {
+        cityStatesTakingturns.Remove(cityState);
     }
 
     public int GetTurn()

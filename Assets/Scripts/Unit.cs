@@ -5,14 +5,18 @@ using UnityEngine;
 
 public abstract class Unit : MonoBehaviour {
 
+
     [SerializeField] int baseMovement = 2;
     [SerializeField] int movementLeft = 0;
+    [SerializeField] int baseStrength = 20;
     [SerializeField] HexUnit hexUnit;
     [SerializeField] int baseMovementFactor = 5;
     [SerializeField] int baseHitPoints = 100;
     [SerializeField] GameObject unitUiPrefab;
     [SerializeField] Texture backGround;
     [SerializeField] Texture symbol;
+
+    bool alive = true;
     UnitBehaviour behaviour;
 
     HexCell attackCell;
@@ -132,22 +136,21 @@ public abstract class Unit : MonoBehaviour {
 
     public UnitBehaviour Behaviour
     {
-        get
-        {
-            return behaviour;
-        }
-
-        set
-        {
-            behaviour = value;
-        }
+        get { return behaviour; }
+        set { behaviour = value; }
     }
 
-
-
-    public int GetMovementLeft()
+    public int Strength
     {
-        return movementLeft;
+        get { return baseStrength; }
+    }
+
+    public bool Alive
+    {
+        get
+        {
+            return alive;
+        }
     }
 
     private void Awake()
@@ -174,7 +177,12 @@ public abstract class Unit : MonoBehaviour {
         
         StartTurn();
     }
-	
+
+    public int GetMovementLeft()
+    {
+        return movementLeft;
+    }
+
     public void SetPlayer(Player player)
     {
         if(player)
@@ -288,7 +296,7 @@ public abstract class Unit : MonoBehaviour {
             if (city && hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && cityState != city.GetCityState())
             {
                 AttackCell = move[move.Count - 1];
-                city.HitPoints -= 50;
+                CombatSystem.CityFight(this, city);
 
             }
             else
@@ -297,7 +305,7 @@ public abstract class Unit : MonoBehaviour {
                 if (unitToFight)
                 {
                     AttackCell = move[move.Count - 1];
-                    unitToFight.GetComponent<Unit>().HitPoints -= 50;
+                    CombatSystem.UnitFight(this, unitToFight.GetComponent<Unit>());
                 }
             }
 
@@ -352,7 +360,22 @@ public abstract class Unit : MonoBehaviour {
 
     }
 
+    public void KillUnit()
+    {
+        alive = false;
+        //if(player && GetComponent<Agent>())
+        //{
+        //    player.RemoveAgent(GetComponent<Agent>());
+        //}
+
+        //if (cityState)
+        //{
+        //    cityState.RemoveUnit(this);
+        //}
+        hexGrid.RemoveUnit(hexUnit);
+    }
     public abstract bool CanAttack(Unit unit);
 
     public abstract void UseAbility(int abilityNumber, HexCell hexCell);
+
 }

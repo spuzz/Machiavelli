@@ -100,7 +100,8 @@ public abstract class Player : MonoBehaviour {
 
     public void StartTurn()
     {
-        foreach(Agent agent in agents)
+        agents.RemoveAll(c => c.Alive == false);
+        foreach (Agent agent in agents)
         {
             agent.StartTurn();
         }
@@ -116,6 +117,7 @@ public abstract class Player : MonoBehaviour {
             }
             
         }
+        agents.RemoveAll(c => c.Alive == false);
     }
 
     public void AddAgent(Agent agent)

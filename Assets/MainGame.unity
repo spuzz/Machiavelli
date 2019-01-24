@@ -5997,6 +5997,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   agents: []
   cityStates: []
+  exploredCells: []
 --- !u!1 &563160560
 GameObject:
   m_ObjectHideFlags: 0
@@ -9712,6 +9713,7 @@ MonoBehaviour:
   - {r: 0, g: 0, b: 1, a: 0}
   - {r: 1, g: 0.7606493, b: 0, a: 0}
   hexMapCamera: {fileID: 2102140320}
+  hud: {fileID: 1693755344}
   cityStatePrefab: {fileID: 114520082041238686, guid: d96be0838ad31724f8698ca73d20e7d2,
     type: 2}
   humanPlayer: {fileID: 557473047}
@@ -18268,6 +18270,7 @@ MonoBehaviour:
   gameController: {fileID: 940697443}
   turn: {fileID: 1485898687}
   HexGameUI: {fileID: 333297601}
+  endTurnButton: {fileID: 252205037}
 --- !u!114 &1693755345
 MonoBehaviour:
   m_ObjectHideFlags: 0
