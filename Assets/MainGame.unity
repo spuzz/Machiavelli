@@ -1429,6 +1429,34 @@ CanvasRenderer:
   m_PrefabInternal: {fileID: 0}
   m_GameObject: {fileID: 91294473}
   m_CullTransparentMesh: 0
+--- !u!1 &96069554
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 96069555}
+  m_Layer: 0
+  m_Name: OperationCentres
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!4 &96069555
+Transform:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 96069554}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 557473046}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!1 &97817108
 GameObject:
   m_ObjectHideFlags: 0
@@ -5980,7 +6008,8 @@ Transform:
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children: []
+  m_Children:
+  - {fileID: 96069555}
   m_Father: {fileID: 1242915880}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
@@ -5997,7 +6026,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   agents: []
   cityStates: []
+  opCentres: []
   exploredCells: []
+  operationCenterTransformParent: {fileID: 96069554}
 --- !u!1 &563160560
 GameObject:
   m_ObjectHideFlags: 0
@@ -16956,6 +16987,8 @@ MonoBehaviour:
   unitPrefab: {fileID: 114701888605048992, guid: 5661a1efcb9464721b4db3f694ded559,
     type: 2}
   cityPrefab: {fileID: 114574744724499650, guid: 8669f55e65f9d5d44ba538a27a15a927,
+    type: 2}
+  opCentrePrefab: {fileID: 114708981004321290, guid: bc556770a2653db4ca827ea44dfc9eac,
     type: 2}
   noiseSource: {fileID: 2800000, guid: 38701cdeb1fb9427cbb585f917aa59cb, type: 3}
   seed: 1234

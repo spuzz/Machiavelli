@@ -340,6 +340,21 @@ public class HexCell : MonoBehaviour {
         }
     }
 
+    OperationCentre opCentre;
+    public OperationCentre OpCentre
+    {
+        get
+        {
+            return opCentre;
+        }
+
+        set
+        {
+            opCentre = value;
+        }
+    }
+
+
     int terrainTypeIndex;
 
 	int elevation = int.MinValue;

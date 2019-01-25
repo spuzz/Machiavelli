@@ -93,4 +93,22 @@ public static class PathFindingUtilities
         
         return cells;
     }
+
+    public static HexCell FindFreeCell(HexUnit hexUnit, HexCell hexCell)
+    {
+        if (hexCell.hexUnits.Count == 0)
+        {
+            return hexCell;
+        }
+        for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+        {
+            HexCell neighbour = hexCell.GetNeighbor(d);
+            if (neighbour && neighbour.CanUnitMoveToCell(hexUnit))
+            {
+                return neighbour;
+            }
+        }
+        return null;
+    }
+
 }

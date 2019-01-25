@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -9,6 +10,15 @@ public abstract class Player : MonoBehaviour {
 
     int playerNumber = 0;
     bool isHuman = false;
+    bool alive = true;
+    public List<Agent> agents = new List<Agent>();
+    public List<CityState> cityStates = new List<CityState>();
+    public List<OperationCentre> opCentres = new List<OperationCentre>();
+
+    public Dictionary<HexCell, int> visibleCells = new Dictionary<HexCell, int>();
+    public List<HexCell> exploredCells = new List<HexCell>();
+
+
     public bool IsHuman
     {
         get { return isHuman; }
@@ -33,13 +43,23 @@ public abstract class Player : MonoBehaviour {
         }
     }
 
+    public bool Alive
+    {
+        get
+        {
+            return alive;
+        }
+
+        set
+        {
+            alive = value;
+        }
+    }
+
     Color color;
 
-    public List<Agent> agents = new List<Agent>();
-    public List<CityState> cityStates = new List<CityState>();
 
-    public Dictionary<HexCell, int> visibleCells = new Dictionary<HexCell, int>();
-    public List<HexCell> exploredCells = new List<HexCell>();
+    public GameObject operationCenterTransformParent;
 
     public void AddVisibleCell(HexCell cell)
     {
@@ -71,11 +91,6 @@ public abstract class Player : MonoBehaviour {
 
     }
 
-    public IEnumerable<Agent> GetAgents()
-    {
-        return agents;
-    }
-
     public void AddCityState(CityState cityState)
     {
         cityStates.Add(cityState);
@@ -91,33 +106,9 @@ public abstract class Player : MonoBehaviour {
         return cityStates;
     }
 
-    private void Awake()
+    public IEnumerable<Agent> GetAgents()
     {
-        playerNumber = nextPlayerNumber;
-        nextPlayerNumber++;
-    }
-
-
-    public void StartTurn()
-    {
-        agents.RemoveAll(c => c.Alive == false);
-        foreach (Agent agent in agents)
-        {
-            agent.StartTurn();
-        }
-    }
-
-    public void EndTurn()
-    {
-        foreach (Agent agent in agents)
-        {
-            if(agent.CheckPath())
-            {
-                agent.MoveUnit();
-            }
-            
-        }
-        agents.RemoveAll(c => c.Alive == false);
+        return agents;
     }
 
     public void AddAgent(Agent agent)
@@ -140,6 +131,69 @@ public abstract class Player : MonoBehaviour {
         }
         agents.Clear();
     }
+
+    public IEnumerable<OperationCentre> GetOperationCentres()
+    {
+        return opCentres;
+    }
+
+    public void AddOperationCentre(OperationCentre operationCentre)
+    {
+        opCentres.Add(operationCentre);
+    }
+
+    public void RemoveOperationCentre(OperationCentre operationCentre)
+    {
+        operationCentre.DestroyOperationCentre();
+        opCentres.Remove(operationCentre);
+    }
+
+    public void ClearOperationCentres()
+    {
+        foreach (OperationCentre opCentre in opCentres)
+        {
+            opCentre.DestroyOperationCentre();
+        }
+        opCentres.Clear();
+    }
+
+
+    private void Awake()
+    {
+        playerNumber = nextPlayerNumber;
+        nextPlayerNumber++;
+    }
+
+
+    public void StartTurn()
+    {
+        if(cityStates.Count == 0)
+        {
+            PlayerDefeated();
+        }
+        agents.RemoveAll(c => c.Alive == false);
+        foreach (Agent agent in agents)
+        {
+            agent.StartTurn();
+        }
+    }
+
+    public abstract void PlayerDefeated();
+
+    public void EndTurn()
+    {
+        foreach (Agent agent in agents)
+        {
+            if(agent.CheckPath())
+            {
+                agent.MoveUnit();
+            }
+            
+        }
+        agents.RemoveAll(c => c.Alive == false);
+    }
+
+
     public abstract void Save(BinaryWriter writer);
 
 }

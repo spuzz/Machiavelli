@@ -34,4 +34,13 @@ public class AIPlayer : Player
         }
         
     }
+
+    public IEnumerator TakeTurn()
+    {
+        yield return new WaitForEndOfFrame();
+    }
+    public override void PlayerDefeated()
+    {
+        Alive = false;
+    }
 }

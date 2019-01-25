@@ -328,6 +328,27 @@ public class HexMapEditor : MonoBehaviour {
                 {
                     hexGrid.RemoveCity(cell);
                 }
+                if (activeSpecialIndex == 3)
+                {
+                    string playerName = players.options[players.value].text;
+                    Player player;
+                    if (playerName == "Human Player")
+                    {
+                        player = gameController.HumanPlayer;
+                    }
+                    else
+                    {
+                        int playerID = System.Convert.ToInt32(players.options[players.value].text);
+                        player = gameController.GetPlayer(playerID);
+                    }
+                    hexGrid.RemoveOperationCentre(cell);
+                    hexGrid.AddOperationCentre(cell, player);
+                }
+                else
+                {
+                    hexGrid.RemoveOperationCentre(cell);
+                }
+
                 cell.SpecialIndex = activeSpecialIndex;
 			}
 			if (applyUrbanLevel) {

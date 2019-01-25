@@ -17,6 +17,7 @@ public class HexGrid : MonoBehaviour {
 	public HexGridChunk chunkPrefab;
 	public HexUnit unitPrefab;
     public City cityPrefab;
+    public OperationCentre opCentrePrefab;
 
     public Texture2D noiseSource;
 
@@ -91,6 +92,7 @@ public class HexGrid : MonoBehaviour {
 
 	List<HexUnit> units = new List<HexUnit>();
     List<City> cities = new List<City>();
+    List<OperationCentre> opCentres = new List<OperationCentre>();
 
     HexCellShaderData cellShaderData;
 	void Awake () {
@@ -128,6 +130,25 @@ public class HexGrid : MonoBehaviour {
         cities.Add(instance);
         gameController.AddCity(instance);
         
+    }
+
+    public void AddOperationCentre(HexCell cell, Player player)
+    {
+        OperationCentre instance = Instantiate(opCentrePrefab);
+        instance.transform.localPosition = HexMetrics.Perturb(cell.Position);
+        instance.Location = cell;
+        instance.Player = player;
+        opCentres.Add(instance);
+        gameController.AddOperationCentre(instance);
+
+    }
+    public void RemoveOperationCentre(HexCell cell)
+    {
+        if (cell.OpCentre)
+        {
+            opCentres.Remove(cell.OpCentre);
+        }
+        gameController.RemoveOperationCentre(cell);
     }
 
     public void AddCity(HexCell cell, CityState cityState)

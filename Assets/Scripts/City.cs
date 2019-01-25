@@ -226,7 +226,7 @@ public class City : MonoBehaviour {
     {
         HexUnit hexUnit = Instantiate(buildConfig.GameObjectPrefab.GetComponent<HexUnit>());
         hexUnit.UnitPrefabName = buildConfig.UnitPreFabName;
-        HexCell cell = FindFreeCell(hexUnit);
+        HexCell cell = PathFindingUtilities.FindFreeCell(hexUnit,hexCell);
         if(!cell)
         {
             return false;
@@ -236,22 +236,6 @@ public class City : MonoBehaviour {
         return true;
     }
 
-    private HexCell FindFreeCell(HexUnit hexUnit)
-    {
-        if(hexCell.hexUnits.Count == 0)
-        {
-            return hexCell;
-        }
-        for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
-        {
-            HexCell neighbour = hexCell.GetNeighbor(d);
-            if (neighbour && neighbour.CanUnitMoveToCell(hexUnit))
-            {
-                return neighbour;
-            }
-        }
-        return null;
-    }
 
     public void Save(BinaryWriter writer)
     {

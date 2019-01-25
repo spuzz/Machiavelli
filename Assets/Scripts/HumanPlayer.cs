@@ -30,4 +30,9 @@ public class HumanPlayer : Player {
             AddAgent(agent);
         }
     }
+
+    public override void PlayerDefeated()
+    {
+        Alive = false;
+    }
 }

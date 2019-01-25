@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using System.IO;
 using System.Linq;
 using UnityEngine;
+using UnityEngine.SceneManagement;
 using Random = UnityEngine.Random;
 
 public class GameController : MonoBehaviour
@@ -23,12 +24,14 @@ public class GameController : MonoBehaviour
 
     List<CityState> cityStates = new List<CityState>();
     List<City> cities = new List<City>();
+    List<OperationCentre> opCentres = new List<OperationCentre>();
 
     [SerializeField] HumanPlayer humanPlayer;
 
     List<CityState> cityStatesTakingturns = new List<CityState>();
+    List<AIPlayer> playersTakingturns = new List<AIPlayer>();
 
-    
+
     public HumanPlayer HumanPlayer
     {
         get { return humanPlayer; }
@@ -49,7 +52,20 @@ public class GameController : MonoBehaviour
 
     IEnumerator NewTurn()
     {
-        
+        playersTakingturns.Clear();
+        foreach (AIPlayer aiPlayer in players)
+        {
+            if (aiPlayer)
+            {
+                playersTakingturns.Add(aiPlayer);
+                yield return StartCoroutine(aiPlayer.TakeTurn());
+            }
+
+        }
+        while (playersTakingturns.Count > 0)
+        {
+            yield return new WaitForEndOfFrame();
+        }
         cityStatesTakingturns.Clear();
         foreach (CityState cityState in cityStates)
         {
@@ -70,6 +86,10 @@ public class GameController : MonoBehaviour
         {
             cityState.StartTurn();
         }
+        if(humanPlayer.Alive == false)
+        {
+            EndGame();
+        }
         humanPlayer.StartTurn();
     }
 
@@ -85,7 +105,7 @@ public class GameController : MonoBehaviour
 
     public void EndGame()
     {
-
+        SceneManager.LoadScene(0);
     }
 
     public int PlayerCount()
@@ -169,6 +189,30 @@ public class GameController : MonoBehaviour
     {
         cityStates.Remove(cityState);
         cityState.DestroyCityState();
+    }
+
+    public void AddOperationCentre(OperationCentre opCentre)
+    {
+        opCentres.Add(opCentre);
+        opCentre.Player.AddOperationCentre(opCentre);
+    }
+
+    public void RemoveOperationCentre(OperationCentre opCentre)
+    {
+        opCentres.Remove(opCentre);
+        opCentre.Player.RemoveOperationCentre(opCentre);
+    }
+    public void RemoveOperationCentre(HexCell cell)
+    {
+        foreach (OperationCentre opCentre in opCentres)
+        {
+            if (opCentre.Location == cell)
+            {
+                RemoveOperationCentre(opCentre);
+                break;
+            }
+
+        }
     }
 
     public int CityStateCount()
