@@ -6,7 +6,17 @@ using System.Collections.Generic;
 
 public class HexMapEditor : MonoBehaviour {
 
-	public HexGrid hexGrid;
+    enum OptionalToggle
+    {
+        Ignore, Yes, No
+    }
+
+    [SerializeField] Dropdown playerUnits;
+    [SerializeField] Dropdown players;
+    [SerializeField] Dropdown cityStateUnits;
+    [SerializeField] Dropdown cityStates;
+
+    public HexGrid hexGrid;
     public GameController gameController;
 	public Material terrainMaterial;
 
@@ -24,14 +34,6 @@ public class HexMapEditor : MonoBehaviour {
 
 	bool applyUrbanLevel, applyFarmLevel, applyPlantLevel, applySpecialIndex;
 
-    [SerializeField] Dropdown playerUnits;
-    [SerializeField] Dropdown players;
-    [SerializeField] Dropdown cityStateUnits;
-    [SerializeField] Dropdown cityStates;
-
-    enum OptionalToggle {
-		Ignore, Yes, No
-	}
 
 	OptionalToggle riverMode, roadMode, walledMode;
 
@@ -111,15 +113,6 @@ public class HexMapEditor : MonoBehaviour {
 		enabled = toggle;
 	}
 
-	public void ShowGrid (bool visible) {
-		if (visible) {
-			terrainMaterial.EnableKeyword("GRID_ON");
-		}
-		else {
-			terrainMaterial.DisableKeyword("GRID_ON");
-		}
-	}
-
     void Awake()
     {
         terrainMaterial.DisableKeyword("GRID_ON");
@@ -181,8 +174,19 @@ public class HexMapEditor : MonoBehaviour {
 
         previousCell = null;
 	}
+    public void ShowGrid(bool visible)
+    {
+        if (visible)
+        {
+            terrainMaterial.EnableKeyword("GRID_ON");
+        }
+        else
+        {
+            terrainMaterial.DisableKeyword("GRID_ON");
+        }
+    }
 
-	HexCell GetCellUnderCursor () {
+    HexCell GetCellUnderCursor () {
 		return
 			hexGrid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
 	}

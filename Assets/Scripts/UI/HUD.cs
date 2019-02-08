@@ -10,8 +10,14 @@ public class HUD : MonoBehaviour {
 
     [SerializeField] HexGameUI HexGameUI;
     [SerializeField] Button endTurnButton;
-    Unit unit;
+    [SerializeField] AgentPanel agentPanel;
+    [SerializeField] CanvasRenderer cityPanel;
+    [SerializeField] CanvasRenderer opCentrePanel;
 
+    Unit unit;
+    City city;
+    HexCell targetCell;
+    OperationCentre opCentre;
     public Unit Unit
     {
         get
@@ -22,11 +28,58 @@ public class HUD : MonoBehaviour {
         set
         {
             unit = value;
-            TargetCell = unit.HexUnit.Location;
+            if (unit != null)
+            {
+                city = null;
+                opCentre = null;
+                TargetCell = unit.HexUnit.Location;
+                
+            }
+            UpdateUI();
         }
     }
 
-    HexCell targetCell;
+    public City City
+    {
+        get
+        {
+            return city;
+        }
+
+        set
+        {
+            city = value;
+            if (city != null)
+            {
+                opCentre = null;
+                unit = null;
+                TargetCell = city.GetHexCell();
+                
+            }
+            UpdateUI();
+        }
+    }
+
+    public OperationCentre OpCentre
+    {
+        get
+        {
+            return opCentre;
+        }
+
+        set
+        {
+            opCentre = value;
+            if(opCentre != null)
+            {
+                city = null;
+                unit = null;
+                TargetCell = opCentre.Location;
+                
+            }
+            UpdateUI();
+        }
+    }
 
     public HexCell TargetCell
     {
@@ -50,6 +103,14 @@ public class HUD : MonoBehaviour {
         }
     }
 
+    public void ClearUI()
+    {
+        unit = null;
+        city = null;
+        opCentre = null;
+        UpdateUI();
+    }
+
     public void EndTurn()
     {
         endTurnButton.interactable = false;
@@ -59,11 +120,50 @@ public class HUD : MonoBehaviour {
     public void StartTurn()
     {
         endTurnButton.interactable = true;
+        UpdateUI();
+    }
+
+    public void UpdateUI()
+    {
+        if (opCentre)
+        {
+            opCentrePanel.gameObject.SetActive(true);
+        }
+        else
+        {
+            opCentrePanel.gameObject.SetActive(false);
+        }
+        if (city)
+        {
+            cityPanel.gameObject.SetActive(true);
+        }
+        else
+        {
+            cityPanel.gameObject.SetActive(false);
+        }
+        if (unit)
+        {
+            agentPanel.SetActive(true);
+            agentPanel.Unit = unit;
+            agentPanel.UpdateUI();
+            
+        }
+        else
+        {
+            agentPanel.SetActive(false);
+        }
     }
 
     public void UseAbility(int abilityNumber)
     {
         TargetCell = Unit.HexUnit.Location;
         Unit.UseAbility(abilityNumber, TargetCell);
+        agentPanel.UpdateUI();
+    }
+
+    public void UseOpCentreAbility(int abilityNumber)
+    {
+        TargetCell = OpCentre.Location;
+        OpCentre.HireAgent(abilityNumber);
     }
 }

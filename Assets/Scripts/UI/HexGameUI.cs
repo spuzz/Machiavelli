@@ -61,10 +61,23 @@ public class HexGameUI : MonoBehaviour {
 	void DoSelection () {
 		grid.ClearPath();
 		UpdateCurrentCell();
-		if (currentCell && currentCell.GetTopUnit() && currentCell.GetTopUnit().Controllable) {
-			selectedUnit = currentCell.GetTopUnit();
-            HUD.Unit = selectedUnit.GetComponent<Unit>();
-		}
+		if (currentCell) {
+            if(currentCell.GetTopUnit() && currentCell.GetTopUnit().Controllable)
+            {
+                selectedUnit = currentCell.GetTopUnit();
+                HUD.Unit = selectedUnit.GetComponent<Unit>();
+            }
+            else if (currentCell.City)
+            {
+                selectedUnit = null;
+                HUD.City  = currentCell.City;
+            }
+            else if(currentCell.OpCentre)
+            {
+                selectedUnit = null;
+                HUD.OpCentre = currentCell.OpCentre;
+            }
+        }
 	}
 
 	void DoPathfinding () {
@@ -82,6 +95,7 @@ public class HexGameUI : MonoBehaviour {
 		if (grid.HasPath) {
 			selectedUnit.GetComponent<Unit>().SetPath(grid.GetPath());
 			grid.ClearPath();
+            HUD.UpdateUI();
 		}
 	}
 

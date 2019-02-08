@@ -277,6 +277,7 @@ GameObject:
   - component: {fileID: 4421854725932508}
   - component: {fileID: 114701888605048992}
   - component: {fileID: 114202423551481496}
+  - component: {fileID: 114628642190381158}
   m_Layer: 0
   m_Name: Unit
   m_TagString: Untagged
@@ -858,6 +859,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   baseMovement: 2
   movementLeft: 0
+  baseStrength: 20
   hexUnit: {fileID: 114701888605048992}
   baseMovementFactor: 5
   baseHitPoints: 100
@@ -865,6 +867,18 @@ MonoBehaviour:
     type: 2}
   backGround: {fileID: 10912, guid: 0000000000000000f000000000000000, type: 0}
   symbol: {fileID: 2800000, guid: 065f894ba24fad04b9f3937711e1ac5c, type: 3}
+--- !u!114 &114628642190381158
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1716964107277084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 28d1793497ba42e4ba88c3d43ab4f000, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  abilities: []
 --- !u!114 &114701888605048992
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -877,6 +891,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   meshChild: {fileID: 4050775932957432}
+  pathToTravel: []
 --- !u!137 &137242769703270820
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1
