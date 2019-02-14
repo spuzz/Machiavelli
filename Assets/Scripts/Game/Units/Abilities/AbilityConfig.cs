@@ -6,11 +6,80 @@ public abstract class AbilityConfig : ScriptableObject
 
     [Header("Special Ability General")]
     [SerializeField] int cost = 10;
+    [SerializeField] int range = 1;
     [SerializeField] GameObject particlePrefab = null;
     [SerializeField] AnimationClip abilityAnimation;
     [SerializeField] AudioClip[] audioClips;
-
+    [SerializeField] Sprite pressedIcon;
+    [SerializeField] Sprite disabledIcon;
+    [SerializeField] Sprite defaultIcon;
+    [SerializeField] GameObject textEffect;
     protected AbilityBehaviour behaviour;
+
+    public int Range
+    {
+        get
+        {
+            return range;
+        }
+
+        set
+        {
+            range = value;
+        }
+    }
+
+    public Sprite PressedIcon
+    {
+        get
+        {
+            return pressedIcon;
+        }
+
+        set
+        {
+            pressedIcon = value;
+        }
+    }
+
+    public Sprite DisabledIcon
+    {
+        get
+        {
+            return disabledIcon;
+        }
+
+        set
+        {
+            disabledIcon = value;
+        }
+    }
+
+    public Sprite DefaultIcon
+    {
+        get
+        {
+            return defaultIcon;
+        }
+
+        set
+        {
+            defaultIcon = value;
+        }
+    }
+
+    public GameObject TextEffect
+    {
+        get
+        {
+            return textEffect;
+        }
+
+        set
+        {
+            textEffect = value;
+        }
+    }
 
     abstract public AbilityBehaviour GetBehaviourComponent(GameObject gameObjectToAttachTo);
 
@@ -24,7 +93,7 @@ public abstract class AbilityConfig : ScriptableObject
     {
         behaviour.Use(target);
     }
-    public bool IsValidTarget(HexCell target = null)
+    public List<HexCell> IsValidTarget(HexCell target = null)
     {
         return behaviour.IsValidTarget(target);
     }

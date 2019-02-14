@@ -17,7 +17,7 @@ public class HexGrid : MonoBehaviour {
 	public HexGridChunk chunkPrefab;
 	public HexUnit unitPrefab;
     public City cityPrefab;
-    public OperationCentre opCentrePrefab;
+
 
     public Texture2D noiseSource;
 
@@ -60,37 +60,15 @@ public class HexGrid : MonoBehaviour {
         set
         {
             editMode = value;
-            foreach (HexCell hexCell in cells)
+            if(value == false)
             {
-                hexCell.EditMode = value;
-            }
-            if (editMode == true)
-            {
-                foreach (City city in cities)
-                {
-                    city.EnableUI(true);
-                }
-
-                foreach (HexUnit hexUnit in units)
-                {
-                    hexUnit.EnableMesh(true);
-                    hexUnit.GetComponent<Unit>().EnableUI(true);
-                }
+                gameController.VisionSystem.TurnOffEditMode();
             }
             else
             {
-                foreach (City city in cities)
-                {
-                    city.EnableUI(false);
-                }
-                foreach (HexUnit hexUnit in units)
-                {
-
-                    hexUnit.EnableMesh(false);
-                    hexUnit.GetComponent<Unit>().EnableUI(false);
-                    hexUnit.Location.UpdateVision();
-                }
+                gameController.VisionSystem.TurnOnEditMode();
             }
+            
         }
     }
 
@@ -115,69 +93,77 @@ public class HexGrid : MonoBehaviour {
         yield return mapSetup.SetupMap();
 
     }
-    public void AddUnit (HexUnit unit, HexCell location, float orientation) {
+    public void AddUnit (HexUnit unit) {
 		units.Add(unit);
-		unit.Grid = this;
-		unit.Location = location;
-		unit.Orientation = orientation;
+
 	}
 
-    public void AddCity(HexCell cell)
+    public void CreateCity(HexCell cell)
     {
-        City instance = Instantiate(cityPrefab);
-        instance.transform.localPosition  = HexMetrics.Perturb(cell.Position);
-        instance.SetHexCell(cell);
-        cities.Add(instance);
-        gameController.AddCity(instance);
-        
-    }
-
-    public void AddOperationCentre(HexCell cell, Player player)
-    {
-        OperationCentre instance = Instantiate(opCentrePrefab);
-        instance.transform.localPosition = HexMetrics.Perturb(cell.Position);
-        instance.Location = cell;
-        instance.Player = player;
-        opCentres.Add(instance);
-        gameController.AddOperationCentre(instance);
+        if(!cell.City)
+        {
+            CityState cityState = gameController.CreateCityState();
+            gameController.CreateCity(cell, cityState);
+        }
 
     }
-    public void RemoveOperationCentre(HexCell cell)
+    public void AddCity(City city)
+    {
+        cities.Add(city);
+    }
+
+    public void DestroyCity(City city)
+    {
+        gameController.DestroyCity(city);
+    }
+
+    public void RemoveCity(City city)
+    {
+        if (city)
+        {
+            cities.Remove(city);
+        }
+    }
+
+    public void CreateOperationCentre(HexCell cell, Player player)
+    {
+        if(!cell.OpCentre)
+        {
+            gameController.CreateOperationCentre(cell, player);
+        }
+
+    }
+
+    public void AddOperationCentre(OperationCentre opCentre)
+    {
+        opCentres.Add(opCentre);
+    }
+
+    public void DestroyOperationCentre(HexCell cell)
     {
         if (cell.OpCentre)
         {
-            opCentres.Remove(cell.OpCentre);
+            gameController.DestroyOperationCentre(cell.OpCentre);
         }
-        gameController.RemoveOperationCentre(cell);
-    }
-
-    public void AddCity(HexCell cell, CityState cityState)
-    {
-        City instance = Instantiate(cityPrefab);
-        instance.transform.localPosition = HexMetrics.Perturb(cell.Position);
-        instance.SetHexCell(cell);
-        instance.SetCityState(cityState);
-        instance.UpdateUI();
-        cities.Add(instance);
-        gameController.AddCity(instance);
         
     }
 
-    public void RemoveCity(HexCell cell)
+    public void RemoveOperationCentre(OperationCentre opCentre)
     {
-        if(cell.City)
-        {
-            cities.Remove(cell.City);
-        }
-        gameController.RemoveCity(cell);
+        opCentres.Remove(opCentre);
     }
 
 	public void RemoveUnit (HexUnit unit) {
 		units.Remove(unit);
-		//unit.Die();
 	}
 
-	public void MakeChildOfColumn (Transform child, int columnIndex) {
+    public void DestroyUnit(HexUnit unit)
+    {
+        gameController.DestroyUnit(unit.GetComponent<Unit>());
+    }
+
+
+    public void MakeChildOfColumn (Transform child, int columnIndex) {
 		child.SetParent(columns[columnIndex], false);
 	}
 
@@ -239,7 +225,7 @@ public class HexGrid : MonoBehaviour {
 
 	void ClearUnits () {
 		for (int i = 0; i < units.Count; i++) {
-			units[i].Die();
+            gameController.DestroyUnit(units[i].GetComponent<Unit>());
 		}
 		units.Clear();
 	}
@@ -400,6 +386,7 @@ public class HexGrid : MonoBehaviour {
 		ClearUnits();
         ClearCitiesAndStates();
         ClearPlayers();
+        gameController.VisionSystem.Clear();
         int x = 20, z = 15;
         x = reader.ReadInt32();
         z = reader.ReadInt32();
@@ -475,8 +462,26 @@ public class HexGrid : MonoBehaviour {
 		currentPathFrom.EnableHighlight(Color.blue);
 		currentPathTo.EnableHighlight(Color.red);
 	}
+    public void HighlightCells(List<HexCell> cells)
+    {
+        foreach(HexCell cell in cells)
+        {
+            cell.EnableHighlight(Color.red);
+        }
+        
+    }
 
-	public void FindPath (HexCell fromCell, HexCell toCell, HexUnit unit, bool allowUnexplored = false, bool showPath = true) {
+    public void ClearHighlightedCells(List<HexCell> cells)
+    {
+        foreach (HexCell cell in cells)
+        {
+            cell.DisableHighlight();
+        }
+
+    }
+
+
+    public void FindPath (HexCell fromCell, HexCell toCell, HexUnit unit, bool allowUnexplored = false, bool showPath = true) {
 		ClearPath();
 		currentPathFrom = fromCell;
 		currentPathTo = toCell;
@@ -559,7 +564,7 @@ public class HexGrid : MonoBehaviour {
 	public void IncreaseVisibility (HexCell fromCell, int range) {
 		List<HexCell> cells = GetVisibleCells(fromCell, range);
 		for (int i = 0; i < cells.Count; i++) {
-			cells[i].IncreaseVisibility();
+			cells[i].IncreaseVisibility(editMode);
 		}
 		ListPool<HexCell>.Add(cells);
 	}
@@ -680,5 +685,20 @@ public class HexGrid : MonoBehaviour {
 		}
 	}
 
+    public void SetAllCellsToOneVision()
+    {
+        foreach(HexCell cell in cells)
+        {
+            cell.ResetVisibility();
+            cell.IncreaseVisibility(editMode);
+        }
+    }
 
+    public void SetVisibilityToZero()
+    {
+        foreach (HexCell cell in cells)
+        {
+            cell.ResetVisibility();
+        }
+    }
 }

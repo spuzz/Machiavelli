@@ -2537,6 +2537,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   abilities:
   - {fileID: 11400000, guid: d68dce96242eeaf488f2ff60a6fea64b, type: 2}
+  - {fileID: 11400000, guid: 2882c4ba49797a74f87306b975ef1153, type: 2}
+  - {fileID: 11400000, guid: 52367de27e2099d458c662657fdaa388, type: 2}
+  - {fileID: 11400000, guid: 40a0ca6e1eb92574f94137a3a7da1e77, type: 2}
+  - {fileID: 11400000, guid: 0e0373322e1192a42bc4db50c84040da, type: 2}
+  - {fileID: 11400000, guid: 2bb5d9bc2dd845d47afa99b506e3a856, type: 2}
 --- !u!114 &114637004898301920
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -2558,6 +2563,8 @@ MonoBehaviour:
     type: 2}
   backGround: {fileID: 10906, guid: 0000000000000000f000000000000000, type: 0}
   symbol: {fileID: 2800000, guid: 94ca59b6f172350408117ba1b1ce2161, type: 3}
+  textEffect: {fileID: 114403480769443986, guid: cbce99c46ef89c94f965d408ea4706c6,
+    type: 2}
 --- !u!114 &114784200629424832
 MonoBehaviour:
   m_ObjectHideFlags: 1

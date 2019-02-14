@@ -38,10 +38,7 @@ public class HumanPlayer : Player {
         int unitCount = reader.ReadInt32();
         for (int i = 0; i < unitCount; i++)
         {
-            Agent agent = Agent.Load(reader, hexGrid, header);
-            agent.HexUnit.Visible = true;
-            agent.HexUnit.Controllable = true;
-            AddAgent(agent);
+            Agent agent = Agent.Load(reader, gameController, hexGrid, header, this);
         }
         ClearExploredCells();
         ClearOperationCentres();

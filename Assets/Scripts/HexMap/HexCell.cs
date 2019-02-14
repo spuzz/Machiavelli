@@ -343,19 +343,6 @@ public class HexCell : MonoBehaviour {
 
 	public HexCellShaderData ShaderData { get; set; }
 
-    bool editMode;
-    public bool EditMode
-    {
-        get
-        {
-            return editMode;
-        }
-
-        set
-        {
-            editMode = value;
-        }
-    }
 
     City city;
     public City City
@@ -431,7 +418,7 @@ public class HexCell : MonoBehaviour {
         {
             if (City)
             {
-                City.EnableUI(true);
+                City.HexVision.Visible = true;
             }
             bool lastVisibleUnit = false;
             for (int a = hexUnits.Count - 1; a >= 0; a--)
@@ -442,47 +429,47 @@ public class HexCell : MonoBehaviour {
                     if (hexUnits[a].transform.localPosition == this.Position)
                     {
                         lastVisibleUnit = true;
-                        if (EditMode == false)
-                        {
-                            hexUnits[a].EnableMesh(true);
-                            hexUnits[a].GetComponent<Unit>().EnableUI(true);
-                        }
+                        hexUnits[a].HexVision.Visible = true;
+                           
 
                     }
                 }
                 else
                 {
-                    if (EditMode == false)
+                    if(hexUnits[a].HexVision.HasVision == false)
                     {
-
-                        hexUnits[a].EnableMesh(false);
-                        hexUnits[a].GetComponent<Unit>().EnableUI(false);
+                        hexUnits[a].HexVision.Visible = false;
                     }
+                    
                 }
             }
         }
         else
         {
-            for (int a = hexUnits.Count - 1; a >= 0; a--)
+            if (City)
             {
-                if (EditMode == false && hexUnits[a].Visible == false)
+                City.HexVision.Visible = false;
+            }
+            foreach(HexUnit unit in hexUnits)
+            {
+                if (unit.HexVision.HasVision == false)
                 {
-                    hexUnits[a].EnableMesh(false);
-                    hexUnits[a].GetComponent<Unit>().EnableUI(false);
-                    if(City)
-                    {
-                        City.EnableUI(false);
-                    }
+                    unit.HexVision.Visible = false;
+
                 }
             }
         }
     }
 
-    public void IncreaseVisibility () {
+    public void IncreaseVisibility (bool editMode) {
 		visibility += 1;
 		if (visibility == 1)
         {
-            IsExplored = true;
+            if(editMode == false)
+            {
+                IsExplored = true;
+            }
+            
             ShaderData.RefreshVisibility(this);
             UpdateVision();
         }

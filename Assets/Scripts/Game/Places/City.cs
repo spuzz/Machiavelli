@@ -20,6 +20,7 @@ public class City : MonoBehaviour {
     [SerializeField] List<BuildConfig> availableUnits;
     [SerializeField] int food = 0;
     [SerializeField] int population = 1;
+    [SerializeField] int visionRange = 2;
 
     int currentStrength = 0;
     int currentProduction = 0;
@@ -28,13 +29,12 @@ public class City : MonoBehaviour {
     int currentIncome = 0;
     int foodConsumption = 0;
     int foodForNextPop = 0;
-    bool vision = false;
     CityState cityStateOwner;
     GameController gameController;
     HexCell hexCell;
     Color towerColor = Color.black;
     List<HexCell> ownedCells = new List<HexCell>();
-
+    HexVision hexVision;
     public float HealthAsPercentage
     {
         get { return (float)hitPoints / (float)baseHitPoints; }
@@ -58,54 +58,6 @@ public class City : MonoBehaviour {
         get { return baseStrength; }
     }
 
-    public bool Vision
-    {
-        get
-        {
-            return vision;
-        }
-
-        set
-        {
-            if(vision != value)
-            {
-                foreach (HexCell hexCell in ownedCells)
-                {
-                    if (vision == false && value == true)
-                    {
-                        hexCell.IncreaseVisibility();
-                    }
-                    else if (vision == true && value == false)
-                    {
-                        hexCell.DecreaseVisibility();
-                    }
-
-                    for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
-                    {
-                        HexCell neighbour = hexCell.GetNeighbor(d);
-                        if(neighbour)
-                        {
-                            if (vision == false && value == true)
-                            {
-                                neighbour.IncreaseVisibility();
-                            }
-                            else if(vision == true && value == false)
-                            {
-                                neighbour.DecreaseVisibility();
-                            }
-                            
-                        }
-                            
-                    }
-
-                }
-                vision = value;
-            }
-
- 
-        }
-    }
-
     public Color TowerColor
     {
         get { return towerColor; }
@@ -113,7 +65,7 @@ public class City : MonoBehaviour {
         {
             towerColor = value;
 
-            cityUI.SetPlayerColour(towerColor);
+            CityUI.SetPlayerColour(towerColor);
             foreach (HexCell hexCell in ownedCells)
             {
                 hexCell.CellSecondColor = towerColor;
@@ -145,7 +97,46 @@ public class City : MonoBehaviour {
         set
         {
             population = value;
-            cityUI.SetPopulation(population.ToString());
+            CityUI.SetPopulation(population.ToString());
+        }
+    }
+
+    public HexVision HexVision
+    {
+        get
+        {
+            return hexVision;
+        }
+
+        set
+        {
+            hexVision = value;
+        }
+    }
+
+    public int VisionRange
+    {
+        get
+        {
+            return visionRange;
+        }
+
+        set
+        {
+            visionRange = value;
+        }
+    }
+
+    public CityUI CityUI
+    {
+        get
+        {
+            return cityUI;
+        }
+
+        set
+        {
+            cityUI = value;
         }
     }
 
@@ -182,6 +173,7 @@ public class City : MonoBehaviour {
         }
         UpdateWalls();
         AddCellYield(hexCell);
+        HexVision.SetCells(hexGrid.GetVisibleCells(hexCell, VisionRange));
     }
 
 
@@ -194,8 +186,10 @@ public class City : MonoBehaviour {
     {
         gameController = FindObjectOfType<GameController>();
         hexGrid = FindObjectOfType<HexGrid>();
+        hexVision = gameObject.AddComponent<HexVision>();
         hitPoints = baseHitPoints;
         CalculateFoodForNextPop();
+        gameController.VisionSystem.AddHexVision(hexVision);
 
     }
 
@@ -249,18 +243,19 @@ public class City : MonoBehaviour {
     }
 
 
-    public void EnableUI(bool vision)
-    {
-        cityUI.Visible = vision;
-
-    }
     public void UpdateUI()
     {
-        cityUI.SetCityStateColour(cityStateOwner.Color);
-        cityUI.UpdateHealthBar();
+
+        CityUI.SetCityStateColour(cityStateOwner.Color);
+        CityUI.UpdateHealthBar();
+
         if (cityStateOwner.Player)
         {
             TowerColor = cityStateOwner.Player.Color;
+        }
+        else
+        {
+            TowerColor = Color.black;
         }
         foreach (HexCell hexCell in ownedCells)
         {
@@ -307,16 +302,18 @@ public class City : MonoBehaviour {
 
     public bool CreateUnit(BuildConfig buildConfig)
     {
-        HexUnit hexUnit = Instantiate(buildConfig.GameObjectPrefab.GetComponent<HexUnit>());
-        hexUnit.UnitPrefabName = buildConfig.PreFabName;
-        HexCell cell = PathFindingUtilities.FindFreeCell(hexUnit,hexCell);
-        if(!cell)
+        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(hexCell, 2);
+        foreach(HexCell cell in cells)
         {
-            return false;
+            if(cell.CanUnitMoveToCell(HexUnit.UnitType.COMBAT))
+            {
+                HexUnit hexUnit = gameController.CreateCityStateUnit(buildConfig.GameObjectPrefab, buildConfig.PreFabName, cell, cityStateOwner.CityStateID);
+                hexUnit.Location.UpdateVision();
+                cityStateOwner.UpdateVision();
+                return true;
+            }
         }
-        hexGrid.AddUnit(hexUnit, cell, UnityEngine.Random.Range(0f, 360f));
-        gameController.CreateCityStateUnit(hexUnit, cityStateOwner.CityStateID);
-        return true;
+        return false;
     }
 
     public void BuildBuilding()
@@ -384,6 +381,6 @@ public class City : MonoBehaviour {
         int cityStateID = reader.ReadInt32();
         CityState cityState = gameController.GetCityState(cityStateID);
         HexCell cell = hexGrid.GetCell(coordinates);
-        hexGrid.AddCity(cell, cityState);
+        gameController.CreateCity(cell, cityState);
     }
 }

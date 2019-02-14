@@ -157,7 +157,7 @@ public class HUD : MonoBehaviour {
     public void UseAbility(int abilityNumber)
     {
         TargetCell = Unit.HexUnit.Location;
-        Unit.UseAbility(abilityNumber, TargetCell);
+        Unit.AttemptAbility(abilityNumber, TargetCell);
         agentPanel.UpdateUI();
     }
 

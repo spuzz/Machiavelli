@@ -16,35 +16,52 @@ public class BribeBehaviour : AbilityBehaviour
             cityState.CheckInfluence();
 
         }
-        PlayParticleEffect();
-        PlayAbilitySound();
-        PlayAnimation();
-    }
-    public override bool IsValidTarget(HexCell target)
-    {
-        if (!target.City)
+        if(target.IsVisible)
         {
-            return false;
-        }
-        CityState cityState = target.City.GetCityState();
-        if(!cityState)
-        {
-            return false;
+            PlayParticleEffect();
+            PlayAbilitySound();
+            PlayAnimation();
+            if(gameObject.GetComponent<Unit>().GetPlayer().IsHuman)
+            {
+                PlayTextEffect((config as BribeConfig).GetInfluence().ToString(), target, Color.yellow);
+            }
+            else
+            {
+                PlayTextEffect((config as BribeConfig).GetInfluence().ToString(), target, Color.blue);
+            }
+            
         }
 
-        Player player = cityState.Player;
-        if(player)
+    }
+    public override List<HexCell> IsValidTarget(HexCell target)
+    {
+        List<HexCell> targetCells = new List<HexCell>();
+        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(target, (config as BribeConfig).Range);
+        List<HexCell> cityCells = cells.FindAll(c => c.City);
+        foreach(HexCell cityCell in cityCells)
         {
-            if(player != gameObject.GetComponent<Unit>().GetPlayer())
+            CityState cityState = cityCell.City.GetCityState();
+            if (!cityState)
             {
-                return false;
+                continue;
             }
-            if (cityState.GetInfluence(player) >= 100)
+
+            Player player = cityState.Player;
+            if (player)
             {
-                return false;
+                if (player != gameObject.GetComponent<Unit>().GetPlayer())
+                {
+                    continue;
+                }
+                if (cityState.GetInfluence(player) >= 100)
+                {
+                    continue;
+                }
             }
+            targetCells.Add(cityCell);
         }
-        return true;
+
+        return targetCells;
     }
 
 

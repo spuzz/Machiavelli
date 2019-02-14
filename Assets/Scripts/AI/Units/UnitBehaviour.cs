@@ -183,6 +183,7 @@ public class UnitBehaviour : MonoBehaviour
 
     public HexCell Patrol(HexCell hexCell, int radius)
     {
+        HexCell target = null;
         List<HexUnit> units = hexGrid.GetUnitsInRange(hexCell, radius);
         foreach (HexUnit unit in units)
         {
@@ -190,7 +191,12 @@ public class UnitBehaviour : MonoBehaviour
             {
                 if (unit.GetComponent<Unit>().CityState && unit.GetComponent<Unit>().CityState.CityStateID != ActiveUnit.GetComponent<Unit>().CityState.CityStateID)
                 {
-                    return unit.Location;
+                    hexGrid.FindPath(ActiveUnit.HexUnit.Location, unit.Location, ActiveUnit.HexUnit, true, false);
+                    target = GetFirstCellFromPath();
+                    if (target)
+                    {
+                        return target;
+                    }
                 }
             }
         }
@@ -199,7 +205,6 @@ public class UnitBehaviour : MonoBehaviour
             hexGrid.FindPath(unit.HexUnit.Location, hexCell, unit.HexUnit);
             return GetFirstCellFromPath();
         }
-        HexCell target = null;
 
         List<HexDirection> directions = Enum.GetValues(typeof(HexDirection)).Cast<HexDirection>().ToList();
         while(directions.Count > 0 && !target)

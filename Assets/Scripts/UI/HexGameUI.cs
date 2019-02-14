@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.EventSystems;
 
 public class HexGameUI : MonoBehaviour {
@@ -14,6 +15,9 @@ public class HexGameUI : MonoBehaviour {
 
     private bool editMode;
 
+    private bool abilitySelection = false;
+    private int abilityIndex;
+    private List<HexCell> abilityTargetOptions;
     public void SetEditMode(bool toggle) {
         editMode = toggle;
         enabled = !toggle;
@@ -30,27 +34,60 @@ public class HexGameUI : MonoBehaviour {
 	}
 
 	void Update () {
-		if (!EventSystem.current.IsPointerOverGameObject()) {
-			if (Input.GetMouseButtonDown(0)) {
-				DoSelection();
-			}
-			else if (selectedUnit) {
-				if (Input.GetMouseButtonDown(1)) {
-					DoMove();
-				}
-				else {
-					DoPathfinding();
-				}
-			}
-		}
+        if (abilitySelection == true)
+        {
+            DoAbilityInput();
+        }
+        else
+        {
+            DoSelectionInput();
+        }
 
-        if(grid.EditMode != editMode)
+
+        if (grid.EditMode != editMode)
         {
             SetEditMode(grid.EditMode);
         }
 
 
 
+    }
+
+    private void DoSelectionInput()
+    {
+        if (!EventSystem.current.IsPointerOverGameObject())
+        {
+            if (Input.GetMouseButtonDown(0))
+            {
+                DoSelection();
+            }
+            else if (selectedUnit)
+            {
+                if (Input.GetMouseButtonDown(1))
+                {
+                    DoMove();
+                }
+                else
+                {
+                    DoPathfinding();
+                }
+            }
+        }
+    }
+
+    private void DoAbilityInput()
+    {
+        if (Input.GetMouseButtonDown(0))
+        {
+            FinishAbilitySelection();
+        }
+        else if(Input.GetKeyDown(KeyCode.Escape))
+        {
+            grid.ClearPath();
+            abilitySelection = false;
+            abilityTargetOptions.Clear();
+            HUD.UpdateUI();
+        }
     }
 
     public void ToggleEditMode()
@@ -80,6 +117,7 @@ public class HexGameUI : MonoBehaviour {
         }
 	}
 
+
 	void DoPathfinding () {
 		if (UpdateCurrentCell()) {
 			if (currentCell && selectedUnit.IsValidDestination(currentCell)) {
@@ -98,8 +136,30 @@ public class HexGameUI : MonoBehaviour {
             HUD.UpdateUI();
 		}
 	}
+    public void DoAbilitySelection(List<HexCell> cellOptions, int index)
+    {
+        abilityTargetOptions = cellOptions;
+        abilitySelection = true;
+        abilityIndex = index;
+        grid.ClearPath();
+        grid.HighlightCells(abilityTargetOptions);
+       
+    }
 
-	bool UpdateCurrentCell () {
+    void FinishAbilitySelection()
+    {
+        HexCell target = grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
+        if (selectedUnit && target && abilityTargetOptions.Contains(target))
+        {
+            selectedUnit.GetComponent<Unit>().UseAbility(abilityIndex, target);
+        }
+        grid.ClearHighlightedCells(abilityTargetOptions);
+        abilitySelection = false;
+        abilityTargetOptions.Clear();
+        HUD.UpdateUI();
+    }
+
+    bool UpdateCurrentCell () {
 		HexCell cell =
 			grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
 		if (cell != currentCell) {

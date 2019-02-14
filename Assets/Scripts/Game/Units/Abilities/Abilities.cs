@@ -11,7 +11,7 @@ public class Abilities : MonoBehaviour
 
     AudioSource audioSource;
     Unit unit;
-
+    HexGameUI hexGameUI;
     public List<AbilityConfig> AbilitiesList
     {
         get
@@ -25,6 +25,10 @@ public class Abilities : MonoBehaviour
         }
     }
 
+    void Awake()
+    {
+        hexGameUI = FindObjectOfType<HexGameUI>();
+    }
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
@@ -33,7 +37,7 @@ public class Abilities : MonoBehaviour
 
     }
 
-    public bool IsAbilityValid(int index, HexCell hexCell, int range)
+    public bool IsAbilityValid(int index, HexCell hexCell)
     {
         if (unit.GetMovementLeft() <= 0)
         {
@@ -44,31 +48,50 @@ public class Abilities : MonoBehaviour
         {
             return false;
         }
+        if(AbilitiesList[index].IsValidTarget(hexCell).Count == 0)
+        {
+            return false;
+        }
+        return true;
+    }
+
+    public List<HexCell> ValidTargets(int index, HexCell hexCell)
+    {
+        if (unit.GetMovementLeft() <= 0)
+        {
+            return new List<HexCell>();
+        }
+        int goldCost = AbilitiesList[index].GetCost();
+        if (unit.GetPlayer().Gold < goldCost)
+        {
+            return new List<HexCell>();
+        }
+
         return AbilitiesList[index].IsValidTarget(hexCell);
     }
 
+
     public void AttemptAbility(int index, HexCell hexCell)
     {
-        if(unit.GetMovementLeft() <= 0)
-        {
-            return;
-        }
+
         int goldCost = AbilitiesList[index].GetCost();
-        if (unit.GetPlayer().Gold > goldCost)
-        {
-            unit.GetPlayer().Gold -= goldCost;
-            // todo make work
-            AbilitiesList[index].Use(hexCell);
-            unit.SetMovementLeft(0);
-        }
-        else
+        if(unit.GetPlayer().Gold < goldCost  || unit.GetMovementLeft() <= 0)
         {
             if (!audioSource.isPlaying)
             {
                 //audioSource.PlayOneShot(outOfEnergy);
             }
-
+            return;
         }
+        List<HexCell> targets = ValidTargets(index, hexCell);
+        hexGameUI.DoAbilitySelection(targets, index);
+    }
+
+    public void UseAbility(int index, HexCell hexCell)
+    {
+        unit.GetPlayer().Gold -= AbilitiesList[index].GetCost();
+        unit.SetMovementLeft(0);
+        AbilitiesList[index].Use(hexCell);
     }
 
     public int GetNumberOfAbilities()

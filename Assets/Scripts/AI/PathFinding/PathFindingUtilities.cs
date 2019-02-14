@@ -72,16 +72,22 @@ public static class PathFindingUtilities
         List<HexCell> cells = new List<HexCell>();
         List<HexCell> lastCells = new List<HexCell>();
         List<HexCell> currentCells = new List<HexCell>();
+        cells.Add(hexCell);
+        currentCells.Add(hexCell);
         for (int a =0; a< range; a++)
         {
-            lastCells = currentCells;
+            foreach(HexCell cell in currentCells)
+            {
+                lastCells.Add(cell);
+            }
+            
             currentCells.Clear();
             foreach (HexCell lastCell in lastCells)
             {
                 for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
                 {
                     HexCell neighbor = lastCell.GetNeighbor(d);
-                    if (neighbor && !lastCells.Contains(neighbor) && cells.Contains(neighbor))
+                    if (neighbor && !lastCells.Contains(neighbor) && !cells.Contains(neighbor))
                     {
                         currentCells.Add(neighbor);
                         cells.Add(neighbor);

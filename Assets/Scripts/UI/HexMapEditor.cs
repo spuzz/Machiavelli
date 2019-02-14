@@ -207,11 +207,9 @@ public class HexMapEditor : MonoBehaviour {
                 player = gameController.GetPlayer(playerID);
             }
             
-            HexUnit hexUnit = Instantiate(Resources.Load(name) as GameObject).GetComponent<HexUnit>();
-            hexUnit.UnitPrefabName = name;
-            hexGrid.AddUnit(hexUnit, cell, Random.Range(0f, 360f));
 
-            gameController.CreateAgent(hexUnit, player);
+
+            gameController.CreateAgent(name, cell, player);
 
 
         }
@@ -224,7 +222,7 @@ public class HexMapEditor : MonoBehaviour {
 	void DestroyUnit () {
 		HexCell cell = GetCellUnderCursor();
 		if (cell && cell.GetTopUnit()) {
-			hexGrid.RemoveUnit(cell.GetTopUnit());
+			hexGrid.DestroyUnit(cell.GetTopUnit());
 		}
 	}
 
@@ -235,10 +233,7 @@ public class HexMapEditor : MonoBehaviour {
         {
             string name = cityStateUnits.options[cityStateUnits.value].text;
             int cityStateID = System.Convert.ToInt32(cityStates.options[cityStates.value].text);
-            HexUnit hexUnit = Instantiate(Resources.Load(name) as GameObject).GetComponent<HexUnit>();
-            hexUnit.UnitPrefabName = name;
-            hexGrid.AddUnit(hexUnit, cell, Random.Range(0f, 360f));
-            gameController.CreateCityStateUnit(hexUnit, cityStateID);
+            gameController.CreateCityStateUnit(name, cell, cityStateID);
         }
     }
 
@@ -325,12 +320,15 @@ public class HexMapEditor : MonoBehaviour {
 			if (applySpecialIndex) {
                 if(activeSpecialIndex == 2)
                 {
-                    hexGrid.RemoveCity(cell);
-                    hexGrid.AddCity(cell);
+                    hexGrid.CreateCity(cell);
                 }
                 else
                 {
-                    hexGrid.RemoveCity(cell);
+                    if(cell.City)
+                    {
+                        hexGrid.DestroyCity(cell.City);
+                    }
+                    
                 }
                 if (activeSpecialIndex == 3)
                 {
@@ -345,12 +343,11 @@ public class HexMapEditor : MonoBehaviour {
                         int playerID = System.Convert.ToInt32(players.options[players.value].text);
                         player = gameController.GetPlayer(playerID);
                     }
-                    hexGrid.RemoveOperationCentre(cell);
-                    hexGrid.AddOperationCentre(cell, player);
+                    hexGrid.CreateOperationCentre(cell, player);
                 }
                 else
                 {
-                    hexGrid.RemoveOperationCentre(cell);
+                    hexGrid.DestroyOperationCentre(cell);
                 }
 
                 cell.SpecialIndex = activeSpecialIndex;

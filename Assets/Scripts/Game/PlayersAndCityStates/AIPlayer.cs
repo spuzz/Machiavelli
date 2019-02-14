@@ -44,8 +44,7 @@ public class AIPlayer : Player
         int unitCount = reader.ReadInt32();
         for (int i = 0; i < unitCount; i++)
         {
-            Agent agent = Agent.Load(reader, hexGrid, header);
-            agent.HexUnit.Visible = false;
+            Agent agent = Agent.Load(reader, gameController, hexGrid, header, instance);
             instance.AddAgent(agent);
         }
         instance.LoadPlayer(reader, gameController, hexGrid, header);

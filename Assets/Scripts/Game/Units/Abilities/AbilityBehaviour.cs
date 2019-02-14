@@ -9,7 +9,7 @@ public abstract class AbilityBehaviour : MonoBehaviour
 
     const float PARTICLE_CLEAN_UP_DELAY = 20;
     public abstract void Use(HexCell target = null);
-    public abstract bool IsValidTarget(HexCell target);
+    public abstract List<HexCell> IsValidTarget(HexCell target);
 
     public void SetConfig(AbilityConfig configToSet)
     {
@@ -42,7 +42,8 @@ public abstract class AbilityBehaviour : MonoBehaviour
     {
         var abilitySound = config.GetRandomAudioClip();
         var audioSource = GetComponent<AudioSource>();
-        //audioSource.PlayOneShot(abilitySound);
+        audioSource.clip = abilitySound;
+        audioSource.Play();
     }
 
     protected void PlayAnimation()
@@ -53,6 +54,12 @@ public abstract class AbilityBehaviour : MonoBehaviour
 
         //overrideController[DEFAULT_ATTACK] = abilityAnimation;
         //animator.SetTrigger("Attack");
+    }
+
+    protected void PlayTextEffect(string text, HexCell cell, Color color, int time = 0)
+    {
+        HexCellTextEffect effect = Instantiate(config.TextEffect).GetComponent<HexCellTextEffect>();
+        effect.Show(text, cell.transform, color, time);
     }
 }
 

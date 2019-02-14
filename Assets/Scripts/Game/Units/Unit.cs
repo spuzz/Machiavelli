@@ -15,6 +15,7 @@ public abstract class Unit : MonoBehaviour {
     [SerializeField] GameObject unitUiPrefab;
     [SerializeField] Texture backGround;
     [SerializeField] Texture symbol;
+    [SerializeField] HexCellTextEffect textEffect;
 
     protected Abilities abilities;
     bool alive = true;
@@ -24,21 +25,36 @@ public abstract class Unit : MonoBehaviour {
     HexCell fightInCell;
     UnitUI unitUI;
     UnitBehaviour behaviour;
-    HexCell attackCell;
+    HexUnit attackUnit;
+    City attackCity;
     GameController gameController;
     CityState cityState;
     int hitPoints = 1;
-
-    public HexCell AttackCell
+    int lastHitPointChange = 0;
+    HexVision hexVision;
+    public HexUnit AttackUnit
     {
         get
         {
-            return attackCell;
+            return attackUnit;
         }
 
         set
         {
-            attackCell = value;
+            attackUnit = value;
+        }
+    }
+
+    public City AttackCity
+    {
+        get
+        {
+            return attackCity;
+        }
+
+        set
+        {
+            attackCity = value;
         }
     }
 
@@ -59,13 +75,6 @@ public abstract class Unit : MonoBehaviour {
         get { return (float)hitPoints / (float)baseHitPoints; }
     }
 
-
-    public void EnableUI(bool vision)
-    {
-
-        unitUI.Visible = vision;
-
-    }
 
     public CityState CityState
     {
@@ -101,7 +110,12 @@ public abstract class Unit : MonoBehaviour {
 
         set
         {
+            lastHitPointChange = value - hitPoints;
             hitPoints = value;
+            if(hitPoints <= 0)
+            {
+                KillUnit();
+            }
         }
     }
 
@@ -149,13 +163,27 @@ public abstract class Unit : MonoBehaviour {
             return alive;
         }
     }
+    public HexVision HexVision
+    {
+        get
+        {
+            return hexVision;
+        }
+
+        set
+        {
+            hexVision = value;
+        }
+    }
 
     private void Awake()
     {
+
         hexGrid = FindObjectOfType<HexGrid>();
         Behaviour = gameObject.AddComponent<UnitBehaviour>();
         GameController = FindObjectOfType<GameController>();
         unitUI = Instantiate(unitUiPrefab).GetComponent<UnitUI>();
+        hexVision = gameObject.AddComponent<HexVision>();
         abilities = GetComponent<Abilities>();
         unitUI.Unit = this;
         if (player)
@@ -166,6 +194,16 @@ public abstract class Unit : MonoBehaviour {
         {
             unitUI.SetColour(cityState.Color);
         }
+
+        
+        hexVision.AddVisibleObject(unitUI.gameObject);
+        hexVision.AddVisibleObject(hexUnit.GetMesh());
+        hexUnit.HexVision = hexVision;
+        gameController.VisionSystem.AddHexVision(hexVision);
+        AudioSource audioSource = gameObject.AddComponent<AudioSource>();
+        audioSource.spatialBlend = 1;
+        audioSource.minDistance = 10;
+
     }
 
     public int GetMovementLeft()
@@ -215,6 +253,14 @@ public abstract class Unit : MonoBehaviour {
 
     }
 
+    public bool IsSomethingToAttack()
+    {
+        if(AttackCity || AttackUnit)
+        {
+            return true;
+        }
+        return false;
+    }
     void Start() {
         HexUnit.Speed = (baseMovement * baseMovementFactor);
         hitPoints = baseHitPoints;
@@ -261,7 +307,7 @@ public abstract class Unit : MonoBehaviour {
 
     public void MoveUnit()
     {
-        AttackCell = null;
+        AttackUnit = null;
         if (path.Count == 0)
         {
             return;
@@ -293,12 +339,14 @@ public abstract class Unit : MonoBehaviour {
 
         if (move.Count > 1)
         {
-            AttackCell = null;
+            AttackUnit = null;
+            AttackCity = null;
             City city = move[move.Count - 1].City;
             if (city && hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && cityState != city.GetCityState())
             {
-                AttackCell = move[move.Count - 1];
+                AttackCity = city;
                 CombatSystem.CityFight(this, city);
+                SetMovementLeft(0);
 
             }
             else
@@ -306,13 +354,14 @@ public abstract class Unit : MonoBehaviour {
                 HexUnit unitToFight = move[move.Count - 1].GetFightableUnit(HexUnit);
                 if (unitToFight)
                 {
-                    AttackCell = move[move.Count - 1];
+                    AttackUnit = unitToFight;
                     CombatSystem.UnitFight(this, unitToFight.GetComponent<Unit>());
+                    SetMovementLeft(0);
                 }
             }
 
             path.RemoveRange(0, move.Count - 1);
-            HexUnit.Travel(move, AttackCell);
+            HexUnit.Travel(move);
 
         }
 
@@ -321,6 +370,27 @@ public abstract class Unit : MonoBehaviour {
     public void UpdateUI()
     {
         unitUI.UpdateHealthBar();
+    }
+
+    public void ShowHealthChange(int change)
+    {
+        Color color;
+        color = Color.red;
+        if (hexUnit.Location.IsVisible)
+        {
+            HexCellTextEffect effect = Instantiate(textEffect).GetComponent<HexCellTextEffect>();
+            effect.Show(change.ToString(), hexUnit.transform, color);
+        }
+    }
+
+    public int GetLastHitPointChange()
+    {
+        return lastHitPointChange;
+    }
+
+    public void Heal()
+    {
+
     }
 
     public void UpdateOwnerVisiblity(HexCell hexCell, bool increase)
@@ -365,23 +435,21 @@ public abstract class Unit : MonoBehaviour {
     public void KillUnit()
     {
         alive = false;
-        //if(player && GetComponent<Agent>())
-        //{
-        //    player.RemoveAgent(GetComponent<Agent>());
-        //}
-
-        //if (cityState)
-        //{
-        //    cityState.RemoveUnit(this);
-        //}
-        hexGrid.RemoveUnit(hexUnit);
+        hexUnit.KillUnit();
     }
     public abstract bool CanAttack(Unit unit);
 
+    public void AttemptAbility(int abilityNumber, HexCell hexCell)
+    {
+        abilities.AttemptAbility(abilityNumber, hexCell);
+    }
+
     public void UseAbility(int abilityNumber, HexCell hexCell)
     {
-        abilities.AttemptAbility(0, hexCell);
+        abilities.UseAbility(abilityNumber, hexCell);
+
     }
+
 
     public List<AbilityConfig> GetAbilities()
     {
@@ -394,6 +462,6 @@ public abstract class Unit : MonoBehaviour {
     }
     public bool IsAbilityUsable(int abilityNumber)
     {
-        return abilities.IsAbilityValid(abilityNumber, hexUnit.Location, 1);
+        return abilities.IsAbilityValid(abilityNumber, hexUnit.Location);
     }
 }

@@ -112,7 +112,7 @@ public class SaveLoadMenu : MonoBehaviour {
 			int header = reader.ReadInt32();
 			if (header <= mapFileVersion) {
 				hexGrid.Load(reader, header);
-                hexGrid.EditMode = hexMapEditor.enabled;
+                hexGrid.EditMode = hexMapEditor.gameObject.activeInHierarchy;
 			}
 			else {
 				Debug.LogWarning("Unknown map format " + header);

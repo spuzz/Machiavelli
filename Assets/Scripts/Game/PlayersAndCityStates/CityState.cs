@@ -127,11 +127,11 @@ public class CityState : MonoBehaviour
     {
         foreach (City city in cities)
         {
-            city.Vision = vision;
+            city.HexVision.HasVision = vision;
         }
         foreach (CombatUnit unit in units)
         {
-            unit.HexUnit.Visible = vision;
+            unit.HexVision.HasVision = vision;
         }
     }
 
@@ -140,37 +140,43 @@ public class CityState : MonoBehaviour
         get { return cityStateID; }
         set { cityStateID = value; }
     }
-    public void RemoveUnit(Unit unit)
+
+    public void AddUnit(CombatUnit unit)
     {
-        CombatUnit combatUnit = unit.GetComponent<CombatUnit>();
-        if (combatUnit)
+        if(player && player.IsHuman)
         {
-            units.Remove(combatUnit);
+            unit.HexVision.HasVision = true;
+        }
+        unit.CityState = this;
+        units.Add(unit);
+    }
+
+    public void RemoveUnit(CombatUnit unit)
+    {
+        unit.HexVision.HasVision = false;
+        if (unit)
+        {
+            units.Remove(unit);
         }
 
     }
-
     public void AddCity(City city)
     {
+        if (player && player.IsHuman)
+        {
+            city.HexVision.HasVision = true;
+        }
         cities.Add(city);
-        if (Player && Player.IsHuman)
-        {
-            city.Vision = true;
-        }
-        else
-        {
-            city.Vision = false;
-        }
     }
 
     public void RemoveCity(City city)
     {
+        city.HexVision.HasVision = false;
         cities.Remove(city);
-        city.Vision = false;
-        if (cities.Count == 0)
-        {
-            DestroyCityState();
-        }
+        //if (cities.Count == 0)
+        //{
+        //    gameController.DestroyCityState(this);
+        //}
     }
 
     public int GetCityCount()
@@ -185,20 +191,6 @@ public class CityState : MonoBehaviour
     public IEnumerable<City> GetCities()
     {
         return cities;
-    }
-
-    public void AddUnit(CombatUnit unit)
-    {
-        unit.CityState = this;
-        if (Player && Player.IsHuman)
-        {
-            unit.HexUnit.Visible = true;
-        }
-        else
-        {
-            unit.HexUnit.Visible = false;
-        }
-        units.Add(unit);
     }
 
     private void Awake()
@@ -309,7 +301,8 @@ public class CityState : MonoBehaviour
     }
     public void AdjustInfluenceForAllExcluding(Player excludedPlayer, int influence)
     {
-        foreach (Player player in influenceDict.Keys)
+        List<Player> players = influenceDict.Keys.ToList();
+        foreach (Player player in players)
         {
             if(player != excludedPlayer)
             {
@@ -344,17 +337,17 @@ public class CityState : MonoBehaviour
         {
             if(unit.HexUnit.Location == city.GetHexCell())
             {
-                unit.HexUnit.Die();
-                unit.HexUnit.DieAnimationAndRemove();
+                gameController.DestroyUnit(unit);
                 break;
             }
         }
     }
 
-    private void UpdateVision()
+    public void UpdateVision()
     {
         if(!Player)
         {
+            SetVision(false);
             return;
         }
 
@@ -368,10 +361,11 @@ public class CityState : MonoBehaviour
         }
     }
 
-    public void PickColor()
+    public Color PickColor()
     {
 
         Color = gameController.GetNewCityStateColor();
+        return Color;
     }
 
 
@@ -381,15 +375,13 @@ public class CityState : MonoBehaviour
         {
             player.RemoveCityState(this);
         }
-        gameController.ReturnCityStateColor(color);
-        SetVision(false);
-        foreach(City city in cities)
+        while(cities.Count > 0)
         {
-            city.DestroyCity();
+            gameController.DestroyCity(cities[0]);
         }
-        foreach (Unit unit in units)
+        while (units.Count > 0)
         {
-            unit.HexUnit.DieAndRemove();
+            gameController.DestroyUnit(units[0]);
         }
         Destroy(gameObject);
     }
@@ -426,11 +418,11 @@ public class CityState : MonoBehaviour
 
     public static void Load(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
     {
-        CityState instance = gameController.CreateCityState();
-        instance.CityStateID = reader.ReadInt32();
+
+        int cityStateID = reader.ReadInt32();
         Color color = new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), 1.0f);
-        gameController.RemoveCityStateColor(color);
-        instance.Color = color;
+        CityState instance = gameController.CreateCityState(color);
+        instance.CityStateID = cityStateID;
         if (header >= 2)
         {
             int playerNumber = reader.ReadInt32();
@@ -443,10 +435,7 @@ public class CityState : MonoBehaviour
         int unitCount = reader.ReadInt32();
         for (int i = 0; i < unitCount; i++)
         {
-            CombatUnit combatUnit = CombatUnit.Load(reader, hexGrid, header);
-            combatUnit.HexUnit.Visible = false;
-            instance.AddUnit(combatUnit);
-            instance.UpdateVision();
+            CombatUnit combatUnit = CombatUnit.Load(reader, gameController, hexGrid, header, instance.CityStateID);
         }
         if (header >= 3)
         {

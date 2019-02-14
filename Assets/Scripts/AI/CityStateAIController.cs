@@ -120,7 +120,7 @@ public class CityStateAIController : MonoBehaviour
         else
         {
             unit.SetPath(nextMove);
-            while (unit.AttackCell && unit.HexUnit.pathToTravel != null && unit.HexUnit.pathToTravel.Count != 0)
+            while (unit.AttackUnit && unit.HexUnit.pathToTravel != null && unit.HexUnit.pathToTravel.Count != 0)
             {
                 yield return new WaitForFixedUpdate();
             }

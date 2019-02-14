@@ -23,13 +23,15 @@ public class HexUnit : MonoBehaviour {
     Animator animator;
     bool controllable = false;
     float orientation;
-    HexCell attackCell;
     private string unitPrefabName;
-    bool visible = false;
     private int speed = 0;
     UnitType hexUnitType = UnitType.COMBAT;
     public List<HexCell> pathToTravel = null;
     public HexGrid Grid { get; set; }
+
+    Unit unit;
+
+    HexVision hexVision;
 
     public HexCell Location
     {
@@ -41,14 +43,26 @@ public class HexUnit : MonoBehaviour {
         {
             if (location)
             {
-                ChangeVisibility(location, false);
+                if(HexVision)
+                {
+                    HexVision.ClearCells();
+
+                }
+
                 location.RemoveUnit(this);
             }
             location = value;
-            value.AddUnit(this);
-            ChangeVisibility(value, true);
-            transform.localPosition = value.Position;
-            Grid.MakeChildOfColumn(transform, value.ColumnIndex);
+            if(location)
+            {
+                if (HexVision)
+                {
+                    HexVision.AddCells(Grid.GetVisibleCells(location,VisionRange));
+                }
+                value.AddUnit(this);
+                transform.localPosition = value.Position;
+                Grid.MakeChildOfColumn(transform, value.ColumnIndex);
+            }
+
         }
     }
 
@@ -98,26 +112,6 @@ public class HexUnit : MonoBehaviour {
 
     }
 
-    public bool Visible
-    {
-        get { return visible; }
-        set
-        {
-            if (visible != value)
-            {
-                if (Grid && visible == true)
-                {
-                    Grid.DecreaseVisibility(location, VisionRange);
-                }
-                else if (Grid && visible == false)
-                {
-                    Grid.IncreaseVisibility(location, VisionRange);
-                }
-                visible = value;
-            }
-        }
-    }
-
     public bool Controllable
     {
         get
@@ -143,28 +137,34 @@ public class HexUnit : MonoBehaviour {
             hexUnitType = value;
         }
     }
+
+    public HexVision HexVision
+    {
+        get
+        {
+            return hexVision;
+        }
+
+        set
+        {
+            hexVision = value;
+        }
+    }
+
     public void Awake()
     {
         animator = GetComponentInChildren<Animator>();
-        visible = false;
+        unit = GetComponent<Unit>();
     }
 
 
 
-    public void EnableMesh(bool enable)
+    public GameObject GetMesh()
     {
-        if(enable == true)
-        {
-            meshChild.gameObject.SetActive(true);
-        }
-        else
-        {
-            meshChild.gameObject.SetActive(false);
-        }
-        
+        return meshChild.gameObject;
     }
 
-	public void ValidateLocation () {
+    public void ValidateLocation () {
 		transform.localPosition = location.Position;
 	}
 
@@ -186,10 +186,9 @@ public class HexUnit : MonoBehaviour {
         return false;
     }
 
-    public void Travel (List<HexCell> path, HexCell attackCell = null) {
-        this.attackCell = attackCell;
+    public void Travel (List<HexCell> path) {
         location.RemoveUnit(this);
-        if(attackCell)
+        if(unit.IsSomethingToAttack())
         {
             location = path[path.Count - 2];
         }
@@ -213,19 +212,14 @@ public class HexUnit : MonoBehaviour {
         }
         int currentColumn = currentTravelLocation.ColumnIndex;
         int nextColumn;
-        if (Location.IsVisible == true || Visible)
+        if (Location.IsVisible == true || HexVision.HasVision)
         {
 
             Vector3 a, b, c = pathToTravel[0].Position;
             yield return LookAt(pathToTravel[1].Position);
             animator.SetBool("Walking", true);
 
-
-            ChangeVisibility(currentTravelLocation, false);
-            if (currentTravelLocation.IsVisible == true || Visible)
-            {
-                EnableMesh(true);
-            }
+            HexVision.ClearCells();
             
 
             float t = Time.deltaTime * travelSpeed;
@@ -262,7 +256,7 @@ public class HexUnit : MonoBehaviour {
                 //{
                 //    EnableMesh(false);
                 //}
-                ChangeVisibility(pathToTravel[i], true);
+                HexVision.AddCells(Grid.GetVisibleCells(pathToTravel[i], VisionRange));
                 if (currentTravelLocation.IsVisible == true)
                 {
 
@@ -277,18 +271,14 @@ public class HexUnit : MonoBehaviour {
 
                     t -= 1f;
                 }
-                ChangeVisibility(pathToTravel[i], false);
-                if (currentTravelLocation.IsVisible == true || Visible)
-                {
-                    EnableMesh(true);
-                }
+                HexVision.ClearCells();
 
             }
             a = c;
             b = Location.Position;
             c = b;
-            
-            ChangeVisibility(location, true);
+
+            HexVision.AddCells(Grid.GetVisibleCells(location, VisionRange));
 
             //if (location.IsVisible)
             //{
@@ -296,12 +286,13 @@ public class HexUnit : MonoBehaviour {
             //}
 
 
-            if (attackCell)
+            if (unit.IsSomethingToAttack())
             {
-                City city = attackCell.City;
-                if(city)
+                
+                if(unit.AttackCity)
                 {
-                    lookTowards = attackCell.Position;
+                    City city = unit.AttackCity;
+                    lookTowards = city.GetHexCell().Position;
                     float attackTime = 0;
                     animator.SetBool("Attacking", true);
                     for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
@@ -317,11 +308,10 @@ public class HexUnit : MonoBehaviour {
                     }
                     city.UpdateUI();
                 }
-                else
+                else if(unit.AttackUnit)
                 {
-                    HexUnit unitToFight = attackCell.GetFightableUnit(this);
+                    HexUnit unitToFight = unit.AttackUnit;
                     lookTowards = unitToFight.Location.Position;
-                    //yield return LookAt(attackCell.Position);
                     yield return unitToFight.LookAt(location.Position);
                     if (unitToFight)
                     {
@@ -334,17 +324,20 @@ public class HexUnit : MonoBehaviour {
                         }
                         animator.SetBool("Attacking", false);
                         unitToFight.animator.SetBool("Attacking", false);
-                        
-                        unitToFight.GetComponent<Unit>().UpdateUI();
-                        if (unitToFight.GetComponent<Unit>().HitPoints <= 0)
+                        Unit unitToFightUnitComp = unitToFight.GetComponent<Unit>();
+                        unitToFightUnitComp.ShowHealthChange(unitToFightUnitComp.GetLastHitPointChange());
+                        unitToFightUnitComp.UpdateUI();
+                        if (unitToFightUnitComp.HitPoints <= 0)
                         {
                             unitToFight.DieAnimationAndRemove();
                         }
 
                     }
                 }
-                GetComponent<Unit>().UpdateUI();
-                if (GetComponent<Unit>().HitPoints <= 0)
+                Unit unitComp = GetComponent<Unit>();
+                unitComp.ShowHealthChange(unitComp.GetLastHitPointChange());
+                unitComp.UpdateUI();
+                if (unitComp.HitPoints <= 0)
                 {
                     DieAnimationAndRemove();
                 }
@@ -396,7 +389,7 @@ public class HexUnit : MonoBehaviour {
         transform.localPosition = location.Position;
         location.UpdateVision();
         orientation = transform.localRotation.eulerAngles.y;
-        if (attackCell)
+        if (unit.IsSomethingToAttack())
         {
             yield return LookAt(lookTowards);
         }
@@ -464,61 +457,37 @@ public class HexUnit : MonoBehaviour {
 		return moveCost;
 	}
 
-    private void ChangeVisibility(HexCell cell, bool increase)
-    {
-        if(Visible)
-        {
-            if (increase)
-            {
-                Grid.IncreaseVisibility(cell, VisionRange);
-            }
-            else
-            {
-                Grid.DecreaseVisibility(cell, VisionRange);
-            }
-        }
-        GetComponent<Unit>().UpdateOwnerVisiblity(cell, increase);
-    }
 
     public void KillUnit()
     {
         Grid.RemoveUnit(this);
-    }
-	public void Die () {
-        GetComponent<Unit>().KillUnit();
-        if (location) {
-            ChangeVisibility(location, false);
-            location.RemoveUnit(this);
-        }
-       
+        location.RemoveUnit(this);
     }
 
     public void DieAnimationAndRemove()
     {
         StartCoroutine(Death());
-        
-    }
-
-    public void DieAndRemove()
-    {
-        Die();
-        Destroy(gameObject);
     }
 
     IEnumerator Death()
     {
-        Die();
         animator.SetBool("Dying", true);
         yield return new WaitForSeconds(2);
+        DestroyHexUnit();
+    }
+
+    public void DestroyHexUnit()
+    {
+        Location = null;
         Destroy(gameObject);
     }
 
-	void OnEnable () {
+    void OnEnable () {
 		if (location) {
 			transform.localPosition = location.Position;
 			if (currentTravelLocation) {
-                ChangeVisibility(location, true);
-                ChangeVisibility(currentTravelLocation, false);
+                HexVision.ClearCells();
+                HexVision.AddCells(Grid.GetVisibleCells(location, VisionRange));
 				currentTravelLocation = null;
 			}
 		}
@@ -531,16 +500,9 @@ public class HexUnit : MonoBehaviour {
         writer.Write(UnitPrefabName);
     }
 
-    public static HexUnit Load(BinaryReader reader, HexGrid grid, int header)
+    public static void Load(BinaryReader reader, GameController gameController, HexGrid grid, int header)
     {
-        HexCoordinates coordinates = HexCoordinates.Load(reader);
-        float orientation = reader.ReadSingle();
-        string unitName = reader.ReadString();
-        HexUnit unit;
-        unit = Instantiate(Resources.Load(unitName) as GameObject).GetComponent<HexUnit>();
-        unit.UnitPrefabName = unitName;
-        grid.AddUnit(unit, grid.GetCell(coordinates), orientation);
-        return unit;
+
     }
 
     //	void OnDrawGizmos () {

@@ -12,6 +12,7 @@ public abstract class Player : MonoBehaviour {
     bool isHuman = false;
     bool alive = true;
     [SerializeField] int gold = 100;
+
     Color color;
     public GameObject operationCenterTransformParent;
 
@@ -127,22 +128,23 @@ public abstract class Player : MonoBehaviour {
 
     public void AddAgent(Agent agent)
     {
+        if(isHuman)
+        {
+            agent.HexVision.HasVision = true;
+        }
+        
         agent.SetPlayer(this);
         agents.Add(agent);
     }
 
     public void RemoveAgent(Agent agent)
     {
-        agent.GetComponent<HexUnit>().KillUnit();
+        agent.HexVision.HasVision = false;
         agents.Remove(agent);
     }
 
     public void ClearAgents()
     {
-        foreach (Agent agent in agents)
-        {
-            agent.GetComponent<HexUnit>().KillUnit();
-        }
         agents.Clear();
     }
 
@@ -151,6 +153,10 @@ public abstract class Player : MonoBehaviour {
         return opCentres;
     }
 
+    public void CreateOperationCentre(HexCell cell)
+    {
+        gameController.CreateOperationCentre(cell, this);
+    }
     public void AddOperationCentre(OperationCentre operationCentre)
     {
         opCentres.Add(operationCentre);
@@ -158,7 +164,6 @@ public abstract class Player : MonoBehaviour {
 
     public void RemoveOperationCentre(OperationCentre operationCentre)
     {
-        operationCentre.DestroyOperationCentre();
         opCentres.Remove(operationCentre);
     }
 
@@ -215,6 +220,8 @@ public abstract class Player : MonoBehaviour {
         }
         agents.RemoveAll(c => c.Alive == false);
     }
+
+
 
     public void SavePlayer(BinaryWriter writer)
     {

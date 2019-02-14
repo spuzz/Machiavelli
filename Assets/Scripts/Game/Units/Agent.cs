@@ -11,7 +11,9 @@ public class Agent : Unit {
         {
             return true;
         }
+
         return false;
+
     }
 
 
@@ -22,10 +24,15 @@ public class Agent : Unit {
         writer.Write(GetMovementLeft());
     }
 
-    public static Agent Load(BinaryReader reader, HexGrid grid, int header)
+
+    public static Agent Load(BinaryReader reader, GameController gameController, HexGrid grid, int header, Player player)
     {
-        HexUnit unit = HexUnit.Load(reader, grid, header);
-        unit.HexUnitType = HexUnit.UnitType.AGENT;
+        
+        HexCoordinates coordinates = HexCoordinates.Load(reader);
+        float orientation = reader.ReadSingle();
+        string unitName = reader.ReadString();
+        HexUnit unit = gameController.CreateAgent(unitName, grid.GetCell(coordinates), player);
+
         Agent agent = unit.GetComponent<Agent>();
         if (header >= 3)
         {

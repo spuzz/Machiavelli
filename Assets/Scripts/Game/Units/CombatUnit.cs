@@ -38,10 +38,13 @@ public class CombatUnit : Unit
         writer.Write(GetMovementLeft());
     }
 
-    public static CombatUnit Load(BinaryReader reader, HexGrid grid, int header)
+    public static CombatUnit Load(BinaryReader reader,GameController gameController, HexGrid grid, int header, int cityStateID)
     {
-        HexUnit unit = HexUnit.Load(reader, grid, header);
-        CombatUnit combatUnit = unit.GetComponent<CombatUnit>();
+        HexCoordinates coordinates = HexCoordinates.Load(reader);
+        float orientation = reader.ReadSingle();
+        string unitName = reader.ReadString();
+        HexUnit hexUnit = gameController.CreateCityStateUnit(unitName, grid.GetCell(coordinates), cityStateID);
+        CombatUnit combatUnit = hexUnit.GetComponent<CombatUnit>();
         if (header >= 3)
         {
             combatUnit.HitPoints = reader.ReadInt32();

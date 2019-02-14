@@ -8,12 +8,15 @@ public class OperationCentre : MonoBehaviour
     [SerializeField] HexGrid hexGrid;
     [SerializeField] BuildingManager buildingManager;
     [SerializeField] List<BuildConfig> agentConfigs = new List<BuildConfig>();
+    [SerializeField] int visionRange = 2;
 
     GameController gameController;
     Player player;
     HexCell location;
     int influence = 2;
     int influenceRange = 2;
+
+    HexVision hexVision;
     public BuildingManager BuildingManager
     {
         get
@@ -55,10 +58,38 @@ public class OperationCentre : MonoBehaviour
         }
     }
 
+    public HexVision HexVision
+    {
+        get
+        {
+            return hexVision;
+        }
+
+        set
+        {
+            hexVision = value;
+        }
+    }
+
+    public int VisionRange
+    {
+        get
+        {
+            return visionRange;
+        }
+
+        set
+        {
+            visionRange = value;
+        }
+    }
+
     private void Awake()
     {
         hexGrid = FindObjectOfType<HexGrid>();
         gameController = FindObjectOfType<GameController>();
+        hexVision = gameObject.AddComponent<HexVision>();
+        HexVision.SetCells(hexGrid.GetVisibleCells(Location, VisionRange));
     }
 
     public void StartTurn()
@@ -87,16 +118,16 @@ public class OperationCentre : MonoBehaviour
 
     public bool CreateAgent(BuildConfig buildConfig)
     {
-        HexUnit hexUnit = Instantiate(buildConfig.GameObjectPrefab.GetComponent<HexUnit>());
-        hexUnit.UnitPrefabName = buildConfig.PreFabName;
-        HexCell cell = PathFindingUtilities.FindFreeCell(hexUnit,Location);
-        if (!cell)
+        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(Location, 2);
+        foreach (HexCell cell in cells)
         {
-            return false;
+            if (cell.CanUnitMoveToCell(HexUnit.UnitType.AGENT))
+            {
+                gameController.CreateAgent(buildConfig.GameObjectPrefab, buildConfig.PreFabName, cell, Player);
+                return true;
+            }
         }
-        hexGrid.AddUnit(hexUnit, cell, UnityEngine.Random.Range(0f, 360f));
-        gameController.CreateAgent(hexUnit, Player);
-        return true;
+        return false;
     }
 
     public void DestroyOperationCentre()

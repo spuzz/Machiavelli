@@ -21,7 +21,7 @@ public class GameController : MonoBehaviour
     [SerializeField] HexMapCamera hexMapCamera;
     [SerializeField] HUD hud;
     [SerializeField] HumanPlayer humanPlayer;
-
+    [SerializeField] VisionSystem visionSystem;
     public CityState cityStatePrefab;
     int turn = 1;
 
@@ -31,10 +31,25 @@ public class GameController : MonoBehaviour
     List<CityState> cityStatesTakingturns = new List<CityState>();
     List<AIPlayer> playersTakingturns = new List<AIPlayer>();
 
-
+    public OperationCentre opCentrePrefab;
+    public City cityPrefab;
+    HexGrid hexGrid;
     public HumanPlayer HumanPlayer
     {
         get { return humanPlayer; }
+    }
+
+    public VisionSystem VisionSystem
+    {
+        get
+        {
+            return visionSystem;
+        }
+
+        set
+        {
+            visionSystem = value;
+        }
     }
 
     public int GetTurn()
@@ -60,7 +75,10 @@ public class GameController : MonoBehaviour
     }
 
 
-
+    public void Awake()
+    {
+        hexGrid = FindObjectOfType<HexGrid>();
+    }
     void Start()
     {
         turn = 1;
@@ -157,81 +175,152 @@ public class GameController : MonoBehaviour
         return names;
     }
 
- 
 
-    public void RemoveCity(HexCell cell)
+    public void CreateOperationCentre(HexCell cell, Player player)
     {
-        foreach (City city in cities)
+        if(!cell.OpCentre)
         {
-            if (city.GetHexCell() == cell)
-            {
-                RemoveCity(city);
-                break;
-            }
-
+            OperationCentre instance = Instantiate(opCentrePrefab);
+            instance.transform.localPosition = HexMetrics.Perturb(cell.Position);
+            instance.Location = cell;
+            instance.Player = player;
+            instance.Player.AddOperationCentre(instance);
+            hexGrid.AddOperationCentre(instance);
         }
+
     }
-    public void AddCity(City city)
+
+    public void DestroyOperationCentre(OperationCentre opCentre)
     {
-        city.transform.SetParent(citiesObject.transform);
-        if (!city.GetCityState())
+        hexGrid.RemoveOperationCentre(opCentre);
+        opCentre.Player.RemoveOperationCentre(opCentre);
+        opCentre.DestroyOperationCentre();
+    }
+    public CityState CreateCityState()
+    {
+        CityState instance = Instantiate(cityStatePrefab);
+        instance.transform.SetParent(cityStatesObject.transform);
+        instance.PickColor();
+        cityStates.Add(instance);
+        return instance;
+    }
+
+    public CityState CreateCityState(Color color)
+    {
+        CityState instance = Instantiate(cityStatePrefab);
+        instance.transform.SetParent(cityStatesObject.transform);
+        RemoveCityStateColor(color);
+        instance.Color = color;
+        cityStates.Add(instance);
+        return instance;
+    }
+
+
+    public void DestroyCityState(CityState cityState)
+    {
+        possibleCityStateColors.Add(cityState.Color);
+        if(cityState.Player)
         {
-            city.SetCityState(CreateCityState());
-            city.GetCityState().PickColor();
-            city.UpdateUI();
+            cityState.Player.RemoveCityState(cityState);
         }
-        cities.Add(city);
-    }
-
-    public void RemoveCity(City city)
-    {
-        RemoveCityFromState(city);
-        city.DestroyCity();
-        cities.Remove(city);
-    }
-
-    private void RemoveCityFromState(City city)
-    {
-        CityState cityState = city.GetCityState();
-        if (cityState)
-        {
-            cityState.RemoveCity(city);
-            if(cityState.GetCityCount() == 0)
-            {
-                DestroyCityState(cityState);
-            }
-        }
-    }
-
-    private void DestroyCityState(CityState cityState)
-    {
+        
         cityStates.Remove(cityState);
         cityState.DestroyCityState();
     }
 
-    public void AddOperationCentre(OperationCentre opCentre)
-    {
-        opCentres.Add(opCentre);
-        opCentre.Player.AddOperationCentre(opCentre);
-    }
 
-    public void RemoveOperationCentre(OperationCentre opCentre)
+    public void DestroyCity(City city)
     {
-        opCentres.Remove(opCentre);
-        opCentre.Player.RemoveOperationCentre(opCentre);
-    }
-    public void RemoveOperationCentre(HexCell cell)
-    {
-        foreach (OperationCentre opCentre in opCentres)
+        if(city.GetCityState())
         {
-            if (opCentre.Location == cell)
-            {
-                RemoveOperationCentre(opCentre);
-                break;
-            }
+            city.GetCityState().RemoveCity(city);
+        }
+        city.DestroyCity();
+    }
 
+    public void CreateCity(HexCell cell, CityState cityState)
+    {
+        City city = Instantiate(cityPrefab);
+        city.transform.localPosition = HexMetrics.Perturb(cell.Position);
+        city.SetHexCell(cell);
+        city.transform.SetParent(citiesObject.transform);
+        city.SetCityState(cityState);
+        city.HexVision.AddVisibleObject(city.CityUI.gameObject) ;
+        city.UpdateUI();
+        cities.Add(city);
+        hexGrid.AddCity(city);
+    }
+
+    public HexUnit CreateAgent(GameObject prefab, string name, HexCell cell, Player player)
+    {
+        HexUnit hexUnit = Instantiate(prefab).GetComponent<HexUnit>();
+        hexUnit.UnitPrefabName = name;
+        hexGrid.AddUnit(hexUnit);
+        hexUnit.Grid = hexGrid;
+        hexUnit.Location = cell;
+        hexUnit.Orientation = Random.Range(0f, 360f);
+        hexUnit.HexUnitType = HexUnit.UnitType.AGENT;
+        Agent agent = hexUnit.GetComponent<Agent>();
+        if (player.IsHuman)
+        {
+            hexUnit.Controllable = true;
+        }
+
+        hexUnit.HexUnitType = HexUnit.UnitType.AGENT;
+        player.AddAgent(agent);
+        return hexUnit;
+    }
+
+    public HexUnit CreateAgent(string name, HexCell cell, Player player)
+    {
+        return CreateAgent((Resources.Load(name) as GameObject), name, cell, player);
+    }
+
+    public HexUnit CreateCityStateUnit(GameObject prefab, string name, HexCell cell, int cityStateID)
+    {
+        CityState cityState = cityStates.Find(c => c.CityStateID == cityStateID);
+        HexUnit hexUnit = Instantiate(prefab).GetComponent<HexUnit>();
+        hexUnit.UnitPrefabName = name;
+        hexUnit.Grid = hexGrid;
+        hexUnit.Location = cell;
+        hexUnit.Orientation = Random.Range(0f, 360f);
+        hexUnit.HexUnitType = HexUnit.UnitType.COMBAT;
+        hexGrid.AddUnit(hexUnit);
+        cityState.AddUnit(hexUnit.GetComponent<CombatUnit>());
+        return hexUnit;
+    }
+    public HexUnit CreateCityStateUnit(string name, HexCell cell, int cityStateID)
+    {
+        return CreateCityStateUnit((Resources.Load(name) as GameObject), name, cell,cityStateID);
+    }
+
+    public void DestroyUnit(Unit unit)
+    {
+        KillUnit(unit);
+        unit.HexUnit.DestroyHexUnit();
+    }
+
+    public void KillUnit(Unit unit)
+    {
+        hexGrid.RemoveUnit(unit.HexUnit);
+        unit.KillUnit();
+        if(unit.HexUnit.HexUnitType == HexUnit.UnitType.AGENT && unit.GetPlayer())
+        {
+            unit.GetPlayer().RemoveAgent(unit.GetComponent<Agent>());
+        }
+
+        if (unit.HexUnit.HexUnitType == HexUnit.UnitType.COMBAT && unit.CityState)
+        {
+            unit.CityState.RemoveUnit(unit.GetComponent<CombatUnit>());
         }
     }
+
+    public void AnimateonlyDestroyUnit(Unit unit)
+    {
+        unit.HexUnit.DieAnimationAndRemove();
+    }
+
+
 
     public int CityStateCount()
     {
@@ -248,51 +337,16 @@ public class GameController : MonoBehaviour
         return names;
     }
 
-    public CityState CreateCityState()
-    {
-        CityState instance = Instantiate(cityStatePrefab);
-        instance.transform.SetParent(cityStatesObject.transform);
-        cityStates.Add(instance); 
-        return instance;
-    }
-
-    public void AddCityState(CityState cityState)
-    {
-        cityStates.Add(cityState);
-    }
-    public void RemoveCityState(CityState cityState)
-    {
-        possibleCityStateColors.Add(cityState.Color);
-        cityStates.Remove(cityState);
-    }
-
-    public void CreateAgent(HexUnit hexUnit, Player player)
-    {
-        Agent agent = hexUnit.GetComponent<Agent>();
-        if (player.IsHuman)
-        {
-            agent.HexUnit.Visible = true;
-            hexUnit.Controllable = true;
-        }
-
-        hexUnit.HexUnitType = HexUnit.UnitType.AGENT;
-        player.AddAgent(agent);
-    }
-
-    public void CreateCityStateUnit(HexUnit hexUnit, int cityStateID)
-    {
-        CityState cityState = cityStates.Find(c => c.CityStateID == cityStateID);
-        cityState.AddUnit(hexUnit.GetComponent<CombatUnit>());
-    }
 
     public void SetCityStatePlayer(Player player, int cityStateID)
     {
         CityState cityState = cityStates.Find(c => c.CityStateID == cityStateID);
-        if(cityState && cityState.Player != player)
+        if (cityState && cityState.Player != player)
         {
             cityState.Player = player;
         }
     }
+
 
     public AIPlayer CreateAIPlayer()
     {
@@ -317,8 +371,6 @@ public class GameController : MonoBehaviour
         }
         return player;
     }
-
-
 
     public Color GetNewCityStateColor()
     {
@@ -355,8 +407,6 @@ public class GameController : MonoBehaviour
     {
         possiblePlayerColors.Remove(color);
     }
-
-
 
     public void CentreMap()
     {
