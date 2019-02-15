@@ -185,6 +185,7 @@ public class GameController : MonoBehaviour
             instance.Location = cell;
             instance.Player = player;
             instance.Player.AddOperationCentre(instance);
+            cell.SpecialIndex = 3;
             hexGrid.AddOperationCentre(instance);
         }
 
@@ -245,7 +246,7 @@ public class GameController : MonoBehaviour
         city.SetHexCell(cell);
         city.transform.SetParent(citiesObject.transform);
         city.SetCityState(cityState);
-        city.HexVision.AddVisibleObject(city.CityUI.gameObject) ;
+        city.HexVision.AddVisibleObject(city.CityUI.gameObject);
         city.UpdateUI();
         cities.Add(city);
         hexGrid.AddCity(city);

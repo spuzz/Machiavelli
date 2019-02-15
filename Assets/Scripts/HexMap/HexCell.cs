@@ -355,6 +355,10 @@ public class HexCell : MonoBehaviour {
         set
         {
             city = value;
+            if(IsVisible)
+            {
+                city.HexVision.Visible = true;
+            }
         }
     }
 
@@ -369,6 +373,10 @@ public class HexCell : MonoBehaviour {
         set
         {
             opCentre = value;
+            if (IsVisible)
+            {
+                opCentre.HexVision.Visible = true;
+            }
         }
     }
 
@@ -684,6 +692,7 @@ public class HexCell : MonoBehaviour {
     {
         hexUnits.Add(hexUnit);
         hexUnits = hexUnits.OrderBy(u => u.HexUnitType).ToList();
+        UpdateVision();
     }
 
     public void RemoveUnit(HexUnit hexUnit)

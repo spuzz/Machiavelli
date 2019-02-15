@@ -41,6 +41,7 @@ public class OperationCentre : MonoBehaviour
         {
             location = value;
             location.OpCentre = this;
+            HexVision.SetCells(hexGrid.GetVisibleCells(Location, VisionRange));
         }
     }
 
@@ -55,6 +56,7 @@ public class OperationCentre : MonoBehaviour
         {
             player = value;
             transform.parent = player.operationCenterTransformParent.transform;
+            Location.CellSecondColor = player.Color;
         }
     }
 
@@ -89,7 +91,8 @@ public class OperationCentre : MonoBehaviour
         hexGrid = FindObjectOfType<HexGrid>();
         gameController = FindObjectOfType<GameController>();
         hexVision = gameObject.AddComponent<HexVision>();
-        HexVision.SetCells(hexGrid.GetVisibleCells(Location, VisionRange));
+        gameController.VisionSystem.AddHexVision(hexVision);
+
     }
 
     public void StartTurn()

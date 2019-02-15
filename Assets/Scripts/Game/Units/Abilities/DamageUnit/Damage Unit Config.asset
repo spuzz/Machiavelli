@@ -17,8 +17,6 @@ MonoBehaviour:
   abilityAnimation: {fileID: 0}
   audioClips:
   - {fileID: 8300000, guid: db9317de19771a84a9fda478652cecb0, type: 3}
-  pressedIcon: {fileID: 21300000, guid: f26fa8880b3aeef4b8516c82dc12f2a5, type: 3}
-  disabledIcon: {fileID: 21300000, guid: f73f68fe6815f5548a6c2a61b9e49add, type: 3}
-  defaultIcon: {fileID: 21300000, guid: e9d4143c19529834981ac6821a04aecd, type: 3}
-  textEffect: {fileID: 0}
+  defaultIcon: {fileID: 21300000, guid: ec2d21917c67b554f8cd504127430590, type: 3}
+  textEffect: {fileID: 1096156621854288, guid: cbce99c46ef89c94f965d408ea4706c6, type: 2}
   damage: 20

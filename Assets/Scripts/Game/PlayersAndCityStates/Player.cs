@@ -160,6 +160,10 @@ public abstract class Player : MonoBehaviour {
     public void AddOperationCentre(OperationCentre operationCentre)
     {
         opCentres.Add(operationCentre);
+        if (isHuman)
+        {
+            operationCentre.HexVision.HasVision = true;
+        }
     }
 
     public void RemoveOperationCentre(OperationCentre operationCentre)

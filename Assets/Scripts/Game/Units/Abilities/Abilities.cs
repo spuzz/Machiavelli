@@ -84,7 +84,15 @@ public class Abilities : MonoBehaviour
             return;
         }
         List<HexCell> targets = ValidTargets(index, hexCell);
-        hexGameUI.DoAbilitySelection(targets, index);
+        if(targets.Count == 1 && AbilitiesList[index].Range == 1)
+        {
+            UseAbility(index, targets[0]);
+        }
+        else
+        {
+            hexGameUI.DoAbilitySelection(targets, index);
+        }
+        
     }
 
     public void UseAbility(int index, HexCell hexCell)

@@ -10,8 +10,6 @@ public abstract class AbilityConfig : ScriptableObject
     [SerializeField] GameObject particlePrefab = null;
     [SerializeField] AnimationClip abilityAnimation;
     [SerializeField] AudioClip[] audioClips;
-    [SerializeField] Sprite pressedIcon;
-    [SerializeField] Sprite disabledIcon;
     [SerializeField] Sprite defaultIcon;
     [SerializeField] GameObject textEffect;
     protected AbilityBehaviour behaviour;
@@ -26,32 +24,6 @@ public abstract class AbilityConfig : ScriptableObject
         set
         {
             range = value;
-        }
-    }
-
-    public Sprite PressedIcon
-    {
-        get
-        {
-            return pressedIcon;
-        }
-
-        set
-        {
-            pressedIcon = value;
-        }
-    }
-
-    public Sprite DisabledIcon
-    {
-        get
-        {
-            return disabledIcon;
-        }
-
-        set
-        {
-            disabledIcon = value;
         }
     }
 

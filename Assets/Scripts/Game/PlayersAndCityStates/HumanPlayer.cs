@@ -9,6 +9,7 @@ public class HumanPlayer : Player {
     private void Awake()
     {
         IsHuman = true;
+        gameController = FindObjectOfType<GameController>();
     }
 
     public override void PlayerDefeated()

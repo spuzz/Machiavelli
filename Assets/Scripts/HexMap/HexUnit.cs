@@ -58,9 +58,11 @@ public class HexUnit : MonoBehaviour {
                 {
                     HexVision.AddCells(Grid.GetVisibleCells(location,VisionRange));
                 }
-                value.AddUnit(this);
                 transform.localPosition = value.Position;
                 Grid.MakeChildOfColumn(transform, value.ColumnIndex);
+                value.AddUnit(this);
+                
+                
             }
 
         }

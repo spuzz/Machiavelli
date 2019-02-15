@@ -45,11 +45,6 @@ public class AgentPanel : MonoBehaviour {
                         abilityButtons[count].gameObject.SetActive(true);
                         abilityButtons[count].interactable = Unit.IsAbilityUsable(count);
                         abilityButtons[count].image.sprite = Unit.GetAbilities()[count].DefaultIcon;
-                        SpriteState spriteState = new SpriteState();
-                        spriteState = abilityButtons[count].spriteState;
-                        spriteState.pressedSprite = Unit.GetAbilities()[count].PressedIcon;
-                        spriteState.disabledSprite = Unit.GetAbilities()[count].DisabledIcon;
-                        abilityButtons[count].spriteState = spriteState;
                         
                     }
 
