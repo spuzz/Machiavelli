@@ -12,7 +12,7 @@ public class HUD : MonoBehaviour {
     [SerializeField] Button endTurnButton;
     [SerializeField] AgentPanel agentPanel;
     [SerializeField] CanvasRenderer cityPanel;
-    [SerializeField] CanvasRenderer opCentrePanel;
+    [SerializeField] OperationCentrePanel opCentrePanel;
 
     Unit unit;
     City city;
@@ -127,11 +127,13 @@ public class HUD : MonoBehaviour {
     {
         if (opCentre)
         {
-            opCentrePanel.gameObject.SetActive(true);
+            opCentrePanel.SetActive(true);
+            opCentrePanel.OpCentre = opCentre;
+            opCentrePanel.UpdateUI();
         }
         else
         {
-            opCentrePanel.gameObject.SetActive(false);
+            opCentrePanel.SetActive(false);
         }
         if (city)
         {
@@ -164,6 +166,5 @@ public class HUD : MonoBehaviour {
     public void UseOpCentreAbility(int abilityNumber)
     {
         TargetCell = OpCentre.Location;
-        OpCentre.HireAgent(abilityNumber);
     }
 }

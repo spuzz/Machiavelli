@@ -83,6 +83,8 @@ MonoBehaviour:
     type: 2}
   cityPrefab: {fileID: 114574744724499650, guid: 8669f55e65f9d5d44ba538a27a15a927,
     type: 2}
+  agentPrefab: {fileID: 114637004898301920, guid: eedcdcbc701384b47a52089253ba9401,
+    type: 2}
 --- !u!114 &114707304956818400
 MonoBehaviour:
   m_ObjectHideFlags: 1

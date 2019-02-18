@@ -209,8 +209,7 @@ public class HexMapEditor : MonoBehaviour {
             
 
 
-            gameController.CreateAgent(name, cell, player);
-
+            HexUnit unit = gameController.CreateAgent("Builder",cell, player);
 
         }
     }

@@ -67,7 +67,14 @@ public abstract class Unit : MonoBehaviour {
     public Texture Symbol
     {
         get { return symbol; }
-        set { symbol = value; }
+        set
+        {
+            symbol = value;
+            if(unitUI)
+            {
+                unitUI.SetSymbol(symbol);
+            }
+        }
     }
 
     public float HealthAsPercentage
@@ -153,7 +160,7 @@ public abstract class Unit : MonoBehaviour {
 
     public int Strength
     {
-        get { return baseStrength; }
+        get { return BaseStrength; }
     }
 
     public bool Alive
@@ -173,6 +180,32 @@ public abstract class Unit : MonoBehaviour {
         set
         {
             hexVision = value;
+        }
+    }
+
+    public int BaseMovement
+    {
+        get
+        {
+            return baseMovement;
+        }
+
+        set
+        {
+            baseMovement = value;
+        }
+    }
+
+    public int BaseStrength
+    {
+        get
+        {
+            return baseStrength;
+        }
+
+        set
+        {
+            baseStrength = value;
         }
     }
 
@@ -197,7 +230,10 @@ public abstract class Unit : MonoBehaviour {
 
         
         hexVision.AddVisibleObject(unitUI.gameObject);
-        hexVision.AddVisibleObject(hexUnit.GetMesh());
+        if(hexUnit.GetMesh())
+        {
+            hexVision.AddVisibleObject(hexUnit.GetMesh());
+        }
         hexUnit.HexVision = hexVision;
         gameController.VisionSystem.AddHexVision(hexVision);
         AudioSource audioSource = gameObject.AddComponent<AudioSource>();
@@ -262,7 +298,7 @@ public abstract class Unit : MonoBehaviour {
         return false;
     }
     void Start() {
-        HexUnit.Speed = (baseMovement * baseMovementFactor);
+        HexUnit.Speed = (BaseMovement * baseMovementFactor);
         hitPoints = baseHitPoints;
         StartTurn();
     }
@@ -278,7 +314,7 @@ public abstract class Unit : MonoBehaviour {
 
     public void StartTurn()
     {
-        movementLeft = baseMovement * baseMovementFactor;
+        movementLeft = BaseMovement * baseMovementFactor;
     }
 
     public void EndTurn()

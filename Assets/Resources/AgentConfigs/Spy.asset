@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 9f232f644b5d7264981e60e674f95a5f, type: 3}
+  m_Name: Spy
+  m_EditorClassIdentifier: 
+  name: Spy
+  baseMovement: 3
+  baseStrength: 25
+  symbol: {fileID: 2800000, guid: 7f88e5cd7f1bb494bb09bb12310ee44f, type: 3}
+  portrait: {fileID: 21300000, guid: 01d666d4b5062374694e3a91d39cc2b3, type: 3}
+  meshChild: {fileID: 1508748643913082, guid: 5ce3bfd454b2c7e43a735e5a810875be, type: 2}
+  abilityConfigs:
+  - {fileID: 11400000, guid: d68dce96242eeaf488f2ff60a6fea64b, type: 2}
+  - {fileID: 11400000, guid: 40a0ca6e1eb92574f94137a3a7da1e77, type: 2}
+  - {fileID: 11400000, guid: 0e0373322e1192a42bc4db50c84040da, type: 2}

@@ -33,6 +33,9 @@ public class GameController : MonoBehaviour
 
     public OperationCentre opCentrePrefab;
     public City cityPrefab;
+    public Agent agentPrefab;
+
+    public Dictionary<string, AgentConfig> agentConfigs = new Dictionary<string, AgentConfig>();
     HexGrid hexGrid;
     public HumanPlayer HumanPlayer
     {
@@ -74,10 +77,22 @@ public class GameController : MonoBehaviour
         return cities.Find(c => c.GetHexCell() == hexCell);
     }
 
-
+    public AgentConfig GetAgentConfig(string name)
+    {
+        if(!agentConfigs.Keys.Contains(name))
+        {
+            return null;
+        }
+        return agentConfigs[name];
+    }
     public void Awake()
     {
         hexGrid = FindObjectOfType<HexGrid>();
+        AgentConfig[] d = Resources.LoadAll<AgentConfig>("AgentConfigs");
+        foreach(AgentConfig agentConfig in d)
+        {
+            agentConfigs.Add(agentConfig.Name, agentConfig);
+        }
     }
     void Start()
     {
@@ -252,16 +267,17 @@ public class GameController : MonoBehaviour
         hexGrid.AddCity(city);
     }
 
-    public HexUnit CreateAgent(GameObject prefab, string name, HexCell cell, Player player)
+    public HexUnit CreateAgent(AgentConfig agentConfig, HexCell cell, Player player)
     {
-        HexUnit hexUnit = Instantiate(prefab).GetComponent<HexUnit>();
-        hexUnit.UnitPrefabName = name;
+        HexUnit hexUnit = Instantiate(agentPrefab).GetComponent<HexUnit>();
+        Agent agent = hexUnit.GetComponent<Agent>();
+        agent.SetAgentConfig(agentConfig);
         hexGrid.AddUnit(hexUnit);
         hexUnit.Grid = hexGrid;
         hexUnit.Location = cell;
         hexUnit.Orientation = Random.Range(0f, 360f);
         hexUnit.HexUnitType = HexUnit.UnitType.AGENT;
-        Agent agent = hexUnit.GetComponent<Agent>();
+
         if (player.IsHuman)
         {
             hexUnit.Controllable = true;
@@ -272,9 +288,25 @@ public class GameController : MonoBehaviour
         return hexUnit;
     }
 
-    public HexUnit CreateAgent(string name, HexCell cell, Player player)
+    public HexUnit CreateAgent(string agentConfig, HexCell cell, Player player)
     {
-        return CreateAgent((Resources.Load(name) as GameObject), name, cell, player);
+        HexUnit hexUnit = Instantiate(agentPrefab).GetComponent<HexUnit>();
+        Agent agent = hexUnit.GetComponent<Agent>();
+        agent.SetAgentConfig(GetAgentConfig(agentConfig));
+        hexGrid.AddUnit(hexUnit);
+        hexUnit.Grid = hexGrid;
+        hexUnit.Location = cell;
+        hexUnit.Orientation = Random.Range(0f, 360f);
+        hexUnit.HexUnitType = HexUnit.UnitType.AGENT;
+       
+        if (player.IsHuman)
+        {
+            hexUnit.Controllable = true;
+        }
+
+        hexUnit.HexUnitType = HexUnit.UnitType.AGENT;
+        player.AddAgent(agent);
+        return hexUnit;
     }
 
     public HexUnit CreateCityStateUnit(GameObject prefab, string name, HexCell cell, int cityStateID)

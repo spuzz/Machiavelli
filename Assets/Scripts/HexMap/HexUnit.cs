@@ -163,9 +163,17 @@ public class HexUnit : MonoBehaviour {
 
     public GameObject GetMesh()
     {
+        if(!meshChild)
+        {
+            return null;
+        }
         return meshChild.gameObject;
     }
 
+    public void SetMeshChild(Transform childTransform)
+    {
+        meshChild = childTransform;
+    }
     public void ValidateLocation () {
 		transform.localPosition = location.Position;
 	}

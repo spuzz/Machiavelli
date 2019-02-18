@@ -64,6 +64,9 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   hexGrid: {fileID: 0}
-  agentConfigs:
-  - {fileID: 11400000, guid: fbdd175455b96774bafd6675ab09ed9b, type: 2}
   buildingManager: {fileID: 114000505753202486}
+  agentConfigs:
+  - {fileID: 11400000, guid: 99ab66049cd47a84088ae9268102266a, type: 2}
+  - {fileID: 11400000, guid: 616e871ae5862d54ca3171f9088d16df, type: 2}
+  - {fileID: 11400000, guid: 2a94a43b06eb48441b927c2b1619501d, type: 2}
+  visionRange: 2

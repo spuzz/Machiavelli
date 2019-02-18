@@ -7,7 +7,7 @@ public class OperationCentre : MonoBehaviour
     
     [SerializeField] HexGrid hexGrid;
     [SerializeField] BuildingManager buildingManager;
-    [SerializeField] List<BuildConfig> agentConfigs = new List<BuildConfig>();
+    [SerializeField] List<AgentConfig> agentConfigs = new List<AgentConfig>();
     [SerializeField] int visionRange = 2;
 
     GameController gameController;
@@ -86,6 +86,11 @@ public class OperationCentre : MonoBehaviour
         }
     }
 
+    public IEnumerable<AgentConfig> GetAgentConfigs()
+    {
+        return agentConfigs;
+    }
+
     private void Awake()
     {
         hexGrid = FindObjectOfType<HexGrid>();
@@ -101,11 +106,6 @@ public class OperationCentre : MonoBehaviour
         BuildConfig buildConfig = BuildingManager.GetCompletedBuild();
         while (buildConfig)
         {
-            GameObject gameObjectPrefab = buildConfig.GameObjectPrefab;
-            if (gameObjectPrefab.GetComponent<Agent>())
-            {
-                CreateAgent(buildConfig);
-            }
             buildConfig = BuildingManager.GetCompletedBuild();
         }
         foreach (HexCell cityCell in PathFindingUtilities.GetCellsInRange(Location, influenceRange).FindAll(c => c.City))
@@ -114,19 +114,19 @@ public class OperationCentre : MonoBehaviour
         }
     }
 
-    public void HireAgent(int type)
+    public void HireAgent(AgentConfig agentConfig)
     {
-        BuildingManager.AddBuild(agentConfigs[type]);
+        CreateAgent(agentConfig);
     }
 
-    public bool CreateAgent(BuildConfig buildConfig)
+    public bool CreateAgent(AgentConfig agentConfig)
     {
         List<HexCell> cells = PathFindingUtilities.GetCellsInRange(Location, 2);
         foreach (HexCell cell in cells)
         {
             if (cell.CanUnitMoveToCell(HexUnit.UnitType.AGENT))
             {
-                gameController.CreateAgent(buildConfig.GameObjectPrefab, buildConfig.PreFabName, cell, Player);
+                gameController.CreateAgent(agentConfig,cell, Player);
                 return true;
             }
         }
