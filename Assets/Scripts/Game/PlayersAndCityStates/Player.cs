@@ -17,6 +17,7 @@ public abstract class Player : MonoBehaviour {
     public GameObject operationCenterTransformParent;
 
     public List<Agent> agents = new List<Agent>();
+    public List<CombatUnit> mercenaries = new List<CombatUnit>();
     public List<CityState> cityStates = new List<CityState>();
     public List<OperationCentre> opCentres = new List<OperationCentre>();
     public Dictionary<HexCell, int> visibleCells = new Dictionary<HexCell, int>();
@@ -148,6 +149,34 @@ public abstract class Player : MonoBehaviour {
         agents.Clear();
     }
 
+
+    public IEnumerable<CombatUnit> GetMercenaries()
+    {
+        return mercenaries;
+    }
+
+    public void AddMercenary(CombatUnit mercenary)
+    {
+        if (isHuman)
+        {
+            mercenary.HexVision.HasVision = true;
+        }
+
+        mercenary.SetPlayer(this);
+        mercenaries.Add(mercenary);
+    }
+
+    public void RemoveMercenary(CombatUnit mercenary)
+    {
+        mercenary.HexVision.HasVision = false;
+        mercenaries.Remove(mercenary);
+    }
+
+    public void ClearMercenaries()
+    {
+        mercenaries.Clear();
+    }
+
     public IEnumerable<OperationCentre> GetOperationCentres()
     {
         return opCentres;
@@ -204,6 +233,11 @@ public abstract class Player : MonoBehaviour {
             agent.StartTurn();
         }
 
+        foreach (CombatUnit merc in mercenaries)
+        {
+            merc.StartTurn();
+        }
+
         foreach (OperationCentre opCentre in opCentres)
         {
             opCentre.StartTurn();
@@ -223,6 +257,16 @@ public abstract class Player : MonoBehaviour {
             
         }
         agents.RemoveAll(c => c.Alive == false);
+
+        foreach (CombatUnit merc in mercenaries)
+        {
+            if (merc.CheckPath())
+            {
+                merc.MoveUnit();
+            }
+
+        }
+        mercenaries.RemoveAll(c => c.Alive == false);
     }
 
 
@@ -262,6 +306,11 @@ public abstract class Player : MonoBehaviour {
         foreach (Agent agent in agents)
         {
             Destroy(agent.gameObject);
+        }
+
+        foreach (CombatUnit merc in mercenaries)
+        {
+            Destroy(merc.gameObject);
         }
         Destroy(gameObject);
 

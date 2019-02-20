@@ -5,11 +5,11 @@ using UnityEngine.UI;
 
 public class OperationCentrePanel : MonoBehaviour {
 
-    [SerializeField] List<Button> buttons;
 
+    [SerializeField] List<OperationCentreInfoPanel> infoPanels;
     OperationCentre opCentre;
-    List<AgentConfig> agentConfigs = new List<AgentConfig>();
-    
+
+
     public OperationCentre OpCentre
     {
         get
@@ -27,37 +27,36 @@ public class OperationCentrePanel : MonoBehaviour {
     public void SetActive(bool active)
     {
         gameObject.SetActive(active);
+        SetActiveInfoPanel(0);
 
     }
 
-    public void HireAgent(int id)
+    public void SetActiveInfoPanel(int panelNumber)
     {
-        opCentre.HireAgent(agentConfigs[id]);
+        for(int a = 0; a < infoPanels.Count; a++)
+        {
+            if(a == panelNumber)
+            {
+                infoPanels[a].gameObject.SetActive(true);
+                infoPanels[a].UpdateUI(OpCentre);
+            }
+            else
+            {
+                infoPanels[a].gameObject.SetActive(false);
+            }
+        }
     }
+
     public void UpdateUI()
     {
         if (isActiveAndEnabled)
         {
 
-            if (OpCentre)
+            foreach(OperationCentreInfoPanel panel in infoPanels)
             {
-                agentConfigs.Clear();
-                foreach (AgentConfig config in opCentre.GetAgentConfigs())
+                if(panel.isActiveAndEnabled)
                 {
-                    agentConfigs.Add(config);
-                }
-                for (int a = 0; a < buttons.Count; a++)
-                {
-                    if (a < agentConfigs.Count)
-                    {
-                        buttons[a].gameObject.SetActive(true);
-                        buttons[a].interactable = true;
-                        buttons[a].image.sprite = agentConfigs[a].Portrait;
-                    }
-                    else
-                    {
-                        buttons[a].gameObject.SetActive(false);
-                    }
+                    panel.UpdateUI(opCentre);
                 }
             }
         }

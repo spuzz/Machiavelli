@@ -43,11 +43,6 @@ public class Abilities : MonoBehaviour
         {
             return false;
         }
-        int goldCost = AbilitiesList[index].GetCost();
-        if (unit.GetPlayer().Gold < goldCost)
-        {
-            return false;
-        }
         if(AbilitiesList[index].IsValidTarget(hexCell).Count == 0)
         {
             return false;
@@ -61,11 +56,6 @@ public class Abilities : MonoBehaviour
         {
             return new List<HexCell>();
         }
-        int goldCost = AbilitiesList[index].GetCost();
-        if (unit.GetPlayer().Gold < goldCost)
-        {
-            return new List<HexCell>();
-        }
 
         return AbilitiesList[index].IsValidTarget(hexCell);
     }
@@ -75,7 +65,7 @@ public class Abilities : MonoBehaviour
     {
 
         int goldCost = AbilitiesList[index].GetCost();
-        if(unit.GetPlayer().Gold < goldCost  || unit.GetMovementLeft() <= 0)
+        if(unit.GetMovementLeft() <= 0)
         {
             if (!audioSource.isPlaying)
             {
@@ -97,7 +87,6 @@ public class Abilities : MonoBehaviour
 
     public void UseAbility(int index, HexCell hexCell)
     {
-        unit.GetPlayer().Gold -= AbilitiesList[index].GetCost();
         unit.SetMovementLeft(0);
         AbilitiesList[index].Use(hexCell);
     }

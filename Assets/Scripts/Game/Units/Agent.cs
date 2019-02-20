@@ -6,7 +6,7 @@ using UnityEngine;
 public class Agent : Unit {
 
     AgentConfig agentConfig;
-
+    Player player;
     public void SetAgentConfig(AgentConfig config)
     {
         agentConfig = config;
@@ -21,9 +21,64 @@ public class Agent : Unit {
         }
         
     }
+
+
+    public AgentConfig GetAgentConfig()
+    {
+        return agentConfig;
+    }
+
+    private void Setup()
+    {
+        if (player)
+        {
+            unitUI.SetColour(player.Color);
+        }
+    }
+
+    public void SetPlayer(Player player)
+    {
+        if (player)
+        {
+            UpdateOwnerVisiblity(HexUnit.Location, false);
+        }
+        this.player = player;
+
+        UpdateOwnerVisiblity(HexUnit.Location, true);
+        if (unitUI)
+        {
+            unitUI.SetColour(player.Color);
+        }
+
+    }
+    public override Player GetPlayer()
+    {
+        return player;
+    }
+    public override void UpdateOwnerVisiblity(HexCell hexCell, bool increase)
+    {
+        if (player)
+        {
+            List<HexCell> cells = hexGrid.GetVisibleCells(hexCell, HexUnit.VisionRange);
+            for (int i = 0; i < cells.Count; i++)
+            {
+                if (increase)
+                {
+                    player.AddVisibleCell(cells[i]);
+                }
+                else
+                {
+                    player.RemoveVisibleCell(cells[i]);
+                }
+            }
+            ListPool<HexCell>.Add(cells);
+
+        }
+    }
+
     public override bool CanAttack(Unit unit)
     {
-        if (unit.GetPlayer() && unit.GetPlayer() != GetPlayer())
+        if (unit.HexUnit.HexUnitType == HexUnit.UnitType.AGENT && unit.GetComponent<Agent>().GetPlayer() != GetPlayer())
         {
             return true;
         }

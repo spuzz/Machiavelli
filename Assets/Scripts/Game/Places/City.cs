@@ -230,11 +230,11 @@ public class City : MonoBehaviour {
         while(buildConfig)
         {
             GameObject gameObjectPrefab = buildConfig.GameObjectPrefab;
-            if(gameObjectPrefab.GetComponent<CombatUnit>())
+            if (buildConfig.CombatUnitConfig)
             {
-                CreateUnit(buildConfig);
+                CreateUnit(buildConfig.CombatUnitConfig);
             }
-            if(gameObjectPrefab.GetComponent<CityStateBuilding>())
+            else if(gameObjectPrefab.GetComponent<CityStateBuilding>())
             {
                 AddBuilding(buildConfig);
             }
@@ -300,14 +300,14 @@ public class City : MonoBehaviour {
         
     }
 
-    public bool CreateUnit(BuildConfig buildConfig)
+    public bool CreateUnit(CombatUnitConfig combatUnitConfig)
     {
         List<HexCell> cells = PathFindingUtilities.GetCellsInRange(hexCell, 2);
         foreach(HexCell cell in cells)
         {
             if(cell.CanUnitMoveToCell(HexUnit.UnitType.COMBAT))
             {
-                HexUnit hexUnit = gameController.CreateCityStateUnit(buildConfig.GameObjectPrefab, buildConfig.PreFabName, cell, cityStateOwner.CityStateID);
+                HexUnit hexUnit = gameController.CreateCityStateUnit(combatUnitConfig, cell, cityStateOwner.CityStateID);
                 hexUnit.Location.UpdateVision();
                 cityStateOwner.UpdateVision();
                 return true;

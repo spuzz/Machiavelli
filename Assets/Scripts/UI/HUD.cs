@@ -145,9 +145,16 @@ public class HUD : MonoBehaviour {
         }
         if (unit)
         {
-            agentPanel.SetActive(true);
-            agentPanel.Unit = unit;
-            agentPanel.UpdateUI();
+            if(unit.HexUnit.HexUnitType == HexUnit.UnitType.AGENT)
+            {
+                agentPanel.SetActive(true);
+                agentPanel.Unit = unit;
+                agentPanel.UpdateUI();
+            }
+            else
+            {
+                agentPanel.SetActive(false);
+            }
             
         }
         else

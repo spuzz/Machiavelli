@@ -17,3 +17,4 @@ MonoBehaviour:
     type: 2}
   preFabName: Unit
   focusType: 6
+  combatUnitConfig: {fileID: 11400000, guid: f15b4125920265d49bf6fbaeca457c59, type: 2}
