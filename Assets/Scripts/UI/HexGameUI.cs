@@ -117,8 +117,28 @@ public class HexGameUI : MonoBehaviour {
         }
 	}
 
+    public void SelectOpCentre(OperationCentre opCentre)
+    {
+        grid.ClearPath();
+        selectedUnit = null;
+        HUD.OpCentre = opCentre;
+    }
 
-	void DoPathfinding () {
+    public void SelectCity(City city)
+    {
+        grid.ClearPath();
+        selectedUnit = null;
+        HUD.City = city;
+    }
+
+    public void SelectUnit(Unit unit)
+    {
+        grid.ClearPath();
+        currentCell = unit.HexUnit.Location;
+        selectedUnit = unit.HexUnit;
+    }
+
+    void DoPathfinding () {
 		if (UpdateCurrentCell()) {
 			if (currentCell && selectedUnit.IsValidDestination(currentCell)) {
 				grid.FindPath(selectedUnit.Location, currentCell, selectedUnit);

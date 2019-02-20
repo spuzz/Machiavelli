@@ -20,15 +20,16 @@ public abstract class Unit : MonoBehaviour {
     protected Abilities abilities;
     bool alive = true;
     List<HexCell> path = new List<HexCell>();
-    Player player;
-    HexGrid hexGrid;
+
+    protected HexGrid hexGrid;
     HexCell fightInCell;
-    UnitUI unitUI;
+    protected UnitUI unitUI;
+    HUD hudUI;
     UnitBehaviour behaviour;
     HexUnit attackUnit;
     City attackCity;
     GameController gameController;
-    CityState cityState;
+
     int hitPoints = 1;
     int lastHitPointChange = 0;
     HexVision hexVision;
@@ -61,7 +62,12 @@ public abstract class Unit : MonoBehaviour {
     public Texture BackGround
     {
         get { return backGround; }
-        set { backGround = value; }
+        set { backGround = value;
+            if (unitUI)
+            {
+                unitUI.SetBackground(backGround);
+            }
+        }
     }
 
     public Texture Symbol
@@ -83,30 +89,32 @@ public abstract class Unit : MonoBehaviour {
     }
 
 
+    public int GetBaseHitpoints()
+    {
+        return baseHitPoints;
+    }
     public CityState CityState
     {
         get
         {
-            return cityState;
+            return GetCityState();
         }
 
         set
         {
-            if (cityState)
-            {
-                UpdateOwnerVisiblity(hexUnit.Location, false);
-            }
-
-
-            cityState = value;
-            UpdateOwnerVisiblity(hexUnit.Location, true);
-            if (unitUI)
-            {
-                unitUI.SetColour(cityState.Color);
-            }
+            SetCityState(value);
         }
     }
 
+    public virtual CityState GetCityState()
+    {
+        return null;
+    }
+
+    public virtual void SetCityState(CityState cityState)
+    {
+
+    }
 
     public int HitPoints
     {
@@ -209,26 +217,52 @@ public abstract class Unit : MonoBehaviour {
         }
     }
 
+    public HUD HUDUI
+    {
+        get
+        {
+            return hudUI;
+        }
+
+        set
+        {
+            hudUI = value;
+        }
+    }
+
+    public int BaseMovementFactor
+    {
+        get
+        {
+            return baseMovementFactor;
+        }
+
+        set
+        {
+            baseMovementFactor = value;
+        }
+    }
+
+    public virtual Player GetPlayer()
+    {
+        return null;
+    }
+
+    public virtual void Setup()
+    {
+
+    }
     private void Awake()
     {
 
         hexGrid = FindObjectOfType<HexGrid>();
+        HUDUI = FindObjectOfType<HUD>();
         Behaviour = gameObject.AddComponent<UnitBehaviour>();
         GameController = FindObjectOfType<GameController>();
         unitUI = Instantiate(unitUiPrefab).GetComponent<UnitUI>();
         hexVision = gameObject.AddComponent<HexVision>();
         abilities = GetComponent<Abilities>();
         unitUI.Unit = this;
-        if (player)
-        {
-            unitUI.SetColour(player.Color);
-        }
-        if (cityState)
-        {
-            unitUI.SetColour(cityState.Color);
-        }
-
-        
         hexVision.AddVisibleObject(unitUI.gameObject);
         if(hexUnit.GetMesh())
         {
@@ -239,6 +273,7 @@ public abstract class Unit : MonoBehaviour {
         AudioSource audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.spatialBlend = 1;
         audioSource.minDistance = 10;
+        Setup();
 
     }
 
@@ -250,27 +285,6 @@ public abstract class Unit : MonoBehaviour {
     public void SetMovementLeft(int movementPoints)
     {
         movementLeft = movementPoints;
-    }
-
-    public void SetPlayer(Player player)
-    {
-        if (player)
-        {
-            UpdateOwnerVisiblity(hexUnit.Location, false);
-        }
-        this.player = player;
-
-        UpdateOwnerVisiblity(hexUnit.Location, true);
-        if (unitUI)
-        {
-            unitUI.SetColour(player.Color);
-        }
-
-    }
-
-    public Player GetPlayer()
-    {
-        return player;
     }
 
     public void SetPath(List<HexCell> path)
@@ -298,7 +312,7 @@ public abstract class Unit : MonoBehaviour {
         return false;
     }
     void Start() {
-        HexUnit.Speed = (BaseMovement * baseMovementFactor);
+        HexUnit.Speed = (BaseMovement * BaseMovementFactor);
         hitPoints = baseHitPoints;
         StartTurn();
     }
@@ -314,7 +328,7 @@ public abstract class Unit : MonoBehaviour {
 
     public void StartTurn()
     {
-        movementLeft = BaseMovement * baseMovementFactor;
+        movementLeft = BaseMovement * BaseMovementFactor;
     }
 
     public void EndTurn()
@@ -378,7 +392,7 @@ public abstract class Unit : MonoBehaviour {
             AttackUnit = null;
             AttackCity = null;
             City city = move[move.Count - 1].City;
-            if (city && hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && cityState != city.GetCityState())
+            if (city && hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && GetCityState() != city.GetCityState())
             {
                 AttackCity = city;
                 CombatSystem.CityFight(this, city);
@@ -429,37 +443,20 @@ public abstract class Unit : MonoBehaviour {
 
     }
 
-    public void UpdateOwnerVisiblity(HexCell hexCell, bool increase)
+    public virtual void UpdateOwnerVisiblity(HexCell hexCell, bool increase)
     {
-        if (player)
+        if (GetCityState())
         {
             List<HexCell> cells = hexGrid.GetVisibleCells(hexCell, hexUnit.VisionRange);
             for (int i = 0; i < cells.Count; i++)
             {
                 if (increase)
                 {
-                    player.AddVisibleCell(cells[i]);
+                    GetCityState().AddVisibleCell(cells[i]);
                 }
                 else
                 {
-                    player.RemoveVisibleCell(cells[i]);
-                }
-            }
-            ListPool<HexCell>.Add(cells);
-
-        }
-        if (cityState)
-        {
-            List<HexCell> cells = hexGrid.GetVisibleCells(hexCell, hexUnit.VisionRange);
-            for (int i = 0; i < cells.Count; i++)
-            {
-                if (increase)
-                {
-                    cityState.AddVisibleCell(cells[i]);
-                }
-                else
-                {
-                    cityState.RemoveVisibleCell(cells[i]);
+                    GetCityState().RemoveVisibleCell(cells[i]);
                 }
             }
             ListPool<HexCell>.Add(cells);

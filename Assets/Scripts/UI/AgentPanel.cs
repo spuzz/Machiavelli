@@ -6,6 +6,12 @@ using UnityEngine.UI;
 public class AgentPanel : MonoBehaviour {
 
     [SerializeField] List<Button> abilityButtons;
+    [SerializeField] Text typeText;
+    [SerializeField] Text movementText;
+    [SerializeField] Text healthText;
+    [SerializeField] Text strengthText;
+    [SerializeField] Text visibilityText;
+    [SerializeField] Image portrait;
     Unit unit;
 
     public Unit Unit
@@ -47,8 +53,14 @@ public class AgentPanel : MonoBehaviour {
                         abilityButtons[count].image.sprite = Unit.GetAbilities()[count].DefaultIcon;
                         
                     }
-
                 }
+                Agent agent = Unit.GetComponent<Agent>();
+                portrait.sprite = agent.GetAgentConfig().Portrait;
+                typeText.text = agent.GetAgentConfig().Name;
+                movementText.text = agent.GetMovementLeft()/agent.BaseMovementFactor + "/" + agent.BaseMovement;
+                healthText.text = agent.HitPoints + "/" + agent.GetBaseHitpoints();
+                strengthText.text = agent.GetAgentConfig().BaseStrength.ToString();
+                visibilityText.text = agent.HexUnit.VisionRange.ToString();
                     
             }
         }

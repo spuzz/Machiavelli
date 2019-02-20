@@ -506,6 +506,10 @@ public class HexGrid : MonoBehaviour {
 		fromCell.SearchPhase = searchFrontierPhase;
 		fromCell.Distance = speed - unit.GetComponent<Unit>().GetMovementLeft();
 		searchFrontier.Enqueue(fromCell);
+        if(toCell.City)
+        {
+            int trap = 0;
+        }
 		while (searchFrontier.Count > 0) {
 			HexCell current = searchFrontier.Dequeue();
 			current.SearchPhase += 1;

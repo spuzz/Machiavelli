@@ -10,7 +10,7 @@ public class BuildConfig : ScriptableObject {
     [SerializeField] GameObject gameObjectPrefab;
     [SerializeField] string preFabName;
     [SerializeField] FocusType focusType;
-
+    [SerializeField] CombatUnitConfig combatUnitConfig;
     public int BaseBuildTime
     {
         get
@@ -73,6 +73,19 @@ public class BuildConfig : ScriptableObject {
         set
         {
             focusType = value;
+        }
+    }
+
+    public CombatUnitConfig CombatUnitConfig
+    {
+        get
+        {
+            return combatUnitConfig;
+        }
+
+        set
+        {
+            combatUnitConfig = value;
         }
     }
 }

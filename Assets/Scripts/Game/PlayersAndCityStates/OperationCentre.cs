@@ -8,7 +8,9 @@ public class OperationCentre : MonoBehaviour
     [SerializeField] HexGrid hexGrid;
     [SerializeField] BuildingManager buildingManager;
     [SerializeField] List<AgentConfig> agentConfigs = new List<AgentConfig>();
+    [SerializeField] List<CombatUnitConfig> mercConfigs = new List<CombatUnitConfig>();
     [SerializeField] int visionRange = 2;
+    [SerializeField] OpCentreUI opCentreUI;
 
     GameController gameController;
     Player player;
@@ -57,6 +59,8 @@ public class OperationCentre : MonoBehaviour
             player = value;
             transform.parent = player.operationCenterTransformParent.transform;
             Location.CellSecondColor = player.Color;
+            opCentreUI.SetPlayerColour(player.Color);
+
         }
     }
 
@@ -89,6 +93,11 @@ public class OperationCentre : MonoBehaviour
     public IEnumerable<AgentConfig> GetAgentConfigs()
     {
         return agentConfigs;
+    }
+
+    public IEnumerable<CombatUnitConfig> GetCombatUnitConfigs()
+    {
+        return mercConfigs;
     }
 
     private void Awake()
@@ -127,6 +136,24 @@ public class OperationCentre : MonoBehaviour
             if (cell.CanUnitMoveToCell(HexUnit.UnitType.AGENT))
             {
                 gameController.CreateAgent(agentConfig,cell, Player);
+                return true;
+            }
+        }
+        return false;
+    }
+    public void HireMercenary(CombatUnitConfig mercConfig)
+    {
+        CreateMercenary(mercConfig);
+    }
+
+    public bool CreateMercenary(CombatUnitConfig mercConfig)
+    {
+        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(Location, 2);
+        foreach (HexCell cell in cells)
+        {
+            if (cell.CanUnitMoveToCell(HexUnit.UnitType.AGENT))
+            {
+                gameController.CreateMercenary(mercConfig, cell, Player);
                 return true;
             }
         }
