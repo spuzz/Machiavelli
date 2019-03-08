@@ -13,7 +13,7 @@ public class HexCell : MonoBehaviour {
 
     [SerializeField] int production = 2;
     [SerializeField] int food = 2;
-    [SerializeField] int income = 2;
+    [SerializeField] int income = 20;
 
     public HexCoordinates coordinates;
 
@@ -309,9 +309,10 @@ public class HexCell : MonoBehaviour {
 		get {
 			return explored && Explorable;
 		}
-		private set {
+		set {
 			explored = value;
-		}
+            ShaderData.RefreshVisibility(this);
+        }
 	}
 
 	public bool Explorable { get; set; }
@@ -428,6 +429,10 @@ public class HexCell : MonoBehaviour {
             {
                 City.HexVision.Visible = true;
             }
+            if(opCentre)
+            {
+                opCentre.HexVision.Visible = true;
+            }
             bool lastVisibleUnit = false;
             for (int a = hexUnits.Count - 1; a >= 0; a--)
             {
@@ -458,7 +463,11 @@ public class HexCell : MonoBehaviour {
             {
                 City.HexVision.Visible = false;
             }
-            foreach(HexUnit unit in hexUnits)
+            if (OpCentre)
+            {
+                OpCentre.HexVision.Visible = false;
+            }
+            foreach (HexUnit unit in hexUnits)
             {
                 if (unit.HexVision.HasVision == false)
                 {
@@ -829,7 +838,10 @@ public class HexCell : MonoBehaviour {
 		}
 
         IsExplored = reader.ReadBoolean();
-		ShaderData.RefreshVisibility(this);
+        opCentre = null;
+        city = null;
+        ShaderData.RefreshVisibility(this);
+
 	}
 
 	public void SetLabel (string text) {

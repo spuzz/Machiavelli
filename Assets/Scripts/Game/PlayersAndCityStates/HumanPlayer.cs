@@ -29,13 +29,18 @@ public class HumanPlayer : Player {
         {
             writer.Write(exploredCells[i].Index);
         }
+
         SavePlayer(writer);
     }
 
     public void Load(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
     {
         ClearAgents();
-        gameController.ReturnPlayerColor(Color);
+        if(header >= 3)
+        {
+            gameController.ReturnPlayerColor(Color);
+        }
+        
         int unitCount = reader.ReadInt32();
         for (int i = 0; i < unitCount; i++)
         {

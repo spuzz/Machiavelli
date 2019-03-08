@@ -12,6 +12,7 @@ public abstract class AbilityConfig : ScriptableObject
     [SerializeField] AudioClip[] audioClips;
     [SerializeField] Sprite defaultIcon;
     [SerializeField] GameObject textEffect;
+    [SerializeField] string abilityName;
     protected AbilityBehaviour behaviour;
 
     public int Range
@@ -50,6 +51,19 @@ public abstract class AbilityConfig : ScriptableObject
         set
         {
             textEffect = value;
+        }
+    }
+
+    public string AbilityName
+    {
+        get
+        {
+            return abilityName;
+        }
+
+        set
+        {
+            abilityName = value;
         }
     }
 

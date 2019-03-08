@@ -74,7 +74,7 @@ public class Abilities : MonoBehaviour
             return;
         }
         List<HexCell> targets = ValidTargets(index, hexCell);
-        if(targets.Count == 1 && AbilitiesList[index].Range == 1)
+        if(targets.Count == 1 && AbilitiesList[index].Range == 0)
         {
             UseAbility(index, targets[0]);
         }
@@ -99,12 +99,19 @@ public class Abilities : MonoBehaviour
 
     private void AttachInitialAbilities()
     {
+        List<AbilityConfig> abilityListClone = new List<AbilityConfig>();
         foreach (AbilityConfig ability in AbilitiesList)
         {
-            ability.AddComponent(gameObject);
+            var abilityClone = Instantiate(ability);
+            abilityClone.AddComponent(gameObject);
+            abilityListClone.Add(abilityClone);
+        }
+        AbilitiesList.Clear();
+        foreach (AbilityConfig ability in abilityListClone)
+        {
+            AbilitiesList.Add(ability);
         }
     }
-
 
 }
 

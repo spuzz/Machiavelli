@@ -117,4 +117,54 @@ public static class PathFindingUtilities
         return null;
     }
 
+    public static HexCell FindNearestUnexplored(Agent agent, int maxRange = 5, bool movable = true)
+    {
+        List<HexCell> cellsChecked = new List<HexCell>();
+        List<HexCell> cellsToLookFrom= new List<HexCell>();
+        cellsToLookFrom.Add(agent.HexUnit.Location);
+        cellsChecked.Add(agent.HexUnit.Location);
+        for (int a = 0; a < maxRange; a++)
+        {
+            List<HexCell> neighboursChecked = new List<HexCell>();
+            foreach (HexCell cellToLookFrom in cellsToLookFrom)
+            {
+                for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+                {
+                    HexCell neighbour = cellToLookFrom.GetNeighbor(d);
+                    if(cellsChecked.Contains(neighbour) == false)
+                    {
+                        if (!neighbour.IsUnderwater && agent.GetPlayer().exploredCells.Contains(neighbour) == false)
+                        {
+                            return neighbour;
+                        }
+                        neighboursChecked.Add(neighbour);
+                    }
+
+                }
+                
+            }
+            cellsToLookFrom.Clear();
+            foreach(HexCell cell in neighboursChecked)
+            {
+                cellsToLookFrom.Add(cell);
+                cellsChecked.Add(cell);
+            }
+
+        }
+        return null;
+    }
+
+    public static List<City> FindAllSeenCities(IEnumerable<HexCell> exploredCells)
+    {
+        List<City> discoveredCities = new List<City>();
+        foreach(HexCell cell in exploredCells)
+        {
+            if(cell.City)
+            {
+                discoveredCities.Add(cell.City);
+            }
+        }
+        return discoveredCities;
+    }
+
 }

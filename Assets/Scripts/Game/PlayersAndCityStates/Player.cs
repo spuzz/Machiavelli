@@ -12,7 +12,7 @@ public abstract class Player : MonoBehaviour {
     bool isHuman = false;
     bool alive = true;
     [SerializeField] int gold = 100;
-
+    [SerializeField] List<CityPlayerBuildConfig> cityPlayerBuildConfigs;
     Color color;
     public GameObject operationCenterTransformParent;
 
@@ -24,8 +24,10 @@ public abstract class Player : MonoBehaviour {
     public List<HexCell> exploredCells = new List<HexCell>();
 
     protected GameController gameController;
+    private int goldPerTurn;
 
-
+    public delegate void OnInfoChange(Player player);
+    public event OnInfoChange onInfoChange;
 
     public bool IsHuman
     {
@@ -74,6 +76,21 @@ public abstract class Player : MonoBehaviour {
         set
         {
             gold = value;
+            NotifyInfoChange();
+        }
+    }
+
+    public int GoldPerTurn
+    {
+        get
+        {
+            return goldPerTurn;
+        }
+
+        set
+        {
+            goldPerTurn = value;
+            NotifyInfoChange();
         }
     }
 
@@ -110,11 +127,20 @@ public abstract class Player : MonoBehaviour {
     public void AddCityState(CityState cityState)
     {
         cityStates.Add(cityState);
+        UpdateResources();
+        cityState.onInfoChange += cityStateChange;
+    }
+
+    private void cityStateChange(CityState cityState)
+    {
+        UpdateResources();
     }
 
     public void RemoveCityState(CityState cityState)
     {
         cityStates.Remove(cityState);
+        cityState.onInfoChange -= cityStateChange;
+        UpdateResources();
     }
 
     public IEnumerable<CityState> GetCityStates()
@@ -127,7 +153,7 @@ public abstract class Player : MonoBehaviour {
         return agents;
     }
 
-    public void AddAgent(Agent agent)
+    public virtual void AddAgent(Agent agent)
     {
         if(isHuman)
         {
@@ -136,19 +162,21 @@ public abstract class Player : MonoBehaviour {
         
         agent.SetPlayer(this);
         agents.Add(agent);
+        NotifyInfoChange();
     }
 
     public void RemoveAgent(Agent agent)
     {
         agent.HexVision.HasVision = false;
         agents.Remove(agent);
+        NotifyInfoChange();
     }
 
     public void ClearAgents()
     {
         agents.Clear();
+        NotifyInfoChange();
     }
-
 
     public IEnumerable<CombatUnit> GetMercenaries()
     {
@@ -164,17 +192,20 @@ public abstract class Player : MonoBehaviour {
 
         mercenary.SetPlayer(this);
         mercenaries.Add(mercenary);
+        NotifyInfoChange();
     }
 
     public void RemoveMercenary(CombatUnit mercenary)
     {
         mercenary.HexVision.HasVision = false;
         mercenaries.Remove(mercenary);
+        NotifyInfoChange();
     }
 
     public void ClearMercenaries()
     {
         mercenaries.Clear();
+        NotifyInfoChange();
     }
 
     public IEnumerable<OperationCentre> GetOperationCentres()
@@ -213,6 +244,15 @@ public abstract class Player : MonoBehaviour {
         exploredCells.Clear();
     }
 
+    public IEnumerable<CityPlayerBuildConfig> GetCityPlayerBuildConfigs()
+    {
+        return cityPlayerBuildConfigs;
+    }
+
+    public CityPlayerBuildConfig GetCityPlayerBuildConfig(int id)
+    {
+        return cityPlayerBuildConfigs[id];
+    }
     private void Awake()
     {
         gameController = FindObjectOfType<GameController>();
@@ -242,6 +282,13 @@ public abstract class Player : MonoBehaviour {
         {
             opCentre.StartTurn();
         }
+
+        foreach(CityState cityState in cityStates)
+        {
+            gold += cityState.GetIncome() / 10;
+        }
+
+        UpdateResources();
     }
 
     public abstract void PlayerDefeated();
@@ -269,13 +316,29 @@ public abstract class Player : MonoBehaviour {
         mercenaries.RemoveAll(c => c.Alive == false);
     }
 
-
+    private void UpdateResources()
+    {
+        goldPerTurn = 0;
+        foreach (CityState cityState in cityStates)
+        {
+            goldPerTurn += cityState.GetIncome() / 10;
+        }
+        NotifyInfoChange();
+    }
 
     public void SavePlayer(BinaryWriter writer)
     {
         writer.Write(Color.r);
         writer.Write(Color.g);
         writer.Write(Color.b);
+
+        writer.Write(opCentres.Count);
+        foreach (OperationCentre opCentre in opCentres)
+        {
+            opCentre.Save(writer);
+        }
+
+        writer.Write(gold);
     }
 
     public void LoadPlayer(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
@@ -295,6 +358,19 @@ public abstract class Player : MonoBehaviour {
             Color playerColor = new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), 1.0f);
             gameController.RemovePlayerColor(playerColor);
             Color = playerColor;
+
+        }
+
+        if (header >= 5)
+        {
+            int opCentreCount = reader.ReadInt32();
+            for (int i = 0; i < opCentreCount; i++)
+            {
+                OperationCentre.Load(reader,gameController,hexGrid,this,header);
+            }
+
+            gold = reader.ReadInt32();
+
         }
 
     }
@@ -314,5 +390,13 @@ public abstract class Player : MonoBehaviour {
         }
         Destroy(gameObject);
 
+    }
+
+    public void NotifyInfoChange()
+    {
+        if(onInfoChange != null)
+        {
+            onInfoChange(this);
+        }
     }
 }

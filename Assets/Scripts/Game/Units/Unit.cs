@@ -30,8 +30,12 @@ public abstract class Unit : MonoBehaviour {
     City attackCity;
     GameController gameController;
 
-    int hitPoints = 1;
+    int hitPoints = 100;
     int lastHitPointChange = 0;
+
+    public delegate void OnInfoChange(Unit unit);
+    public event OnInfoChange onInfoChange;
+
     HexVision hexVision;
     public HexUnit AttackUnit
     {
@@ -127,6 +131,7 @@ public abstract class Unit : MonoBehaviour {
         {
             lastHitPointChange = value - hitPoints;
             hitPoints = value;
+            NotifyInfoChange();
             if(hitPoints <= 0)
             {
                 KillUnit();
@@ -273,6 +278,8 @@ public abstract class Unit : MonoBehaviour {
         AudioSource audioSource = gameObject.AddComponent<AudioSource>();
         audioSource.spatialBlend = 1;
         audioSource.minDistance = 10;
+        HexUnit.Speed = (BaseMovement * BaseMovementFactor);
+        hitPoints = baseHitPoints;
         Setup();
 
     }
@@ -285,21 +292,22 @@ public abstract class Unit : MonoBehaviour {
     public void SetMovementLeft(int movementPoints)
     {
         movementLeft = movementPoints;
+        NotifyInfoChange();
     }
 
-    public void SetPath(List<HexCell> path)
+    public bool SetPath(List<HexCell> path)
     {
         this.path = path;
-        MoveUnit();
+        return MoveUnit();
 
     }
 
-    public void SetPath(HexCell path)
+    public bool SetPath(HexCell path)
     {
         this.path.Clear();
         this.path.Add(HexUnit.Location);
         this.path.Add(path);
-        MoveUnit();
+        return MoveUnit();
 
     }
 
@@ -312,8 +320,7 @@ public abstract class Unit : MonoBehaviour {
         return false;
     }
     void Start() {
-        HexUnit.Speed = (BaseMovement * BaseMovementFactor);
-        hitPoints = baseHitPoints;
+
         StartTurn();
     }
 
@@ -329,6 +336,7 @@ public abstract class Unit : MonoBehaviour {
     public void StartTurn()
     {
         movementLeft = BaseMovement * BaseMovementFactor;
+        NotifyInfoChange();
     }
 
     public void EndTurn()
@@ -355,12 +363,12 @@ public abstract class Unit : MonoBehaviour {
         }
     }
 
-    public void MoveUnit()
+    public bool MoveUnit()
     {
         AttackUnit = null;
         if (path.Count == 0)
         {
-            return;
+            return false;
         }
         List<HexCell> move = new List<HexCell>();
         move.Add(path[0]);
@@ -412,9 +420,10 @@ public abstract class Unit : MonoBehaviour {
 
             path.RemoveRange(0, move.Count - 1);
             HexUnit.Travel(move);
+            return true;
 
         }
-
+        return false;
     }
 
     public void UpdateUI()
@@ -475,20 +484,44 @@ public abstract class Unit : MonoBehaviour {
     public void AttemptAbility(int abilityNumber, HexCell hexCell)
     {
         abilities.AttemptAbility(abilityNumber, hexCell);
+        NotifyInfoChange();
     }
 
     public void UseAbility(int abilityNumber, HexCell hexCell)
     {
         abilities.UseAbility(abilityNumber, hexCell);
+        NotifyInfoChange();
+
+    }
+    public void UseAbility(string abilityName, HexCell hexCell)
+    {
+        abilities.UseAbility(abilities.AbilitiesList.IndexOf(abilities.AbilitiesList.Find(c=> c.AbilityName == abilityName)), hexCell);
+        NotifyInfoChange();
 
     }
 
-
-    public List<AbilityConfig> GetAbilities()
+    public IEnumerable<AbilityConfig> GetAbilities()
     {
         return abilities.AbilitiesList;
     }
 
+    public bool HasAbility(string abilityName)
+    {
+        if (abilities.AbilitiesList.FindAll(c => c.AbilityName == abilityName).Count > 0)
+        {
+            return true;
+        }
+        return false;
+    }
+    public AbilityConfig GetAbility(int abilityNumber)
+    {
+        return abilities.AbilitiesList[abilityNumber];
+    }
+
+    public AbilityConfig GetAbility(string abilityName)
+    {
+        return abilities.AbilitiesList.Find(c => c.AbilityName == abilityName);
+    }
     public int GetNumberOfAbilities()
     {
         return abilities.GetNumberOfAbilities();
@@ -496,5 +529,13 @@ public abstract class Unit : MonoBehaviour {
     public bool IsAbilityUsable(int abilityNumber)
     {
         return abilities.IsAbilityValid(abilityNumber, hexUnit.Location);
+    }
+
+    public void NotifyInfoChange()
+    {
+        if (onInfoChange != null)
+        {
+            onInfoChange(this);
+        }
     }
 }

@@ -25,11 +25,15 @@ public class BuildOpCentreBehaviour : AbilityBehaviour
     {
         List<HexCell> possibleLocations = new List<HexCell>();
         
-        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(target, 3).FindAll(c => c.OpCentre || c.OpCentre);
-        if (cells.Count == 0)
+        if(!target.City && !target.OpCentre)
         {
-            possibleLocations.Add(target);
+            List<HexCell> cells = PathFindingUtilities.GetCellsInRange(target, 3).FindAll(c => c.OpCentre);
+            if (cells.Count == 0)
+            {
+                possibleLocations.Add(target);
+            }
         }
+
 
         return possibleLocations;
     }

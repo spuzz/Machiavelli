@@ -13,7 +13,7 @@ public class City : MonoBehaviour {
     [SerializeField] int baseScience = 0;
     [SerializeField] int baseIncome = 0;
     [SerializeField] CityUI cityUI;
-    [SerializeField] BuildingManager buildingManager;
+    
     [SerializeField] HexGrid hexGrid;
     [SerializeField] List<CityStateBuilding> buildings;
     [SerializeField] List<BuildConfig> availableBuildings;
@@ -21,23 +21,29 @@ public class City : MonoBehaviour {
     [SerializeField] int food = 0;
     [SerializeField] int population = 1;
     [SerializeField] int visionRange = 2;
+    [SerializeField] PlayerBuildingControl playerBuildingControl;
 
-    int currentStrength = 0;
-    int currentProduction = 0;
-    int currentFood = 0;
-    int currentScience = 0;
-    int currentIncome = 0;
-    int foodConsumption = 0;
-    int foodForNextPop = 0;
+    BuildingManager buildingManager = new BuildingManager();
+    public int currentStrength = 0;
+    public int currentProduction = 0;
+    public int currentFood = 0;
+    public int currentScience = 0;
+    public int currentIncome = 0;
+    public int foodConsumption = 0;
+    public int foodForNextPop = 0;
     CityState cityStateOwner;
     GameController gameController;
     HexCell hexCell;
     Color towerColor = Color.black;
     List<HexCell> ownedCells = new List<HexCell>();
     HexVision hexVision;
+
+    public delegate void OnInfoChange(City city);
+    public event OnInfoChange onInfoChange;
+
     public float HealthAsPercentage
     {
-        get { return (float)hitPoints / (float)baseHitPoints; }
+        get { return (float)hitPoints / (float)BaseHitPoints; }
     }
 
     int hitPoints;
@@ -51,6 +57,7 @@ public class City : MonoBehaviour {
         set
         {
             hitPoints = value;
+            NotifyInfoChange();
         }
     }
     public int Strength
@@ -64,7 +71,7 @@ public class City : MonoBehaviour {
         set
         {
             towerColor = value;
-
+            NotifyInfoChange();
             CityUI.SetPlayerColour(towerColor);
             foreach (HexCell hexCell in ownedCells)
             {
@@ -98,6 +105,7 @@ public class City : MonoBehaviour {
         {
             population = value;
             CityUI.SetPopulation(population.ToString());
+            NotifyInfoChange();
         }
     }
 
@@ -140,6 +148,45 @@ public class City : MonoBehaviour {
         }
     }
 
+    public int BaseHitPoints
+    {
+        get
+        {
+            return baseHitPoints;
+        }
+
+        set
+        {
+            baseHitPoints = value;
+        }
+    }
+
+    public int Food
+    {
+        get
+        {
+            return food;
+        }
+
+        set
+        {
+            food = value;
+        }
+    }
+
+    public PlayerBuildingControl PlayerBuildingControl
+    {
+        get
+        {
+            return playerBuildingControl;
+        }
+
+        set
+        {
+            playerBuildingControl = value;
+        }
+    }
+
     public void SetCityState(CityState cityState)
     {
         if (cityStateOwner)
@@ -148,6 +195,7 @@ public class City : MonoBehaviour {
         }
         cityStateOwner = cityState;
         cityStateOwner.AddCity(this);
+        NotifyInfoChange();
 
     }
 
@@ -174,6 +222,7 @@ public class City : MonoBehaviour {
         UpdateWalls();
         AddCellYield(hexCell);
         HexVision.SetCells(hexGrid.GetVisibleCells(hexCell, VisionRange));
+        NotifyInfoChange();
     }
 
 
@@ -187,7 +236,7 @@ public class City : MonoBehaviour {
         gameController = FindObjectOfType<GameController>();
         hexGrid = FindObjectOfType<HexGrid>();
         hexVision = gameObject.AddComponent<HexVision>();
-        hitPoints = baseHitPoints;
+        hitPoints = BaseHitPoints;
         CalculateFoodForNextPop();
         gameController.VisionSystem.AddHexVision(hexVision);
 
@@ -199,24 +248,22 @@ public class City : MonoBehaviour {
         for (int i = 1; i < population; i++)
         {
             foodForNextPop = (int)(foodForNextPop * 2f);
-
-
         }
     }
 
     public void StartTurn()
     {
-        cityStateOwner.Gold += currentIncome;
-        food += currentFood;
-        if(food >= foodForNextPop)
+       // cityStateOwner.Gold += currentIncome;
+        Food += currentFood;
+        if(Food >= foodForNextPop)
         {
-            food -= foodForNextPop;
+            Food -= foodForNextPop;
             Population += 1;
             foodConsumption += 1;
             AddCellYield(hexCell);
             CalculateFoodForNextPop();
         }
-        else if(food <= 0 && population != 1)
+        else if(Food <= 0 && population != 1)
         {
             Population -= 1;
             foodConsumption -= 1;
@@ -229,17 +276,20 @@ public class City : MonoBehaviour {
         BuildConfig buildConfig = BuildingManager.GetCompletedBuild();
         while(buildConfig)
         {
-            GameObject gameObjectPrefab = buildConfig.GameObjectPrefab;
-            if (buildConfig.CombatUnitConfig)
+            if (buildConfig.GetBuildType() == BuildConfig.BUILDTYPE.COMBAT_UNIT )
             {
-                CreateUnit(buildConfig.CombatUnitConfig);
+                CreateUnit((buildConfig as CombatUnitBuildConfig).CombatUnitConfig);
             }
-            else if(gameObjectPrefab.GetComponent<CityStateBuilding>())
+            else if(buildConfig.GetBuildType() == BuildConfig.BUILDTYPE.CITY_STATE_BUILDING)
             {
-                AddBuilding(buildConfig);
+                AddBuilding(buildConfig as CityStateBuildConfig);
             }
             buildConfig = BuildingManager.GetCompletedBuild();
         }
+
+        PlayerBuildingControl.StartTurn();
+
+        RefreshYields();
     }
 
 
@@ -300,6 +350,13 @@ public class City : MonoBehaviour {
         
     }
 
+    public int Plunder()
+    {
+        int gold = GetCityState().Gold;
+        gold = gold / 10;
+        GetCityState().Gold -= gold;
+        return gold;
+    }
     public bool CreateUnit(CombatUnitConfig combatUnitConfig)
     {
         List<HexCell> cells = PathFindingUtilities.GetCellsInRange(hexCell, 2);
@@ -330,10 +387,9 @@ public class City : MonoBehaviour {
         buildingManager.AddBuild(config);
     }
 
-    public void AddBuilding(BuildConfig buildConfig)
+    public void AddBuilding(CityStateBuildConfig buildConfig)
     {
-        CityStateBuilding cityStateBuilding = Instantiate(buildConfig.GameObjectPrefab,transform).GetComponent<CityStateBuilding>();
-        buildings.Add(cityStateBuilding);
+        buildings.Add(gameController.CreateCityStateBuilding(buildConfig));
         RefreshYields();
     }
 
@@ -343,11 +399,12 @@ public class City : MonoBehaviour {
         RefreshYields();
     }
 
-    private void RefreshYields()
+    public void RefreshYields()
     {
         currentStrength = baseStrength;
         currentProduction = baseProduction;
         currentFood = baseFood;
+        currentFood -= foodConsumption;
         currentScience = baseScience;
         currentIncome = baseIncome;
 
@@ -368,11 +425,39 @@ public class City : MonoBehaviour {
             currentProduction += (int)building.ResourceBenefit.Production.y;
             currentProduction += (int)((float)baseProduction * (building.ResourceBenefit.Production.x / 100.0f));
         }
+
+        ResourceBenefit playerBenefits = PlayerBuildingControl.GetTotalEffects();
+        currentStrength += (int)playerBenefits.Defence.y;
+        currentStrength += (int)((float)baseStrength * (playerBenefits.Defence.x / 100.0f));
+
+        currentIncome += (int)playerBenefits.Gold.y;
+        currentIncome += (int)((float)baseIncome * (playerBenefits.Gold.x / 100.0f));
+
+        currentFood += (int)playerBenefits.Food.y;
+        currentFood += (int)((float)baseFood * (playerBenefits.Food.x / 100.0f));
+
+        currentScience += (int)playerBenefits.Science.y;
+        currentScience += (int)((float)baseScience * (playerBenefits.Science.x / 100.0f));
+
+        currentProduction += (int)playerBenefits.Production.y;
+        currentProduction += (int)((float)baseProduction * (playerBenefits.Production.x / 100.0f));
+
+
+        NotifyInfoChange();
     }
 
+    public int GetIncome()
+    {
+        return currentIncome;
+    }
     public void Save(BinaryWriter writer)
     {
+        GetHexCell().coordinates.Save(writer);
         writer.Write(cityStateOwner.CityStateID);
+        buildingManager.Save(writer);
+        playerBuildingControl.Save(writer);
+        writer.Write(food);
+        writer.Write(population);
     }
 
     public static void Load(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
@@ -381,6 +466,29 @@ public class City : MonoBehaviour {
         int cityStateID = reader.ReadInt32();
         CityState cityState = gameController.GetCityState(cityStateID);
         HexCell cell = hexGrid.GetCell(coordinates);
-        gameController.CreateCity(cell, cityState);
+        City city = gameController.CreateCity(cell, cityState);
+        city.buildingManager.Load(reader,gameController,header);
+        city.PlayerBuildingControl.Load(reader,gameController,header);
+        if(header >=5)
+        {
+            city.food = reader.ReadInt32();
+            city.Population = reader.ReadInt32();
+            city.foodConsumption = city.population;
+            city.CalculateFoodForNextPop();
+            for (int a = 1; a < city.population; a++)
+            {
+                city.AddCellYield(city.GetHexCell());
+            }
+        }
+
     }
+    public void NotifyInfoChange()
+    {
+        if (onInfoChange != null)
+        {
+            onInfoChange(this);
+        }
+    }
+
+
 }

@@ -138,7 +138,15 @@ public class CombatUnit : Unit
     {
         HexCoordinates coordinates = HexCoordinates.Load(reader);
         float orientation = reader.ReadSingle();
+        int hitPoints = 100;
+        int movementLeft = 2;
         string unitName = reader.ReadString();
+        if (header >= 3)
+        {
+            hitPoints = reader.ReadInt32();
+            movementLeft = reader.ReadInt32();
+        }
+
         string combatUnitConfig = "Swordsman";
         if (header >= 4)
         {
@@ -150,8 +158,8 @@ public class CombatUnit : Unit
         CombatUnit combatUnit = hexUnit.GetComponent<CombatUnit>();
         if (header >= 3)
         {
-            combatUnit.HitPoints = reader.ReadInt32();
-            combatUnit.SetMovementLeft(reader.ReadInt32());
+            combatUnit.HitPoints = hitPoints;
+            combatUnit.SetMovementLeft(movementLeft);
         }
         return combatUnit;
     }

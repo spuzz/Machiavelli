@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00538d5d87873434b907c764de750305, type: 3}
+  m_Name: Builder
+  m_EditorClassIdentifier: 
+  baseProductionCost: 1
+  basePurchaseCost: 50
+  prerequisites: []
+  focusType: 7
+  buildingImage: {fileID: 21300000, guid: 01d666d4b5062374694e3a91d39cc2b3, type: 3}
+  name: Builder
+  agentConfig: {fileID: 11400000, guid: 616e871ae5862d54ca3171f9088d16df, type: 2}

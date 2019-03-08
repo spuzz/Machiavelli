@@ -11,9 +11,9 @@ public class HUD : MonoBehaviour {
     [SerializeField] HexGameUI HexGameUI;
     [SerializeField] Button endTurnButton;
     [SerializeField] AgentPanel agentPanel;
-    [SerializeField] CanvasRenderer cityPanel;
+    [SerializeField] CityPanel cityPanel;
     [SerializeField] OperationCentrePanel opCentrePanel;
-
+    [SerializeField] TextFadeOut newTurnText;
     Unit unit;
     City city;
     HexCell targetCell;
@@ -120,46 +120,43 @@ public class HUD : MonoBehaviour {
     public void StartTurn()
     {
         endTurnButton.interactable = true;
-        UpdateUI();
+        newTurnText.FadeOut();
+        //UpdateUI();
     }
 
     public void UpdateUI()
     {
         if (opCentre)
         {
-            opCentrePanel.SetActive(true);
-            opCentrePanel.OpCentre = opCentre;
-            opCentrePanel.UpdateUI();
+            opCentrePanel.SetActive(opCentre);
         }
         else
         {
-            opCentrePanel.SetActive(false);
+            opCentrePanel.SetInactive();
         }
         if (city)
         {
-            cityPanel.gameObject.SetActive(true);
+            cityPanel.SetActive(city);
         }
         else
         {
-            cityPanel.gameObject.SetActive(false);
+            cityPanel.SetInactive();
         }
         if (unit)
         {
             if(unit.HexUnit.HexUnitType == HexUnit.UnitType.AGENT)
             {
-                agentPanel.SetActive(true);
-                agentPanel.Unit = unit;
-                agentPanel.UpdateUI();
+                agentPanel.SetActive(unit);
             }
             else
             {
-                agentPanel.SetActive(false);
+                agentPanel.SetInactive();
             }
             
         }
         else
         {
-            agentPanel.SetActive(false);
+            agentPanel.SetInactive();
         }
     }
 
@@ -167,7 +164,6 @@ public class HUD : MonoBehaviour {
     {
         TargetCell = Unit.HexUnit.Location;
         Unit.AttemptAbility(abilityNumber, TargetCell);
-        agentPanel.UpdateUI();
     }
 
     public void UseOpCentreAbility(int abilityNumber)

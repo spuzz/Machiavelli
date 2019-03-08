@@ -32,8 +32,7 @@ public class HexMapEditor : MonoBehaviour {
 	bool applyElevation = false;
 	bool applyWaterLevel = false;
 
-	bool applyUrbanLevel, applyFarmLevel, applyPlantLevel, applySpecialIndex;
-
+	bool applyUrbanLevel, applyFarmLevel, applyPlantLevel, applySpecialIndex, applyExplored;
 
 	OptionalToggle riverMode, roadMode, walledMode;
 
@@ -89,7 +88,13 @@ public class HexMapEditor : MonoBehaviour {
 		applySpecialIndex = toggle;
 	}
 
-	public void SetSpecialIndex (float index) {
+    public void SetApplyExplored(bool toggle)
+    {
+        applyExplored = toggle;
+    }
+
+
+    public void SetSpecialIndex (float index) {
 		activeSpecialIndex = (int)index;
 	}
 
@@ -166,7 +171,7 @@ public class HexMapEditor : MonoBehaviour {
             cityStates.AddOptions(gameController.CityStateNames());
         }
 
-        if (players.options.Count != gameController.PlayerCount())
+        if (players.options.Count != gameController.PlayerCount() || gameController.PlayerCount() == 3)
         {
             players.ClearOptions();
             players.AddOptions(gameController.PlayerNames());
@@ -369,6 +374,14 @@ public class HexMapEditor : MonoBehaviour {
 			if (walledMode != OptionalToggle.Ignore) {
 				cell.Walled = walledMode == OptionalToggle.Yes;
 			}
+            if(applyExplored)
+            {
+                cell.IsExplored = true;
+            }
+            else
+            {
+                cell.IsExplored = false;
+            }
 			if (isDrag) {
 				HexCell otherCell = cell.GetNeighbor(dragDirection.Opposite());
 				if (otherCell) {

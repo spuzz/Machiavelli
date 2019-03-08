@@ -16,7 +16,7 @@ public class CityUI : MonoBehaviour
     [SerializeField] Text population;
     [SerializeField] City city;
     Camera cameraToLookAt;
-
+    HexGameUI hexGameUI;
     bool visible = true;
     public City CityObject
     {
@@ -68,6 +68,7 @@ public class CityUI : MonoBehaviour
     {
         cameraToLookAt = Camera.main;
         cityHealthBar.CityObject = city;
+        hexGameUI = FindObjectOfType<HexGameUI>();
     }
 
     // Update is called once per frame 
@@ -87,5 +88,10 @@ public class CityUI : MonoBehaviour
             cityHealthBar.UpdateHealth();
         }
 
+    }
+
+    public void SelectCity()
+    {
+        hexGameUI.SelectCity(city);
     }
 }

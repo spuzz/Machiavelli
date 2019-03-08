@@ -2,15 +2,26 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-[CreateAssetMenu(menuName = ("Build/BuildConfig"))]
-public class BuildConfig : ScriptableObject {
 
+public abstract class BuildConfig : ScriptableObject {
+
+    public enum BUILDTYPE
+    {
+        AGENT,
+        COMBAT_UNIT,
+        CITY_STATE_BUILDING,
+        CITY_PLAYER_BUILDING,
+        OPCENTRE_BUILDING,
+        MISC
+    }
+    [Header("Build Config General")]
     [SerializeField] int baseProductionCost = 1;
     [SerializeField] int basePurchaseCost = 1;
-    [SerializeField] GameObject gameObjectPrefab;
-    [SerializeField] string preFabName;
+    [SerializeField] List<BuildConfig> prerequisites;
     [SerializeField] FocusType focusType;
-    [SerializeField] CombatUnitConfig combatUnitConfig;
+    [SerializeField] Sprite buildingImage;
+    [SerializeField] string name;
+
     public int BaseBuildTime
     {
         get
@@ -37,31 +48,6 @@ public class BuildConfig : ScriptableObject {
         }
     }
 
-    public GameObject GameObjectPrefab
-    {
-        get
-        {
-            return gameObjectPrefab;
-        }
-
-        set
-        {
-            gameObjectPrefab = value;
-        }
-    }
-
-    public string PreFabName
-    {
-        get
-        {
-            return preFabName;
-        }
-
-        set
-        {
-            preFabName = value;
-        }
-    }
 
     public FocusType FocusType
     {
@@ -76,16 +62,33 @@ public class BuildConfig : ScriptableObject {
         }
     }
 
-    public CombatUnitConfig CombatUnitConfig
+
+    public Sprite BuildingImage
     {
         get
         {
-            return combatUnitConfig;
+            return buildingImage;
         }
 
         set
         {
-            combatUnitConfig = value;
+            buildingImage = value;
         }
     }
+
+    public string Name
+    {
+        get
+        {
+            return name;
+        }
+
+        set
+        {
+            name = value;
+        }
+    }
+
+    public abstract BUILDTYPE GetBuildType();
+
 }

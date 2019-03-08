@@ -22,7 +22,7 @@ public class UnitHealthBar : MonoBehaviour
     }
 
     // Use this for initialization
-    void Start()
+    void Awake()
     {
         healthBarRawImage = GetComponent<RawImage>();
     }

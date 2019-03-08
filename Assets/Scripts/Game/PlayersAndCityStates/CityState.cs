@@ -7,12 +7,12 @@ using UnityEngine;
 
 public class CityState : MonoBehaviour
 {
-    static int cityStateIDCounter = 1;
+    public static int cityStateIDCounter = 1;
 
     [SerializeField] List<CombatUnit> units = new List<CombatUnit>();
     [SerializeField] CityStateAIController cityStateAIController;
     [SerializeField] int gold = 100;
-
+    [SerializeField] string cityStateName = "City State";
     GameController gameController;
     int cityStateID;
     Color color = Color.black;
@@ -23,6 +23,9 @@ public class CityState : MonoBehaviour
     List<City> cities = new List<City>();
     List<City> visibleCities = new List<City>();
     Dictionary<Player, int> influenceDict = new Dictionary<Player, int>();
+
+    public delegate void OnInfoChange(CityState cityState);
+    public event OnInfoChange onInfoChange;
 
     public IEnumerable<HexCell> GetExploredCells()
     {
@@ -86,6 +89,7 @@ public class CityState : MonoBehaviour
         set
         {
             gold = value;
+            NotifyInfoChange();
         }
     }
     
@@ -141,6 +145,19 @@ public class CityState : MonoBehaviour
         set { cityStateID = value; }
     }
 
+    public string CityStateName
+    {
+        get
+        {
+            return cityStateName;
+        }
+
+        set
+        {
+            cityStateName = value;
+        }
+    }
+
     public void AddUnit(CombatUnit unit)
     {
         if(player && player.IsHuman)
@@ -149,6 +166,7 @@ public class CityState : MonoBehaviour
         }
         unit.CityState = this;
         units.Add(unit);
+        NotifyInfoChange();
     }
 
     public void RemoveUnit(CombatUnit unit)
@@ -158,6 +176,7 @@ public class CityState : MonoBehaviour
         {
             units.Remove(unit);
         }
+        NotifyInfoChange();
 
     }
     public void AddCity(City city)
@@ -166,17 +185,22 @@ public class CityState : MonoBehaviour
         {
             city.HexVision.HasVision = true;
         }
+        city.onInfoChange += cityChanged;
         cities.Add(city);
+        NotifyInfoChange();
     }
 
     public void RemoveCity(City city)
     {
         city.HexVision.HasVision = false;
+        city.onInfoChange -= cityChanged;
         cities.Remove(city);
-        //if (cities.Count == 0)
-        //{
-        //    gameController.DestroyCityState(this);
-        //}
+        NotifyInfoChange();
+    }
+
+    private void cityChanged(City city)
+    {
+        NotifyInfoChange();
     }
 
     public int GetCityCount()
@@ -211,9 +235,22 @@ public class CityState : MonoBehaviour
         foreach (City city in cities)
         {
             city.StartTurn();
+            Gold += city.GetIncome();
         }
 
         UpdateInfluence();
+        NotifyInfoChange();
+    }
+
+    public int GetIncome()
+    {
+        int income = 0;
+        foreach(City city in cities)
+        {
+            income += city.GetIncome();
+        }
+
+        return income;
     }
 
     public void AdjustInfluence(Player adjustPlayer,int influence)
@@ -312,7 +349,6 @@ public class CityState : MonoBehaviour
                     influenceDict[player] = 0;
                 }
             }
-
         }
     }
 
@@ -321,6 +357,7 @@ public class CityState : MonoBehaviour
         int negativeInfluence = -((int)Math.Pow(2*1, cities.Count - 1));
         AdjustInfluenceForAll(negativeInfluence);
         CheckInfluence();
+        NotifyInfoChange();
     }
 
     public IEnumerator TakeTurn()
@@ -449,6 +486,14 @@ public class CityState : MonoBehaviour
                 }
                     
             }
+        }
+    }
+
+    public void NotifyInfoChange()
+    {
+        if (onInfoChange != null)
+        {
+            onInfoChange(this);
         }
     }
 }

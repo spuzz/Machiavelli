@@ -140,7 +140,7 @@ public class HexGameUI : MonoBehaviour {
 
     void DoPathfinding () {
 		if (UpdateCurrentCell()) {
-			if (currentCell && selectedUnit.IsValidDestination(currentCell)) {
+            if (currentCell && (selectedUnit.IsValidDestination(currentCell) || selectedUnit.IsValidAttackDestination(currentCell))) {
 				grid.FindPath(selectedUnit.Location, currentCell, selectedUnit);
 			}
 			else {

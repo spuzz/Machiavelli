@@ -23,7 +23,7 @@ public class HexUnit : MonoBehaviour {
     Animator animator;
     bool controllable = false;
     float orientation;
-    private string unitPrefabName;
+    private string unitPrefabName = "";
     private int speed = 0;
     UnitType hexUnitType = UnitType.COMBAT;
     public List<HexCell> pathToTravel = null;
@@ -50,6 +50,7 @@ public class HexUnit : MonoBehaviour {
                 }
 
                 location.RemoveUnit(this);
+                unit.UpdateOwnerVisiblity(location, false);
             }
             location = value;
             if(location)
@@ -61,8 +62,8 @@ public class HexUnit : MonoBehaviour {
                 transform.localPosition = value.Position;
                 Grid.MakeChildOfColumn(transform, value.ColumnIndex);
                 value.AddUnit(this);
-                
-                
+                unit.UpdateOwnerVisiblity(location, true);
+                unit.NotifyInfoChange();
             }
 
         }
@@ -173,6 +174,7 @@ public class HexUnit : MonoBehaviour {
     public void SetMeshChild(Transform childTransform)
     {
         meshChild = childTransform;
+        animator = GetComponentInChildren<Animator>();
     }
     public void ValidateLocation () {
 		transform.localPosition = location.Position;
@@ -222,7 +224,8 @@ public class HexUnit : MonoBehaviour {
         }
         int currentColumn = currentTravelLocation.ColumnIndex;
         int nextColumn;
-        if (Location.IsVisible == true || HexVision.HasVision)
+        unit.UpdateOwnerVisiblity(currentTravelLocation, true);
+        if (currentTravelLocation.IsVisible == true || Location.IsVisible == true || HexVision.HasVision)
         {
 
             Vector3 a, b, c = pathToTravel[0].Position;
@@ -313,8 +316,18 @@ public class HexUnit : MonoBehaviour {
 
                     if (city.HitPoints <= 0)
                     {
-                        city.GetCityState().KillLocalUnits(city);
-                        city.SetCityState(GetComponent<Unit>().CityState);
+                        if (hexUnitType == UnitType.COMBAT && GetComponent<CombatUnit>().Mercenary && !GetComponent<Unit>().GetCityState())
+                        {
+                            GetComponent<Unit>().GetPlayer().Gold += city.Plunder();
+                            city.HitPoints = 1;
+                        }
+                        else
+                        {
+                            city.GetCityState().KillLocalUnits(city);
+                            city.SetCityState(GetComponent<Unit>().CityState);
+                            city.HitPoints = 50;
+                        }
+
                     }
                     city.UpdateUI();
                 }
@@ -398,6 +411,7 @@ public class HexUnit : MonoBehaviour {
 
         transform.localPosition = location.Position;
         location.UpdateVision();
+        unit.UpdateOwnerVisiblity(location, true);
         orientation = transform.localRotation.eulerAngles.y;
         if (unit.IsSomethingToAttack())
         {
@@ -405,7 +419,11 @@ public class HexUnit : MonoBehaviour {
         }
         ListPool<HexCell>.Add(pathToTravel);
         pathToTravel = null;
-        animator.SetBool("Walking", false);
+        if(HexVision.Visible)
+        {
+            animator.SetBool("Walking", false);
+        }
+        
     }
 
     IEnumerator LookAt (Vector3 point) {

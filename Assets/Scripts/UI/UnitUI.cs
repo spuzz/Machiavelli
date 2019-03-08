@@ -40,6 +40,7 @@ public class UnitUI : MonoBehaviour {
             {
                 SetSymbol(unit.Symbol);
             }
+            unit.onInfoChange += UpdateUnit;
         }
     }
 
@@ -91,6 +92,10 @@ public class UnitUI : MonoBehaviour {
         
     }
 
+    public void UpdateUnit(Unit unit)
+    {
+        UpdateHealthBar();
+    }
     public void UpdateHealthBar()
     {
         if(unitHealthBar)

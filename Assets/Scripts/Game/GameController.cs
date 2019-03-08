@@ -35,9 +35,11 @@ public class GameController : MonoBehaviour
     public City cityPrefab;
     public Agent agentPrefab;
     public CombatUnit combatUnitPrefab;
+    public CityStateBuilding cityStateBuildingPrefab;
 
     public Dictionary<string, AgentConfig> agentConfigs = new Dictionary<string, AgentConfig>();
     public Dictionary<string, CombatUnitConfig> combatUnitConfigs = new Dictionary<string, CombatUnitConfig>();
+    public Dictionary<string, BuildConfig> buildConfigs = new Dictionary<string, BuildConfig>();
     HexGrid hexGrid;
     public HumanPlayer HumanPlayer
     {
@@ -97,6 +99,15 @@ public class GameController : MonoBehaviour
         return combatUnitConfigs[name];
     }
 
+    public BuildConfig GetBuildConfig(string name)
+    {
+        if (!buildConfigs.Keys.Contains(name))
+        {
+            return null;
+        }
+        return buildConfigs[name];
+    }
+
     public void Awake()
     {
         hexGrid = FindObjectOfType<HexGrid>();
@@ -110,6 +121,12 @@ public class GameController : MonoBehaviour
         foreach (CombatUnitConfig combatUnitConfig in c)
         {
             combatUnitConfigs.Add(combatUnitConfig.Name, combatUnitConfig);
+        }
+
+        BuildConfig[] e = Resources.LoadAll<BuildConfig>("BuildConfigs");
+        foreach (BuildConfig buildConfig in e)
+        {
+            buildConfigs.Add(buildConfig.Name, buildConfig);
         }
     }
     void Start()
@@ -206,7 +223,7 @@ public class GameController : MonoBehaviour
     }
 
 
-    public void CreateOperationCentre(HexCell cell, Player player)
+    public OperationCentre CreateOperationCentre(HexCell cell, Player player)
     {
         if(!cell.OpCentre)
         {
@@ -215,9 +232,13 @@ public class GameController : MonoBehaviour
             instance.Location = cell;
             instance.Player = player;
             instance.Player.AddOperationCentre(instance);
+            instance.HexVision.AddVisibleObject(instance.OpCentreUI.gameObject);
             cell.SpecialIndex = 3;
             hexGrid.AddOperationCentre(instance);
+            instance.BuildCommandCentre();
+            return instance;
         }
+        return null;
 
     }
 
@@ -246,7 +267,6 @@ public class GameController : MonoBehaviour
         return instance;
     }
 
-
     public void DestroyCityState(CityState cityState)
     {
         possibleCityStateColors.Add(cityState.Color);
@@ -259,7 +279,6 @@ public class GameController : MonoBehaviour
         cityState.DestroyCityState();
     }
 
-
     public void DestroyCity(City city)
     {
         if(city.GetCityState())
@@ -269,7 +288,7 @@ public class GameController : MonoBehaviour
         city.DestroyCity();
     }
 
-    public void CreateCity(HexCell cell, CityState cityState)
+    public City CreateCity(HexCell cell, CityState cityState)
     {
         City city = Instantiate(cityPrefab);
         city.transform.localPosition = HexMetrics.Perturb(cell.Position);
@@ -280,6 +299,7 @@ public class GameController : MonoBehaviour
         city.UpdateUI();
         cities.Add(city);
         hexGrid.AddCity(city);
+        return city;
     }
 
     public HexUnit CreateAgent(AgentConfig agentConfig, HexCell cell, Player player)
@@ -380,6 +400,27 @@ public class GameController : MonoBehaviour
         player.AddMercenary(combatUnit);
         return hexUnit;
     }
+
+    public CityStateBuilding CreateCityStateBuilding(CityStateBuildConfig cityStateBuildConfig)
+    {
+        CityStateBuilding cityStateBuilding = Instantiate(cityStateBuildConfig.BuildPrefab, transform).GetComponent<CityStateBuilding>();
+        cityStateBuilding.BuildConfig = cityStateBuildConfig;
+        return cityStateBuilding;
+    }
+    public CityPlayerBuilding CreateCityPlayerBuilding(CityPlayerBuildConfig cityPlayerBuildConfig)
+    {
+        CityPlayerBuilding cityPlayerBuilding = Instantiate(cityPlayerBuildConfig.BuildPrefab, transform).GetComponent<CityPlayerBuilding>();
+        cityPlayerBuilding.BuildConfig = cityPlayerBuildConfig;
+        return cityPlayerBuilding;
+    }
+
+    public OpCentreBuilding CreateOpCentreBuilding(OpCentreBuildConfig opCentreBuildConfig)
+    {
+        OpCentreBuilding opCentreBuilding = Instantiate(opCentreBuildConfig.BuildPrefab, transform).GetComponent<OpCentreBuilding>();
+        opCentreBuilding.BuildConfig = opCentreBuildConfig;
+        return opCentreBuilding;
+    }
+
     public void DestroyUnit(Unit unit)
     {
         if(hud.Unit == unit)
@@ -543,6 +584,7 @@ public class GameController : MonoBehaviour
             cityState.DestroyCityState();
         }
         cityStates.Clear();
+        CityState.cityStateIDCounter = 1;
     }
 
     public void ClearPlayers()
@@ -558,8 +600,13 @@ public class GameController : MonoBehaviour
             player.DestroyPlayer();
         }
         players.Clear();
+        Player.nextPlayerNumber = 1;
     }
 
+    public void ClearHud()
+    {
+        hud.ClearUI();
+    }
     public void Save(BinaryWriter writer)
     {
         writer.Write(turn);
@@ -578,9 +625,9 @@ public class GameController : MonoBehaviour
         writer.Write(cities.Count);
         foreach (City city in cities)
         {
-            city.GetHexCell().coordinates.Save(writer);
-            writer.Write(city.GetCityState().CityStateID);
+            city.Save(writer);
         }
+
 
     }
 
@@ -590,6 +637,7 @@ public class GameController : MonoBehaviour
         {
             turn = reader.ReadInt32();
         }
+
         HumanPlayer.Load(reader, this, hexGrid, header);
         if (header >= 2)
         {
@@ -599,7 +647,6 @@ public class GameController : MonoBehaviour
                 AIPlayer.Load(reader, this, hexGrid, header);
             }
         }
-
 
         int cityStateCount = reader.ReadInt32();
         for (int i = 0; i < cityStateCount; i++)

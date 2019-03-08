@@ -5,15 +5,17 @@ using UnityEngine;
 
 public class AIPlayer : Player
 {
-    
-    public void AddAgent()
+    [SerializeField] PlayerAIController playerAIController;
+    public override void AddAgent(Agent agent)
     {
-
+        base.AddAgent(agent);
+        agent.GetComponent<AgentBehaviourTree>().StartTree();
     }
 
     public IEnumerator TakeTurn()
     {
-        yield return new WaitForEndOfFrame();
+        agents.RemoveAll(c => c.Alive == false);
+        yield return StartCoroutine(playerAIController.UpdateUnits(agents));
         gameController.PlayerTurnFinished(this);
     }
     public override void PlayerDefeated()

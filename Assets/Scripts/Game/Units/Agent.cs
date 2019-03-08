@@ -1,12 +1,34 @@
-﻿using System.Collections;
+﻿using NPBehave;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
 
 public class Agent : Unit {
 
+    public enum Stance
+    {
+        UNASSIGNED,
+        EXPLORE,
+        USEABILITY
+    }
+    Stance currentStance = Stance.UNASSIGNED;
+
     AgentConfig agentConfig;
     Player player;
+    public Stance CurrentStance
+    {
+        get
+        {
+            return currentStance;
+        }
+
+        set
+        {
+            currentStance = value;
+        }
+    }
+
     public void SetAgentConfig(AgentConfig config)
     {
         agentConfig = config;

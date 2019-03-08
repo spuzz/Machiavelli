@@ -24,11 +24,17 @@ public class OperationCentrePanel : MonoBehaviour {
     }
 
 
-    public void SetActive(bool active)
+    public void SetActive(OperationCentre opCentreToWatch)
     {
-        gameObject.SetActive(active);
+        opCentre = opCentreToWatch;
+        gameObject.SetActive(true);
         SetActiveInfoPanel(0);
+    }
 
+    public void SetInactive()
+    {
+        SetActiveInfoPanel(-1);
+        gameObject.SetActive(false);
     }
 
     public void SetActiveInfoPanel(int panelNumber)
@@ -37,12 +43,11 @@ public class OperationCentrePanel : MonoBehaviour {
         {
             if(a == panelNumber)
             {
-                infoPanels[a].gameObject.SetActive(true);
-                infoPanels[a].UpdateUI(OpCentre);
+                infoPanels[a].SetActive(OpCentre);
             }
             else
             {
-                infoPanels[a].gameObject.SetActive(false);
+                infoPanels[a].SetInactive();
             }
         }
     }

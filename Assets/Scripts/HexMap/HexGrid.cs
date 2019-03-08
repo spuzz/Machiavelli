@@ -178,7 +178,9 @@ public class HexGrid : MonoBehaviour {
 
 		ClearPath();
 		ClearUnits();
-		if (columns != null) {
+        ClearCitiesAndStates();
+        ClearPlayers();
+        if (columns != null) {
 			for (int i = 0; i < columns.Length; i++) {
 				Destroy(columns[i].gameObject);
 			}
@@ -382,6 +384,7 @@ public class HexGrid : MonoBehaviour {
     }
 
 	public void Load (BinaryReader reader, int header) {
+        ClearHud();
 		ClearPath();
 		ClearUnits();
         ClearCitiesAndStates();
@@ -417,6 +420,10 @@ public class HexGrid : MonoBehaviour {
         gameController.CentreMap();
 	}
 
+    private void ClearHud()
+    {
+        gameController.ClearHud();
+    }
 
     public List<HexCell> GetPath () {
 		if (!currentPathExists) {
@@ -494,7 +501,8 @@ public class HexGrid : MonoBehaviour {
 	}
 
     bool Search (HexCell fromCell, HexCell toCell, HexUnit unit, bool allowUnexplored) {
-		int speed = unit.Speed;
+
+        int speed = unit.Speed;
 		searchFrontierPhase += 2;
 		if (searchFrontier == null) {
 			searchFrontier = new HexCellPriorityQueue();
@@ -506,10 +514,7 @@ public class HexGrid : MonoBehaviour {
 		fromCell.SearchPhase = searchFrontierPhase;
 		fromCell.Distance = speed - unit.GetComponent<Unit>().GetMovementLeft();
 		searchFrontier.Enqueue(fromCell);
-        if (toCell.City)
-        {
-            int trap = 0;
-        }
+
         while (searchFrontier.Count > 0) {
 			HexCell current = searchFrontier.Dequeue();
 			current.SearchPhase += 1;

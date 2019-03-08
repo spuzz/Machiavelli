@@ -27,13 +27,31 @@ public class AgentPanel : MonoBehaviour {
         }
     }
 
-    public void SetActive(bool active)
+    public void SetActive(Unit unitToWatch)
     {
-        gameObject.SetActive(active);
-        
+        if(unitToWatch != unit)
+        {
+            SetInactive();
+            
+        }
+        unit = unitToWatch;
+        gameObject.SetActive(true);
+        unit.onInfoChange += UpdateUI;
+        UpdateUI(unit);
+
+
     }
 
-    public void UpdateUI()
+    public void SetInactive()
+    {
+        gameObject.SetActive(false);
+        if(unit)
+        {
+            unit.onInfoChange -= UpdateUI;
+        }
+    }
+
+    public void UpdateUI(Unit unit)
     {
         if (isActiveAndEnabled)
         {
@@ -50,7 +68,7 @@ public class AgentPanel : MonoBehaviour {
                     {
                         abilityButtons[count].gameObject.SetActive(true);
                         abilityButtons[count].interactable = Unit.IsAbilityUsable(count);
-                        abilityButtons[count].image.sprite = Unit.GetAbilities()[count].DefaultIcon;
+                        abilityButtons[count].image.sprite = Unit.GetAbility(count).DefaultIcon;
                         
                     }
                 }
