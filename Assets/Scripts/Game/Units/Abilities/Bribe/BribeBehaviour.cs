@@ -16,8 +16,8 @@ public class BribeBehaviour : AbilityBehaviour
             cityState.CheckInfluence();
 
         }
-        if(target.IsVisible)
-        {
+        //if(target.IsVisible)
+        //{
             PlayParticleEffect();
             PlayAbilitySound();
             PlayAnimation();
@@ -30,38 +30,27 @@ public class BribeBehaviour : AbilityBehaviour
                 PlayTextEffect((config as BribeConfig).GetInfluence().ToString(), target, Color.blue);
             }
             
-        }
+        //}
 
     }
-    public override List<HexCell> IsValidTarget(HexCell target)
+    public override bool IsValidTarget(HexCell target)
     {
-        List<HexCell> targetCells = new List<HexCell>();
-        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(target, (config as BribeConfig).Range);
-        List<HexCell> cityCells = cells.FindAll(c => c.City);
-        foreach(HexCell cityCell in cityCells)
+        if(target.City)
         {
-            CityState cityState = cityCell.City.GetCityState();
+            CityState cityState = target.City.GetCityState();
             if (!cityState)
             {
-                continue;
+                return false;
             }
 
             Player player = cityState.Player;
-            if (player)
+            if (!player)
             {
-                if (player != gameObject.GetComponent<Unit>().GetPlayer())
-                {
-                    continue;
-                }
-                if (cityState.GetInfluence(player) >= 100)
-                {
-                    continue;
-                }
+                return true;
             }
-            targetCells.Add(cityCell);
         }
 
-        return targetCells;
+        return false;
     }
 
 

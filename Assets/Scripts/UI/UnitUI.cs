@@ -12,7 +12,9 @@ public class UnitUI : MonoBehaviour {
     [SerializeField] RawImage unitBackground;
     [SerializeField] UnitHealthBar unitHealthBar;
     [SerializeField] RawImage unitSymbol;
+    [SerializeField] Image cityStateSymbol;
 
+    [SerializeField] Sprite defaultCityStateSymbol;
     [SerializeField] Texture defaultSymbol;
     [SerializeField] Texture defaultBackGround;
 
@@ -38,7 +40,7 @@ public class UnitUI : MonoBehaviour {
 
             if (unit.Symbol)
             {
-                SetSymbol(unit.Symbol);
+                SetUnitSymbol(unit.Symbol);
             }
             unit.onInfoChange += UpdateUnit;
         }
@@ -60,13 +62,31 @@ public class UnitUI : MonoBehaviour {
 
     public void SetColour(Color color)
     {
-        unitBackground.color = new Color(color.r, color.g, color.b, 1);
+        unitBackground.color = new Color(color.r, color.g, color.b, 0.6f);
     }
 
-    public void SetSymbol(Texture symbol)
+    public void SetUnitSymbol(Texture symbol)
     {
         unitSymbol.texture = symbol;
     }
+
+    public void SetCityStateSymbol(Sprite symbol)
+    {
+        if(cityStateSymbol)
+        {
+            cityStateSymbol.sprite = symbol;
+        }
+        
+    }
+
+    public void SetCityStateSymbolToDefault()
+    {
+        if (cityStateSymbol)
+        {
+            cityStateSymbol.sprite = defaultCityStateSymbol;
+        }
+    }
+
 
     public void SetBackground(Texture background)
     {
@@ -77,7 +97,8 @@ public class UnitUI : MonoBehaviour {
     {
         cameraToLookAt = Camera.main;
         SetBackground(defaultBackGround);
-        SetSymbol(defaultSymbol);
+        SetUnitSymbol(defaultSymbol);
+        SetCityStateSymbolToDefault();
     }
 
 

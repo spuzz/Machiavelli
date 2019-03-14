@@ -9,7 +9,15 @@ public abstract class AbilityBehaviour : MonoBehaviour
 
     const float PARTICLE_CLEAN_UP_DELAY = 20;
     public abstract void Use(HexCell target = null);
-    public abstract List<HexCell> IsValidTarget(HexCell target);
+    public abstract bool IsValidTarget(HexCell target);
+
+    public List<HexCell> GetValidTargets(HexCell location)
+    {
+        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(location, config.Range);
+        List<HexCell> agentCells = cells.FindAll(c => IsValidTarget(c));
+
+        return agentCells;
+    }
 
     public void SetConfig(AbilityConfig configToSet)
     {
@@ -48,12 +56,16 @@ public abstract class AbilityBehaviour : MonoBehaviour
 
     protected void PlayAnimation()
     {
-        //var abilityAnimation = config.GetAbilityAnimation();
-        //var overrideController = GetComponent<Character>().GetOverrideController();
-        //var animator = GetComponent<Animator>();
+        if(gameObject.GetComponent<HexUnit>().Location.IsVisible)
+        {
+            var abilityAnimation = config.GetAbilityAnimation();
+            var overrideController = GetComponent<Unit>().AnimatorOverrideController;
+            var animator = GetComponentInChildren<Animator>();
 
-        //overrideController[DEFAULT_ATTACK] = abilityAnimation;
-        //animator.SetTrigger("Attack");
+            overrideController["Ability"] = abilityAnimation;
+            animator.SetTrigger("UseAbility");
+        }
+
     }
 
     protected void PlayTextEffect(string text, HexCell cell, Color color, int time = 0)

@@ -19,16 +19,14 @@ public class AttackOpCentreBehaviour : AbilityBehaviour
         PlayAbilitySound();
         PlayAnimation();
     }
-    public override List<HexCell> IsValidTarget(HexCell target)
+    public override bool IsValidTarget(HexCell target)
     {
-        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(target, (config as AttackOpCentreConfig).Range);
-        List<HexCell> opCentreCells = cells.FindAll(c => c.OpCentre && c.OpCentre.Player != gameObject.GetComponent<Unit>().GetPlayer());
-
-        return opCentreCells;
+        if(target.OpCentre && target.OpCentre.Player != gameObject.GetComponent<Unit>().GetPlayer())
+        {
+            return true;
+        }
+        return false;
     }
-
-
-
 }
 
 

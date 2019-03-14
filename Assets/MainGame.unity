@@ -19230,7 +19230,31 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 495385cd10d7a624c85f921babacc806, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  buttons: []
+  buttons:
+  - {fileID: 351395932}
+  - {fileID: 1163477729}
+  - {fileID: 762011646}
+  - {fileID: 899599001}
+  - {fileID: 226104049}
+  - {fileID: 207775356}
+  - {fileID: 1012688254}
+  - {fileID: 321457609}
+  - {fileID: 440383135}
+  - {fileID: 1077091548}
+  - {fileID: 147216341}
+  - {fileID: 557619744}
+  - {fileID: 2129889478}
+  - {fileID: 1261903948}
+  - {fileID: 829289409}
+  - {fileID: 564143596}
+  - {fileID: 678907448}
+  - {fileID: 566037075}
+  - {fileID: 9911664}
+  - {fileID: 1596923811}
+  - {fileID: 1667326118}
+  - {fileID: 305108255}
+  - {fileID: 1144748948}
+  - {fileID: 277422979}
   opCentreBuildingsUI: {fileID: 819857769}
   cityBuildingUI: {fileID: 810576118}
 --- !u!1 &981431845
@@ -35498,16 +35522,6 @@ Prefab:
   m_Modification:
     m_TransformParent: {fileID: 0}
     m_Modifications:
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possiblePlayerColors.Array.size
-      value: 4
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.size
-      value: 20
-      objectReference: {fileID: 0}
     - target: {fileID: 4961515384842084, guid: b20a69b10d1a4a0489a96599bbe03884, type: 2}
       propertyPath: m_LocalPosition.x
       value: 0
@@ -35570,192 +35584,6 @@ Prefab:
       propertyPath: humanPlayer
       value: 
       objectReference: {fileID: 557473047}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: combatUnitPrefab
-      value: 
-      objectReference: {fileID: 114202423551481496, guid: 993aee3baeb162343ac0f468c3646e25,
-        type: 2}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[10].r
-      value: 0.4245283
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[10].g
-      value: 0.0032161237
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[11].r
-      value: 0.7924528
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[11].g
-      value: 0.35945806
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[12].r
-      value: 0.38679248
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[12].g
-      value: 0.38679248
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[13].r
-      value: 0.9958025
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[13].g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[14].r
-      value: 0.0049993624
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[14].g
-      value: 0.004672473
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[15].r
-      value: 0.4528302
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[15].g
-      value: 0.44914278
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[16].r
-      value: 0.2991723
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[16].g
-      value: 0.6016526
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[17].r
-      value: 0.946119
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[17].g
-      value: 0.6084906
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[18].r
-      value: 0.5283019
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[18].g
-      value: 0.30921766
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[19].r
-      value: 0.5990566
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[19].g
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[9].r
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[9].g
-      value: 0.6603774
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[9].b
-      value: 0.3422387
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[10].b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[11].b
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[12].b
-      value: 0.38679248
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[13].b
-      value: 0.6273585
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[14].b
-      value: 0.3301887
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[15].b
-      value: 0.019223915
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[16].b
-      value: 0.764151
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[17].b
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[18].b
-      value: 0.14204343
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possibleCityStateColors.Array.data[19].b
-      value: 0.72609204
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possiblePlayerColors.Array.data[3].r
-      value: 1
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possiblePlayerColors.Array.data[3].g
-      value: 0
-      objectReference: {fileID: 0}
-    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
-        type: 2}
-      propertyPath: possiblePlayerColors.Array.data[3].b
-      value: 0.08701134
-      objectReference: {fileID: 0}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b20a69b10d1a4a0489a96599bbe03884, type: 2}
   m_IsPrefabAsset: 0

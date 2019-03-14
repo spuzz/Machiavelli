@@ -652,20 +652,8 @@ public class HexGridChunk : MonoBehaviour {
 				e2, weights2, neighbor.Index, hasRoad
 			);
 		}
-        Color color;
-        Color secondaryColor;
-        if (cell.CellColor != Color.black)
-        {
-            color = cell.CellColor;
-            secondaryColor = cell.CellSecondColor;
-        }
-        else
-        {
-            color = neighbor.CellColor;
-            secondaryColor = neighbor.CellSecondColor;
-
-        }
-		features.AddWall(e1, cell, e2, neighbor, hasRiver, hasRoad, color, secondaryColor);
+        Color color = new Color(0.55f, 0.27f, 0.075f, 1);
+		features.AddWall(e1, cell, e2, neighbor, hasRiver, hasRoad, color, color);
 
 		HexCell nextNeighbor = cell.GetNeighbor(direction.Next());
 		if (direction <= HexDirection.E && nextNeighbor != null) {
@@ -772,24 +760,23 @@ public class HexGridChunk : MonoBehaviour {
 			indices.z = rightCell.Index;
 			terrain.AddTriangleCellData(indices, weights1, weights2, weights3);
 		}
-        Color color;
-        Color secondaryColor;
-        if (bottomCell.CellColor != Color.black)
-        {
-            color = bottomCell.CellColor;
-            secondaryColor = bottomCell.CellSecondColor;
-        }
-        else if (leftCell.CellColor != Color.black)
-        {
-            color = leftCell.CellColor;
-            secondaryColor = leftCell.CellSecondColor;
-        }
-        else
-        {
-            color = rightCell.CellColor;
-            secondaryColor = rightCell.CellSecondColor;
-        }
-		features.AddWall(bottom, bottomCell, left, leftCell, right, rightCell, color,secondaryColor);
+        Color color = new Color(0.55f, 0.27f, 0.075f, 1);
+        //if (bottomCell.CellColor != Color.black)
+        //{
+        //    color = bottomCell.CellColor;
+        //    secondaryColor = bottomCell.CellSecondColor;
+        //}
+        //else if (leftCell.CellColor != Color.black)
+        //{
+        //    color = leftCell.CellColor;
+        //    secondaryColor = leftCell.CellSecondColor;
+        //}
+        //else
+        //{
+        //    color = rightCell.CellColor;
+        //    secondaryColor = rightCell.CellSecondColor;
+        //}
+        features.AddWall(bottom, bottomCell, left, leftCell, right, rightCell, color, color);
 	}
 
 	void TriangulateEdgeTerraces (

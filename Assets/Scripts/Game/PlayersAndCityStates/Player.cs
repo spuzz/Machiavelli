@@ -13,7 +13,7 @@ public abstract class Player : MonoBehaviour {
     bool alive = true;
     [SerializeField] int gold = 100;
     [SerializeField] List<CityPlayerBuildConfig> cityPlayerBuildConfigs;
-    Color color;
+    private int colorID;
     public GameObject operationCenterTransformParent;
 
     public List<Agent> agents = new List<Agent>();
@@ -40,17 +40,9 @@ public abstract class Player : MonoBehaviour {
         set { playerNumber = value;  }
     }
 
-    public Color Color
+    public Color GetColour()
     {
-        get
-        {
-            return color;
-        }
-
-        set
-        {
-            color = value;
-        }
+        return gameController.GetPlayerColor(ColorID);
     }
 
     public bool Alive
@@ -91,6 +83,19 @@ public abstract class Player : MonoBehaviour {
         {
             goldPerTurn = value;
             NotifyInfoChange();
+        }
+    }
+
+    public int ColorID
+    {
+        get
+        {
+            return colorID;
+        }
+
+        set
+        {
+            colorID = value;
         }
     }
 
@@ -328,10 +333,6 @@ public abstract class Player : MonoBehaviour {
 
     public void SavePlayer(BinaryWriter writer)
     {
-        writer.Write(Color.r);
-        writer.Write(Color.g);
-        writer.Write(Color.b);
-
         writer.Write(opCentres.Count);
         foreach (OperationCentre opCentre in opCentres)
         {
@@ -355,9 +356,10 @@ public abstract class Player : MonoBehaviour {
                 }
 
             }
-            Color playerColor = new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), 1.0f);
-            gameController.RemovePlayerColor(playerColor);
-            Color = playerColor;
+            if (header < 6)
+            {
+                Color playerColor = new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), 1.0f);
+            }
 
         }
 
@@ -378,7 +380,6 @@ public abstract class Player : MonoBehaviour {
 
     public void DestroyPlayer()
     {
-        gameController.ReturnPlayerColor(color);
         foreach (Agent agent in agents)
         {
             Destroy(agent.gameObject);

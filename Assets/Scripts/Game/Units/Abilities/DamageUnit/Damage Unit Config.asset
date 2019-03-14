@@ -19,4 +19,6 @@ MonoBehaviour:
   - {fileID: 8300000, guid: db9317de19771a84a9fda478652cecb0, type: 3}
   defaultIcon: {fileID: 21300000, guid: ec2d21917c67b554f8cd504127430590, type: 3}
   textEffect: {fileID: 1096156621854288, guid: cbce99c46ef89c94f965d408ea4706c6, type: 2}
+  abilityName: DamageUnit
+  abilityType: 5
   damage: 20

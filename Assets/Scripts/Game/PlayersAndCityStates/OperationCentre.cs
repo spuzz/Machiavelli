@@ -43,6 +43,33 @@ public class OperationCentre : MonoBehaviour
             return buildings[id];
         }
     }
+
+    public bool buildingSpaceAvailable()
+    {
+        foreach(OpCentreBuilding building in buildings)
+        {
+            if(!building)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    private int GetFreeBuildSlot()
+    {
+        int count = 0;
+        foreach(OpCentreBuilding building in buildings)
+        {
+            if(!building)
+            {
+                return count;
+            }
+            count++;
+        }
+        return -1;
+    }
+
     public HexCell Location
     {
         get
@@ -73,8 +100,8 @@ public class OperationCentre : MonoBehaviour
             }
             player = value;
             transform.parent = player.operationCenterTransformParent.transform;
-            Location.CellSecondColor = player.Color;
-            OpCentreUI.SetPlayerColour(player.Color);
+            Location.CellColor = player.GetColour();
+            OpCentreUI.SetPlayerColour(player.GetColour());
             player.onInfoChange += OnPlayerInfoChange;
 
         }
@@ -223,13 +250,15 @@ public class OperationCentre : MonoBehaviour
         buildings[slotID].AddConfigs();
     }
 
-    public void HireAgent(AgentBuildConfig agentBuildConfig)
+    public bool HireAgent(AgentBuildConfig agentBuildConfig)
     {
         if(agentBuildConfig.BasePurchaseCost <= player.Gold)
         {
             player.Gold -= agentBuildConfig.BasePurchaseCost;
             CreateAgent(agentBuildConfig.AgentConfig);
+            return true;
         }
+        return false;
     }
 
 
@@ -246,13 +275,15 @@ public class OperationCentre : MonoBehaviour
         }
         return false;
     }
-    public void HireMercenary(CombatUnitBuildConfig mercBuildConfig)
+    public bool HireMercenary(CombatUnitBuildConfig mercBuildConfig)
     {
         if (mercBuildConfig.BasePurchaseCost < player.Gold)
         {
             player.Gold -= mercBuildConfig.BasePurchaseCost;
             CreateMercenary(mercBuildConfig.CombatUnitConfig);
+            return true;
         }
+        return false;
     }
 
     public bool CreateMercenary(CombatUnitConfig mercConfig)
@@ -288,14 +319,62 @@ public class OperationCentre : MonoBehaviour
         {
             Player.Gold -= availableBuilds[listID].BasePurchaseCost;
             buildingManagerForBuildings.AddBuild(availableBuilds[listID],slotID);
+            availableBuilds.Remove(availableBuilds[listID]);
             NotifyInfoChange();
         }
 
     }
 
+    public bool BuildUsingBuildConfig(BuildConfig buildConfig)
+    {
+        bool result = false;
+        if (Player.Gold >= buildConfig.BasePurchaseCost)
+        {
+            if (availableBuilds.FindAll(c => c.Name == buildConfig.Name).Count > 0)
+            {
+                int slot = GetFreeBuildSlot();
+                if(slot != -1)
+                {
+                    Player.Gold -= buildConfig.BasePurchaseCost;
+                    buildingManagerForBuildings.AddBuild(buildConfig, slot);
+                    result = true;
+                }
+
+            }
+
+            if(agentBuildConfigs.FindAll(c => c.Name == buildConfig.Name).Count > 0)
+            {
+                result = HireAgent((buildConfig as AgentBuildConfig));
+            }
+
+            if (mercBuildConfigs.FindAll(c => c.Name == buildConfig.Name).Count > 0)
+            {
+                result = HireMercenary((buildConfig as CombatUnitBuildConfig));
+            }
+            
+            if(result == true)
+            {
+                NotifyInfoChange();
+            }
+
+        }
+        return result;
+    }
+
+
+
     public bool IsConstructingBuilding(int slot)
     {
         if (buildingManagerForBuildings.GetConfigInQueueByID(slot))
+        {
+            return true;
+        }
+        return false;
+    }
+
+    public bool IsConstructingBuilding()
+    {
+        if (buildingManagerForBuildings.buildsInQueue() != 0)
         {
             return true;
         }

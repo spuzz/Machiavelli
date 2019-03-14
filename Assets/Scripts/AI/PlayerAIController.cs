@@ -6,12 +6,10 @@ using UnityEngine;
 
 public class PlayerAIController : MonoBehaviour
 {
-
+    Dictionary<HexCell, BuildConfig> buildList = new Dictionary<HexCell, BuildConfig>();
     [SerializeField] Player player;
-
     public IEnumerator UpdateUnits(IEnumerable<Agent> agents)
     {
-
         List<Agent> agentsAtStart = new List<Agent>();
 
         foreach (Agent agent in agents)
@@ -30,6 +28,48 @@ public class PlayerAIController : MonoBehaviour
 
         }
 
+        UpdateBuilds();
     }
 
+    private void UpdateBuilds()
+    {
+        UpdateBuildList();
+
+        bool buildSuccessful = true;
+        while(buildList.Count != 0 && buildSuccessful)
+        {
+            IEnumerable<HexCell> cell = IListExtensions.RandomKeys(buildList);
+            HexCell cellToBuildOn = cell.First();
+            if (cellToBuildOn.OpCentre)
+            {
+                buildSuccessful = cellToBuildOn.OpCentre.BuildUsingBuildConfig(buildList[cellToBuildOn]);
+                buildList.Remove(buildList.First().Key);
+            }
+        }
+
+    }
+
+    private void UpdateBuildList()
+    {
+        buildList.Clear();
+        foreach (OperationCentre opCentre in player.opCentres)
+        {
+            List<BuildConfig> opCentreBuilds = new List<BuildConfig>();
+            if (opCentre.IsConstructingBuilding() == false && opCentre.buildingSpaceAvailable())
+            {
+                opCentreBuilds.Add(opCentre.availableBuilds[UnityEngine.Random.Range(0, opCentre.availableBuilds.Count)]);
+            }
+            if(opCentre.GetAgentBuildConfigs().Count() > 0)
+            {
+                opCentreBuilds.Add(IListExtensions.RandomElement(opCentre.GetAgentBuildConfigs()));
+            }
+
+            if (opCentre.GetCombatUnitBuildConfigs().Count() > 0)
+            {
+                opCentreBuilds.Add(IListExtensions.RandomElement(opCentre.GetCombatUnitBuildConfigs()));
+            }
+            buildList.Add(opCentre.Location, opCentreBuilds[UnityEngine.Random.Range(0, opCentreBuilds.Count)]);
+        }
+        
+    }
 }

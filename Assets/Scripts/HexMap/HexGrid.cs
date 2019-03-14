@@ -180,6 +180,7 @@ public class HexGrid : MonoBehaviour {
 		ClearUnits();
         ClearCitiesAndStates();
         ClearPlayers();
+        gameController.ResetHumanPlayer();
         if (columns != null) {
 			for (int i = 0; i < columns.Length; i++) {
 				Destroy(columns[i].gameObject);

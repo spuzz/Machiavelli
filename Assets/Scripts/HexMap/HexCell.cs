@@ -45,7 +45,6 @@ public class HexCell : MonoBehaviour {
     HexDirection incomingRiver, outgoingRiver;
 
     Color cellColor = Color.black;
-    Color cellSecondColor = Color.black;
 
     public List<HexUnit> hexUnits = new List<HexUnit>();
     public int Elevation {
@@ -106,22 +105,6 @@ public class HexCell : MonoBehaviour {
             Refresh();
         }
     }
-
-    
-    public Color CellSecondColor
-    {
-        get
-        {
-            return cellSecondColor;
-        }
-
-        set
-        {
-            cellSecondColor = value;
-            Refresh();
-        }
-    }
-
 
     public int ViewElevation {
 		get {
@@ -694,8 +677,17 @@ public class HexCell : MonoBehaviour {
         }
         return null;
     }
-    
-
+    public Agent GetAgent(HexUnit unit)
+    {
+        foreach (HexUnit hexUnit in hexUnits)
+        {
+            if (hexUnit.HexUnitType == HexUnit.UnitType.AGENT)
+            {
+                return hexUnit.GetComponent<Agent>();
+            }
+        }
+        return null;
+    }
 
     public void AddUnit(HexUnit hexUnit)
     {

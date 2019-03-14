@@ -29,7 +29,7 @@ public class HexUnit : MonoBehaviour {
     public List<HexCell> pathToTravel = null;
     public HexGrid Grid { get; set; }
 
-    Unit unit;
+    public Unit unit;
 
     HexVision hexVision;
 

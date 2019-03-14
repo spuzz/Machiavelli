@@ -11,10 +11,11 @@ public class CityUI : MonoBehaviour
     [Tooltip("The UI canvas prefab")]
     [SerializeField] Canvas canvas;
     [SerializeField] CityHealthBar cityHealthBar;
-    [SerializeField] RawImage playerColor;
+    [SerializeField] Image cityStateSymbol;
     [SerializeField] Text cityName;
     [SerializeField] Text population;
     [SerializeField] City city;
+    [SerializeField] RawImage backGround;
     Camera cameraToLookAt;
     HexGameUI hexGameUI;
     bool visible = true;
@@ -46,17 +47,23 @@ public class CityUI : MonoBehaviour
         }
     }
 
-    public void SetCityStateColour(Color color)
+    public Image CityStateSymbol
     {
-        Color cityColor = new Color(color.r, color.g, color.b, 1f);
-        cityName.color = cityColor;
-        population.color = cityColor;
+        get
+        {
+            return cityStateSymbol;
+        }
+
+        set
+        {
+            cityStateSymbol = value;
+        }
     }
 
     public void SetPlayerColour(Color color)
     {
-        color.a = 1;
-        playerColor.color = color;
+        Color cityColor = new Color(color.r, color.g, color.b, 0.6f);
+        backGround.color = cityColor;
     }
 
     public void SetPopulation(string pop)

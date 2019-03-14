@@ -16,26 +16,35 @@ public class PropagandaBehaviour : AbilityBehaviour
             cityState.CheckInfluence();
 
         }
-        PlayParticleEffect();
-        PlayAbilitySound();
-        PlayAnimation();
-    }
-    public override List<HexCell> IsValidTarget(HexCell target)
-    {
-        List<HexCell> targetCells = new List<HexCell>();
-        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(target, (config as PropagandaConfig).Range);
-        List<HexCell> cityCells = cells.FindAll(c => c.City);
-        foreach(HexCell cityCell in cityCells)
+        if (target.IsVisible)
         {
-            CityState cityState = cityCell.City.GetCityState();
-            if (!cityState || cityState.Player == gameObject.GetComponent<Unit>().GetPlayer())
+            PlayParticleEffect();
+            PlayAbilitySound();
+            PlayAnimation();
+            if (gameObject.GetComponent<Unit>().GetPlayer().IsHuman)
             {
-                continue;
+                PlayTextEffect((config as PropagandaConfig).GetInfluence().ToString(), target, Color.yellow);
             }
-            targetCells.Add(cityCell);
+            else
+            {
+                PlayTextEffect((config as PropagandaConfig).GetInfluence().ToString(), target, Color.blue);
+            }
+
+        }
+    }
+    public override bool IsValidTarget(HexCell target)
+    {
+
+        if(target.City)
+        {
+            CityState cityState = target.City.GetCityState();
+            if (cityState && cityState.Player && cityState.Player != gameObject.GetComponent<Unit>().GetPlayer())
+            {
+                return true;
+            }
         }
 
-        return targetCells;
+        return false;
     }
 
 

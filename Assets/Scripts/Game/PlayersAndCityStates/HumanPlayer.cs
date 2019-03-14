@@ -19,6 +19,7 @@ public class HumanPlayer : Player {
 
     public override void Save(BinaryWriter writer)
     {
+        writer.Write(ColorID);
         writer.Write(agents.Count);
         for (int i = 0; i < agents.Count; i++)
         {
@@ -36,11 +37,14 @@ public class HumanPlayer : Player {
     public void Load(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
     {
         ClearAgents();
-        if(header >= 3)
+        if (header >= 6)
         {
-            gameController.ReturnPlayerColor(Color);
+            ColorID = gameController.GetNewPlayerColor(reader.ReadInt32());
         }
-        
+        else
+        {
+            ColorID = gameController.GetNewPlayerColor();
+        }
         int unitCount = reader.ReadInt32();
         for (int i = 0; i < unitCount; i++)
         {

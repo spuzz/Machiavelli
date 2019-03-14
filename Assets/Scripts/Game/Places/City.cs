@@ -34,7 +34,6 @@ public class City : MonoBehaviour {
     CityState cityStateOwner;
     GameController gameController;
     HexCell hexCell;
-    Color towerColor = Color.black;
     List<HexCell> ownedCells = new List<HexCell>();
     HexVision hexVision;
 
@@ -63,22 +62,6 @@ public class City : MonoBehaviour {
     public int Strength
     {
         get { return baseStrength; }
-    }
-
-    public Color TowerColor
-    {
-        get { return towerColor; }
-        set
-        {
-            towerColor = value;
-            NotifyInfoChange();
-            CityUI.SetPlayerColour(towerColor);
-            foreach (HexCell hexCell in ownedCells)
-            {
-                hexCell.CellSecondColor = towerColor;
-                
-            }
-        }
     }
 
     public BuildingManager BuildingManager
@@ -296,21 +279,21 @@ public class City : MonoBehaviour {
     public void UpdateUI()
     {
 
-        CityUI.SetCityStateColour(cityStateOwner.Color);
         CityUI.UpdateHealthBar();
 
         if (cityStateOwner.Player)
         {
-            TowerColor = cityStateOwner.Player.Color;
+            //TowerColor = cityStateOwner.Player.Color;
+            CityUI.SetPlayerColour(cityStateOwner.Player.GetColour());
         }
         else
         {
-            TowerColor = Color.black;
+            //TowerColor = Color.gray;
+            CityUI.SetPlayerColour(Color.black);
         }
-        foreach (HexCell hexCell in ownedCells)
-        {
-            hexCell.CellColor = cityStateOwner.Color;
-        }
+
+        cityUI.CityStateSymbol.sprite = gameController.GetCityStateSymbol(cityStateOwner.SymbolID);
+
     }
 
 

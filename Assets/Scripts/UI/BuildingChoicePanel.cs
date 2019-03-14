@@ -52,7 +52,7 @@ public class BuildingChoicePanel : MonoBehaviour {
     private void OnOpCentreInfoChange(OperationCentre opCentre)
     {
         int count = 0;
-        foreach(OpCentreBuildConfig config in opCentre.GetOpCentreBuildConfigs())
+        foreach(OpCentreBuildConfig config in opCentre.availableBuilds)
         {
             buttons[count].gameObject.SetActive(true);
             buttons[count].image.sprite = config.BuildingImage;

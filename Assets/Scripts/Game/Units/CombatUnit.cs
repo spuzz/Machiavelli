@@ -53,7 +53,7 @@ public class CombatUnit : Unit
         UpdateOwnerVisiblity(HexUnit.Location, true);
         if (unitUI)
         {
-            unitUI.SetColour(player.Color);
+            unitUI.SetColour(player.GetColour());
         }
 
     }
@@ -80,11 +80,15 @@ public class CombatUnit : Unit
         {
             if(cityState)
             {
-                unitUI.SetColour(cityState.Color);
+                unitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(cityState.SymbolID));
+                if (!player && cityState.Player)
+                {
+                    unitUI.SetColour(cityState.Player.GetColour());
+                }
             }
             else
             {
-                unitUI.SetColour(Color.gray);
+                unitUI.SetCityStateSymbolToDefault();
             }
         }
     }
@@ -108,7 +112,7 @@ public class CombatUnit : Unit
     {
         if (cityState)
         {
-            unitUI.SetColour(cityState.Color);
+            unitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(cityState.SymbolID));
         }
 
     }

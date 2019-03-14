@@ -107,7 +107,7 @@ public class HexFeatureManager : MonoBehaviour {
 		Transform instance = Instantiate(special[cell.SpecialIndex - 1]);
         foreach(ColourChange colourChange in instance.GetComponentsInChildren<ColourChange>())
         {
-            colourChange.ChangeColour(cell.CellSecondColor);
+            colourChange.ChangeColour(cell.CellColor);
         }
 		instance.localPosition = HexMetrics.Perturb(position);
 		//instance.localRotation = Quaternion.Euler(0f, 360f * hash.e, 0f);
@@ -199,7 +199,7 @@ public class HexFeatureManager : MonoBehaviour {
 		v3.y = leftTop;
 		v4.y = rightTop;
 		walls.AddQuadUnperturbed(v1, v2, v3, v4);
-        walls.AddQuadCellData(v1, new Color(0,0,0, 1), new Color(featureColor.r/ 2, featureColor.g/2,featureColor.b/2,1), new Color(featureColor.r / 2, featureColor.g / 2, featureColor.b / 2, 1), featureColor);
+        walls.AddQuadCellData(v1, featureColor, featureColor, featureColor, featureColor);
         Vector3 t1 = v3, t2 = v4;
 
 		v1 = v3 = left + leftThicknessOffset;
@@ -207,10 +207,10 @@ public class HexFeatureManager : MonoBehaviour {
 		v3.y = leftTop;
 		v4.y = rightTop;
 		walls.AddQuadUnperturbed(v2, v1, v4, v3);
-        walls.AddQuadCellData(v1, new Color(0, 0, 0, 1f), new Color(featureColor.r / 2, featureColor.g / 2, featureColor.b / 2, 1), new Color(featureColor.r / 2, featureColor.g / 2, featureColor.b / 2, 1), featureColor);
+        walls.AddQuadCellData(v1, featureColor, featureColor, featureColor, featureColor);
 
         walls.AddQuadUnperturbed(t1, t2, v3, v4);
-        walls.AddQuadCellData(v1, new Color(0, 0, 0, 1f), new Color(featureColor.r / 2, featureColor.g / 2, featureColor.b / 2, 1), new Color(featureColor.r / 2, featureColor.g / 2, featureColor.b / 2, 1), featureColor);
+        walls.AddQuadCellData(v1, featureColor, featureColor, featureColor, featureColor);
 
         if (addTower) {
 			Transform towerInstance = Instantiate(wallTower);

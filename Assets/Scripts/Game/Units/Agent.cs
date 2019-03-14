@@ -54,7 +54,7 @@ public class Agent : Unit {
     {
         if (player)
         {
-            unitUI.SetColour(player.Color);
+            unitUI.SetColour(player.GetColour());
         }
     }
 
@@ -69,7 +69,7 @@ public class Agent : Unit {
         UpdateOwnerVisiblity(HexUnit.Location, true);
         if (unitUI)
         {
-            unitUI.SetColour(player.Color);
+            unitUI.SetColour(player.GetColour());
         }
 
     }
@@ -124,7 +124,14 @@ public class Agent : Unit {
         
         HexCoordinates coordinates = HexCoordinates.Load(reader);
         float orientation = reader.ReadSingle();
+        int hitPoints = 100;
+        int movementLeft = 2;
         string unitName = reader.ReadString();
+        if (header >= 3)
+        {
+            hitPoints = reader.ReadInt32();
+            movementLeft = reader.ReadInt32();
+        }
         string agentConfig = "Builder";
         if (header >= 4)
         {
@@ -136,8 +143,8 @@ public class Agent : Unit {
 
         if (header >= 3)
         {
-            agent.HitPoints = reader.ReadInt32();
-            agent.SetMovementLeft(reader.ReadInt32());
+            agent.HitPoints = hitPoints;
+            agent.SetMovementLeft(movementLeft);
         }
 
         return agent;

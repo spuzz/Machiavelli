@@ -3,7 +3,19 @@ using System.Collections.Generic;
 using UnityEngine;
 public abstract class AbilityConfig : ScriptableObject
 {
-
+    public enum AbilityType
+    {
+        EnemyCity,
+        NeutralCity,
+        City,
+        EnemyAgent,
+        AllyAgent,
+        EnemyUnit,
+        NeutralUnit,
+        EnemyOperationCentre,
+        NeutralOperationCentre,
+        Misc
+    }
     [Header("Special Ability General")]
     [SerializeField] int cost = 10;
     [SerializeField] int range = 1;
@@ -13,6 +25,7 @@ public abstract class AbilityConfig : ScriptableObject
     [SerializeField] Sprite defaultIcon;
     [SerializeField] GameObject textEffect;
     [SerializeField] string abilityName;
+    [SerializeField] AbilityType abilityType = AbilityType.Misc;
     protected AbilityBehaviour behaviour;
 
     public int Range
@@ -67,6 +80,19 @@ public abstract class AbilityConfig : ScriptableObject
         }
     }
 
+    public AbilityType Type
+    {
+        get
+        {
+            return abilityType;
+        }
+
+        set
+        {
+            abilityType = value;
+        }
+    }
+
     abstract public AbilityBehaviour GetBehaviourComponent(GameObject gameObjectToAttachTo);
 
     public void AddComponent(GameObject gameObjectToAttachTo)
@@ -79,9 +105,14 @@ public abstract class AbilityConfig : ScriptableObject
     {
         behaviour.Use(target);
     }
-    public List<HexCell> IsValidTarget(HexCell target = null)
+    public bool IsValidTarget(HexCell target)
     {
         return behaviour.IsValidTarget(target);
+    }
+
+    public List<HexCell> GetValidTargets(HexCell location)
+    {
+        return behaviour.GetValidTargets(location);
     }
 
     public int GetCost()

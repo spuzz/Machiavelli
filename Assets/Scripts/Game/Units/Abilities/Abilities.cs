@@ -43,7 +43,7 @@ public class Abilities : MonoBehaviour
         {
             return false;
         }
-        if(AbilitiesList[index].IsValidTarget(hexCell).Count == 0)
+        if(!AbilitiesList[index].IsValidTarget(hexCell))
         {
             return false;
         }
@@ -57,7 +57,7 @@ public class Abilities : MonoBehaviour
             return new List<HexCell>();
         }
 
-        return AbilitiesList[index].IsValidTarget(hexCell);
+        return AbilitiesList[index].GetValidTargets(hexCell);
     }
 
 

@@ -124,9 +124,9 @@ public class HexMapEditor : MonoBehaviour {
         Shader.EnableKeyword("HEX_MAP_EDIT_MODE");
         SetEditMode(true);
 
-        string myPath = "Assets/Resources/";
+        string myPath = "Assets/Resources/AgentConfigs";
         DirectoryInfo dir = new DirectoryInfo(myPath);
-        FileInfo[] info = dir.GetFiles("*.prefab");
+        FileInfo[] info = dir.GetFiles("*.asset");
         List<string> files = new List<string>();
         foreach (FileInfo f in info)
         {
@@ -214,7 +214,7 @@ public class HexMapEditor : MonoBehaviour {
             
 
 
-            HexUnit unit = gameController.CreateAgent("Builder",cell, player);
+            HexUnit unit = gameController.CreateAgent(name, cell, player);
 
         }
     }

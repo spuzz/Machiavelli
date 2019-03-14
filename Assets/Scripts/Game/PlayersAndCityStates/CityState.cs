@@ -13,9 +13,9 @@ public class CityState : MonoBehaviour
     [SerializeField] CityStateAIController cityStateAIController;
     [SerializeField] int gold = 100;
     [SerializeField] string cityStateName = "City State";
+    [SerializeField] int symbolID;
     GameController gameController;
     int cityStateID;
-    Color color = Color.black;
     Player player;
 
     public Dictionary<HexCell, int> visibleCells = new Dictionary<HexCell, int>();
@@ -93,12 +93,6 @@ public class CityState : MonoBehaviour
         }
     }
     
-    public Color Color
-    {
-        get { return color; }
-        set { color = value; }
-    }
-    
     public Player Player
     {
         get
@@ -155,6 +149,19 @@ public class CityState : MonoBehaviour
         set
         {
             cityStateName = value;
+        }
+    }
+
+    public int SymbolID
+    {
+        get
+        {
+            return symbolID;
+        }
+
+        set
+        {
+            symbolID = value;
         }
     }
 
@@ -398,14 +405,6 @@ public class CityState : MonoBehaviour
         }
     }
 
-    public Color PickColor()
-    {
-
-        Color = gameController.GetNewCityStateColor();
-        return Color;
-    }
-
-
     public void DestroyCityState()
     {
         if(player)
@@ -427,9 +426,7 @@ public class CityState : MonoBehaviour
     public void Save(BinaryWriter writer)
     {
         writer.Write(CityStateID);
-        writer.Write(Color.r);
-        writer.Write(Color.g);
-        writer.Write(Color.b);
+        writer.Write(SymbolID);
         if (Player)
         {
             writer.Write(Player.PlayerNumber);
@@ -457,8 +454,20 @@ public class CityState : MonoBehaviour
     {
 
         int cityStateID = reader.ReadInt32();
-        Color color = new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), 1.0f);
-        CityState instance = gameController.CreateCityState(color);
+        int symbolID;
+        CityState instance;
+        if (header < 6)
+        {
+            Color color = new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), 1.0f);
+            symbolID = -1;
+            instance = gameController.CreateCityState();
+            
+        }
+        else
+        {
+            symbolID = reader.ReadInt32();
+            instance = gameController.CreateCityState(symbolID);
+        }
         instance.CityStateID = cityStateID;
         if (header >= 2)
         {

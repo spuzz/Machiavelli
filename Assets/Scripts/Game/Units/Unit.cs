@@ -16,6 +16,7 @@ public abstract class Unit : MonoBehaviour {
     [SerializeField] Texture backGround;
     [SerializeField] Texture symbol;
     [SerializeField] HexCellTextEffect textEffect;
+    [SerializeField] AnimatorOverrideController animatorOverrideController;
 
     protected Abilities abilities;
     bool alive = true;
@@ -28,7 +29,7 @@ public abstract class Unit : MonoBehaviour {
     UnitBehaviour behaviour;
     HexUnit attackUnit;
     City attackCity;
-    GameController gameController;
+    protected GameController gameController;
 
     int hitPoints = 100;
     int lastHitPointChange = 0;
@@ -82,7 +83,7 @@ public abstract class Unit : MonoBehaviour {
             symbol = value;
             if(unitUI)
             {
-                unitUI.SetSymbol(symbol);
+                unitUI.SetUnitSymbol(symbol);
             }
         }
     }
@@ -206,6 +207,7 @@ public abstract class Unit : MonoBehaviour {
         set
         {
             baseMovement = value;
+            HexUnit.Speed = (BaseMovement * BaseMovementFactor);
         }
     }
 
@@ -245,6 +247,19 @@ public abstract class Unit : MonoBehaviour {
         set
         {
             baseMovementFactor = value;
+        }
+    }
+
+    public AnimatorOverrideController AnimatorOverrideController
+    {
+        get
+        {
+            return animatorOverrideController;
+        }
+
+        set
+        {
+            animatorOverrideController = value;
         }
     }
 
@@ -522,13 +537,19 @@ public abstract class Unit : MonoBehaviour {
     {
         return abilities.AbilitiesList.Find(c => c.AbilityName == abilityName);
     }
+
+    public List<AbilityConfig> GetAbilities(AbilityConfig.AbilityType abilityType)
+    {
+        return abilities.AbilitiesList.FindAll(c => c.Type == abilityType);
+    }
+
     public int GetNumberOfAbilities()
     {
         return abilities.GetNumberOfAbilities();
     }
     public bool IsAbilityUsable(int abilityNumber)
     {
-        return abilities.IsAbilityValid(abilityNumber, hexUnit.Location);
+        return abilities.ValidTargets(abilityNumber, hexUnit.Location).Count > 0;
     }
 
     public void NotifyInfoChange()

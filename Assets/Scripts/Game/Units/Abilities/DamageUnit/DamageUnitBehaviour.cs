@@ -23,12 +23,14 @@ public class DamageUnitBehaviour : AbilityBehaviour
         PlayAbilitySound();
         PlayAnimation();
     }
-    public override List<HexCell> IsValidTarget(HexCell target)
+    public override bool IsValidTarget(HexCell target)
     {
-        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(target, (config as DamageUnitConfig).Range);
-        List<HexCell> unitCells = cells.FindAll(c => c.hexUnits.FindAll(d => d.HexUnitType == HexUnit.UnitType.COMBAT).Count != 0);
+        if(target.hexUnits.FindAll(d => d.HexUnitType == HexUnit.UnitType.COMBAT).Count != 0)
+        {
+            return true;
+        }
 
-        return unitCells;
+        return false;
     }
 
 

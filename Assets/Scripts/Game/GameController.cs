@@ -16,7 +16,7 @@ public class GameController : MonoBehaviour
     [SerializeField] GameObject playersObject;
     [SerializeField] AIPlayer aiPlayerPrefab;
 
-    [SerializeField] List<Color> possibleCityStateColors;
+    [SerializeField] List<Sprite> possibleCityStateSymbols;
     [SerializeField] List<Color> possiblePlayerColors;
     [SerializeField] HexMapCamera hexMapCamera;
     [SerializeField] HUD hud;
@@ -30,7 +30,8 @@ public class GameController : MonoBehaviour
     List<OperationCentre> opCentres = new List<OperationCentre>();
     List<CityState> cityStatesTakingturns = new List<CityState>();
     List<AIPlayer> playersTakingturns = new List<AIPlayer>();
-
+    List<int> usedSymbols = new List<int>();
+    List<int> usedColors = new List<int>();
     public OperationCentre opCentrePrefab;
     public City cityPrefab;
     public Agent agentPrefab;
@@ -132,7 +133,7 @@ public class GameController : MonoBehaviour
     void Start()
     {
         turn = 1;
-        humanPlayer.Color = GetNewPlayerColor();
+        humanPlayer.ColorID = GetNewPlayerColor();
     }
     public void EndPlayerTurn()
     {
@@ -246,30 +247,30 @@ public class GameController : MonoBehaviour
     {
         hexGrid.RemoveOperationCentre(opCentre);
         opCentre.Player.RemoveOperationCentre(opCentre);
+        opCentres.Remove(opCentre);
         opCentre.DestroyOperationCentre();
     }
     public CityState CreateCityState()
     {
         CityState instance = Instantiate(cityStatePrefab);
         instance.transform.SetParent(cityStatesObject.transform);
-        instance.PickColor();
+        instance.SymbolID = PickSymbol();
         cityStates.Add(instance);
         return instance;
     }
 
-    public CityState CreateCityState(Color color)
+    public CityState CreateCityState(int symbolID)
     {
         CityState instance = Instantiate(cityStatePrefab);
         instance.transform.SetParent(cityStatesObject.transform);
-        RemoveCityStateColor(color);
-        instance.Color = color;
+        instance.SymbolID = PickSymbol(symbolID);
         cityStates.Add(instance);
         return instance;
     }
 
     public void DestroyCityState(CityState cityState)
     {
-        possibleCityStateColors.Add(cityState.Color);
+        usedSymbols.Remove(cityState.SymbolID);
         if(cityState.Player)
         {
             cityState.Player.RemoveCityState(cityState);
@@ -285,6 +286,7 @@ public class GameController : MonoBehaviour
         {
             city.GetCityState().RemoveCity(city);
         }
+        cities.Remove(city);
         city.DestroyCity();
     }
 
@@ -481,11 +483,22 @@ public class GameController : MonoBehaviour
     {
         AIPlayer instance = Instantiate(aiPlayerPrefab);
         instance.transform.SetParent(playersObject.transform);
-        instance.Color = GetNewPlayerColor();
+        instance.ColorID = GetNewPlayerColor();
         players.Add(instance);
         
         return instance;
     }
+
+    public AIPlayer CreateAIPlayer(int colorID)
+    {
+        AIPlayer instance = Instantiate(aiPlayerPrefab);
+        instance.transform.SetParent(playersObject.transform);
+        instance.ColorID = GetNewPlayerColor(colorID);
+        players.Add(instance);
+
+        return instance;
+    }
+
 
     public Player GetPlayer(int playerNumber)
     {
@@ -501,42 +514,101 @@ public class GameController : MonoBehaviour
         return player;
     }
 
-    public Color GetNewCityStateColor()
+    public int GetNewPlayerColor()
     {
-        int colorIndex = Random.Range(0, possibleCityStateColors.Count - 1);
-        Color color = possibleCityStateColors[colorIndex];
-        possibleCityStateColors.Remove(color);
-        return color;
+        if (usedColors.Count >= possiblePlayerColors.Count)
+        {
+            throw new Exception("Too many players");
+        }
+        List<int> unusedColors = new List<int>();
+        for (int a = 0; a < possiblePlayerColors.Count; a++)
+        {
+            if (!usedColors.Contains(a))
+            {
+                unusedColors.Add(a);
+            }
+        }
+        int colorIndex = IListExtensions.RandomElement(unusedColors);
+        usedColors.Add(colorIndex);
+        return colorIndex;
     }
 
-    public Color GetNewPlayerColor()
+    public int ResetPlayerColour(int colorID)
     {
-        int colorIndex = Random.Range(0, possiblePlayerColors.Count - 1);
-        Color color = possiblePlayerColors[colorIndex];
-        possiblePlayerColors.Remove(color);
-        return color;
+        usedColors.Remove(colorID);
+        return GetNewPlayerColor();
     }
 
-    public void ReturnCityStateColor(Color color)
+    public int ResetPlayerColour(int colorID, int newID)
     {
-        possibleCityStateColors.Add(color);
+        usedColors.Remove(colorID);
+        return GetNewPlayerColor(newID);
     }
 
-    public void RemoveCityStateColor(Color color)
+    public int GetNewPlayerColor(int colorID)
     {
-        possibleCityStateColors.Remove(color);
+        if(colorID >= possiblePlayerColors.Count || colorID < 0 || usedColors.Contains(colorID))
+        {
+            return GetNewPlayerColor();
+        }
+        else
+        {
+            usedColors.Add(colorID);
+            return colorID;
+        }
     }
 
-    public void ReturnPlayerColor(Color color)
+
+    public Color GetPlayerColor(int colorID)
     {
-        possiblePlayerColors.Add(color);
+        if(colorID < 0 || colorID >= possiblePlayerColors.Count)
+        {
+            throw new ArgumentException("Invalid color");
+        }
+        return possiblePlayerColors[colorID];
     }
 
-    public void RemovePlayerColor(Color color)
+    public int PickSymbol()
     {
-        possiblePlayerColors.Remove(color);
+        if(usedSymbols.Count >= possibleCityStateSymbols.Count)
+        {
+            throw new Exception("Too many city states");
+        }
+        List<int> unusedSymbols = new List<int>();
+        for(int a=0;a<possibleCityStateSymbols.Count;a++)
+        {
+            if(!usedSymbols.Contains(a))
+            {
+                unusedSymbols.Add(a);
+            }
+        }
+        int symbolID = IListExtensions.RandomElement(unusedSymbols);
+        usedSymbols.Add(symbolID);
+        return symbolID;
     }
 
+    public int PickSymbol(int symbolID)
+    {
+        if (symbolID >= possibleCityStateSymbols.Count || symbolID < 0)
+        {
+            throw new Exception("Invalid Symbol");
+        }
+
+        if (usedSymbols.Contains(symbolID))
+        {
+            return PickSymbol();
+        }
+        else
+        {
+            usedSymbols.Add(symbolID);
+            return symbolID;
+        }
+    }
+
+    public Sprite GetCityStateSymbol(int symbolID)
+    {
+        return possibleCityStateSymbols[symbolID];
+    }
     public void CentreMap()
     {
         CityState cityState = humanPlayer.GetCityStates().FirstOrDefault();
@@ -574,6 +646,7 @@ public class GameController : MonoBehaviour
 
     public void ClearCitiesAndStates()
     {
+        
         foreach (City city in cities)
         {
             city.DestroyCity();
@@ -585,6 +658,7 @@ public class GameController : MonoBehaviour
         }
         cityStates.Clear();
         CityState.cityStateIDCounter = 1;
+        usedSymbols.Clear();
     }
 
     public void ClearPlayers()
@@ -601,8 +675,13 @@ public class GameController : MonoBehaviour
         }
         players.Clear();
         Player.nextPlayerNumber = 1;
+        usedColors.Clear();
     }
 
+    public void ResetHumanPlayer()
+    {
+        humanPlayer.ColorID = GetNewPlayerColor();
+    }
     public void ClearHud()
     {
         hud.ClearUI();
