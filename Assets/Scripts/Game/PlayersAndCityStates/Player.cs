@@ -290,7 +290,7 @@ public abstract class Player : MonoBehaviour {
 
         foreach(CityState cityState in cityStates)
         {
-            gold += cityState.GetIncome() / 10;
+            gold += cityState.GetPlayerIncome();
         }
 
         UpdateResources();
@@ -326,7 +326,7 @@ public abstract class Player : MonoBehaviour {
         goldPerTurn = 0;
         foreach (CityState cityState in cityStates)
         {
-            goldPerTurn += cityState.GetIncome() / 10;
+            goldPerTurn += cityState.GetPlayerIncome();
         }
         NotifyInfoChange();
     }

@@ -444,6 +444,22 @@ public abstract class Unit : MonoBehaviour {
     public void UpdateUI()
     {
         unitUI.UpdateHealthBar();
+
+    }
+
+    public void UpdateColours()
+    {
+        if (GetPlayer())
+        {
+            unitUI.SetColour(GetPlayer().GetColour());
+        }
+        else if(GetCityState())
+        {
+            if(GetCityState().Player)
+            {
+                unitUI.SetColour(GetCityState().Player.GetColour());
+            }
+        }
     }
 
     public void ShowHealthChange(int change)

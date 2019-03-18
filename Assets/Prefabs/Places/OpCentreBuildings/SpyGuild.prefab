@@ -37,7 +37,7 @@ GameObject:
   - component: {fileID: 4889334593287466}
   - component: {fileID: 114304012983764640}
   m_Layer: 0
-  m_Name: MercenaryCamp
+  m_Name: SpyGuild
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -83,9 +83,9 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resourceBenefit: {fileID: 114411444950648608}
   allowedBuilds: []
-  allowedAgents: []
-  allowedMercs:
-  - {fileID: 11400000, guid: d120cb96fa031a9488158afa952344b7, type: 2}
+  allowedAgents:
+  - {fileID: 11400000, guid: 872c28abfd5f6514fb91755596b81594, type: 2}
+  allowedMercs: []
 --- !u!114 &114411444950648608
 MonoBehaviour:
   m_ObjectHideFlags: 1

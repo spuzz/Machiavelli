@@ -29,6 +29,7 @@ public class City : MonoBehaviour {
     public int currentFood = 0;
     public int currentScience = 0;
     public int currentIncome = 0;
+    public int currentPlayerIncome = 0;
     public int foodConsumption = 0;
     public int foodForNextPop = 0;
     CityState cityStateOwner;
@@ -372,7 +373,9 @@ public class City : MonoBehaviour {
 
     public void AddBuilding(CityStateBuildConfig buildConfig)
     {
-        buildings.Add(gameController.CreateCityStateBuilding(buildConfig));
+        CityStateBuilding building = gameController.CreateCityStateBuilding(buildConfig);
+        building.CityBuildIn = this;
+        buildings.Add(building);
         RefreshYields();
     }
 
@@ -425,7 +428,7 @@ public class City : MonoBehaviour {
         currentProduction += (int)playerBenefits.Production.y;
         currentProduction += (int)((float)baseProduction * (playerBenefits.Production.x / 100.0f));
 
-
+        currentPlayerIncome = (int)(((float)currentIncome / 100.0f) * (30.0f + playerBenefits.PlayerGold.x) + playerBenefits.PlayerGold.y);
         NotifyInfoChange();
     }
 
@@ -433,6 +436,12 @@ public class City : MonoBehaviour {
     {
         return currentIncome;
     }
+
+    public int GetPlayerIncome()
+    {
+        return currentPlayerIncome;
+    }
+
     public void Save(BinaryWriter writer)
     {
         GetHexCell().coordinates.Save(writer);

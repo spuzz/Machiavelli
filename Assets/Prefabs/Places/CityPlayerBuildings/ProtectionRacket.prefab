@@ -9,17 +9,33 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1783421317543386}
+  m_RootGameObject: {fileID: 1019405238726722}
   m_IsPrefabAsset: 1
---- !u!1 &1330272509579210
+--- !u!1 &1019405238726722
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4951912324651798}
-  - component: {fileID: 114411444950648608}
+  - component: {fileID: 4096234988031698}
+  - component: {fileID: 114170522908222488}
+  m_Layer: 0
+  m_Name: ProtectionRacket
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1283085094701904
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4098608806390166}
+  - component: {fileID: 114300103701174494}
   m_Layer: 0
   m_Name: ResourceBenefit
   m_TagString: Untagged
@@ -27,79 +43,59 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &1783421317543386
-GameObject:
-  m_ObjectHideFlags: 0
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  serializedVersion: 6
-  m_Component:
-  - component: {fileID: 4889334593287466}
-  - component: {fileID: 114304012983764640}
-  m_Layer: 0
-  m_Name: MercenaryCamp
-  m_TagString: Untagged
-  m_Icon: {fileID: 0}
-  m_NavMeshLayer: 0
-  m_StaticEditorFlags: 0
-  m_IsActive: 1
---- !u!4 &4889334593287466
+--- !u!4 &4096234988031698
 Transform:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1783421317543386}
+  m_GameObject: {fileID: 1019405238726722}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
-  - {fileID: 4951912324651798}
+  - {fileID: 4098608806390166}
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4951912324651798
+--- !u!4 &4098608806390166
 Transform:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1330272509579210}
+  m_GameObject: {fileID: 1283085094701904}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 4889334593287466}
+  m_Father: {fileID: 4096234988031698}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114304012983764640
+--- !u!114 &114170522908222488
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1783421317543386}
+  m_GameObject: {fileID: 1019405238726722}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 3ec12a02278c73f48808165991335e8d, type: 3}
+  m_Script: {fileID: 11500000, guid: 8368c5f9851e05c48936964224611bb6, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  resourceBenefit: {fileID: 114411444950648608}
-  allowedBuilds: []
-  allowedAgents: []
-  allowedMercs:
-  - {fileID: 11400000, guid: d120cb96fa031a9488158afa952344b7, type: 2}
---- !u!114 &114411444950648608
+  resourceBenefit: {fileID: 114300103701174494}
+--- !u!114 &114300103701174494
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1330272509579210}
+  m_GameObject: {fileID: 1283085094701904}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: c3c7c3fa92606d4469810bc4885e0ad9, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   production: {x: 0, y: 0}
-  gold: {x: 0, y: 0}
+  gold: {x: -20, y: 0}
   science: {x: 0, y: 0}
   food: {x: 0, y: 0}
   defence: {x: 0, y: 0}
-  playerGold: {x: 0, y: 0}
+  playerGold: {x: 20, y: 0}

@@ -159,9 +159,18 @@ public class OperationCentre : MonoBehaviour
         }
     }
 
-    public IEnumerable<AgentBuildConfig> GetAgentBuildConfigs()
+    public IEnumerable<AgentBuildConfig> GetAgentBuildConfigs(List<string> excluded = null)
     {
-        return agentBuildConfigs;
+        if(excluded == null)
+        {
+            excluded = new List<string>();
+        }
+        return agentBuildConfigs.FindAll(c => !excluded.Contains(c.Name));
+    }
+
+    public AgentBuildConfig GetAgentBuildConfigs(string name)
+    {
+        return agentBuildConfigs.Find(c => c.Name == name);
     }
 
     public IEnumerable<CombatUnitBuildConfig> GetCombatUnitBuildConfigs()
@@ -236,10 +245,6 @@ public class OperationCentre : MonoBehaviour
             buildConfig = buildingManagerForAgents.GetCompletedBuild();
         }
 
-        foreach (HexCell cityCell in PathFindingUtilities.GetCellsInRange(Location, influenceRange).FindAll(c => c.City))
-        {
-            cityCell.City.GetCityState().AdjustInfluence(Player, influence);
-        }
         NotifyInfoChange();
     }
 

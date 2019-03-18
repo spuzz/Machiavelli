@@ -54,21 +54,42 @@ public class PlayerAIController : MonoBehaviour
         buildList.Clear();
         foreach (OperationCentre opCentre in player.opCentres)
         {
+            foreach(HexCell cell in player.exploredCells.FindAll(c => c.City))
+            {
+                if(!cell.City.PlayerBuildingControl.HasOutpost(player))
+                {
+                    buildList.Add(opCentre.Location, opCentre.GetAgentBuildConfigs("Builder"));
+                    return;
+                }
+            }
             List<BuildConfig> opCentreBuilds = new List<BuildConfig>();
             if (opCentre.IsConstructingBuilding() == false && opCentre.buildingSpaceAvailable())
             {
-                opCentreBuilds.Add(opCentre.availableBuilds[UnityEngine.Random.Range(0, opCentre.availableBuilds.Count)]);
+                IEnumerable<OpCentreBuildConfig> configs = opCentre.availableBuilds;
+                if (configs.Count() > 0)
+                {
+                    opCentreBuilds.Add(opCentre.availableBuilds[UnityEngine.Random.Range(0, opCentre.availableBuilds.Count)]);
+                }
             }
             if(opCentre.GetAgentBuildConfigs().Count() > 0)
             {
-                opCentreBuilds.Add(IListExtensions.RandomElement(opCentre.GetAgentBuildConfigs()));
+                IEnumerable<AgentBuildConfig> configs = opCentre.GetAgentBuildConfigs(new List<string>() { "Builder" });
+                if(configs.Count() > 0)
+                {
+                    opCentreBuilds.Add(IListExtensions.RandomElement(configs));
+                }
+                
             }
 
             if (opCentre.GetCombatUnitBuildConfigs().Count() > 0)
             {
                 opCentreBuilds.Add(IListExtensions.RandomElement(opCentre.GetCombatUnitBuildConfigs()));
             }
-            buildList.Add(opCentre.Location, opCentreBuilds[UnityEngine.Random.Range(0, opCentreBuilds.Count)]);
+            if(opCentreBuilds.Count > 0)
+            {
+                buildList.Add(opCentre.Location, opCentreBuilds[UnityEngine.Random.Range(0, opCentreBuilds.Count)]);
+            }
+            
         }
         
     }

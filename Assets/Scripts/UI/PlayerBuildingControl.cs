@@ -77,11 +77,25 @@ public class PlayerBuildingControl : MonoBehaviour {
             }
             buildConfig = buildingManager.GetCompletedBuild();
         }
+
+        foreach(var buildings in playerBuildings)
+        {
+            foreach(CityPlayerBuilding building in buildings.Value)
+            {
+                if(building)
+                {
+                    building.StartTurn();
+                }
+                
+            }
+        }
     }
 
     private void AddBuilding(CityPlayerBuildConfig cityPlayerBuildConfig, Player player, int id)
     {
         playerBuildings[player][id] = gameController.CreateCityPlayerBuilding(cityPlayerBuildConfig);
+        playerBuildings[player][id].CityBuildIn = city;
+        playerBuildings[player][id].PlayersBuilding = player;
         city.RefreshYields();
         city.NotifyInfoChange();
     }

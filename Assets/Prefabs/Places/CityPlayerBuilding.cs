@@ -5,7 +5,8 @@ using UnityEngine;
 public class CityPlayerBuilding : MonoBehaviour {
 
     [SerializeField] ResourceBenefit resourceBenefit;
-    City cityBuildIn;
+    protected City cityBuildIn;
+    private Player playersBuilding;
     CityPlayerBuildConfig buildConfig;
 
     public City CityBuildIn
@@ -46,4 +47,27 @@ public class CityPlayerBuilding : MonoBehaviour {
             buildConfig = value;
         }
     }
+
+    public Player PlayersBuilding
+    {
+        get
+        {
+            return playersBuilding;
+        }
+
+        set
+        {
+            playersBuilding = value;
+        }
+    }
+
+    public virtual void Init()
+    {
+
+    }
+    public virtual void StartTurn()
+    {
+
+    }
+
 }

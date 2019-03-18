@@ -9,12 +9,12 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 00538d5d87873434b907c764de750305, type: 3}
-  m_Name: Spy
+  m_Name: Scout
   m_EditorClassIdentifier: 
   baseProductionCost: 1
-  basePurchaseCost: 30
+  basePurchaseCost: 20
   prerequisites: []
-  focusType: 6
-  buildingImage: {fileID: 21300000, guid: 9adf7a610e61692488aaeb5e92d82f70, type: 3}
-  name: Spy
-  agentConfig: {fileID: 11400000, guid: 2a94a43b06eb48441b927c2b1619501d, type: 2}
+  focusType: 7
+  buildingImage: {fileID: 21300000, guid: 41e5cf88faac8004fb825e953ae630c3, type: 3}
+  name: Scout
+  agentConfig: {fileID: 11400000, guid: 1e390ffe2591f214387e9a416e86b464, type: 2}

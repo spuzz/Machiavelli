@@ -117,6 +117,11 @@ public class CityState : MonoBehaviour
             {
                 city.UpdateUI();
             }
+            foreach(CombatUnit unit in units)
+            {
+                unit.UpdateUI();
+                unit.UpdateColours();
+            }
             UpdateVision();
 
         }
@@ -259,6 +264,19 @@ public class CityState : MonoBehaviour
 
         return income;
     }
+    public int GetPlayerIncome()
+    {
+        int income = 0;
+        foreach (City city in cities)
+        {
+            income += city.GetPlayerIncome();
+        }
+
+
+        return income;
+    }
+
+
 
     public void AdjustInfluence(Player adjustPlayer,int influence)
     {

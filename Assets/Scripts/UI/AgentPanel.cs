@@ -29,17 +29,11 @@ public class AgentPanel : MonoBehaviour {
 
     public void SetActive(Unit unitToWatch)
     {
-        if(unitToWatch != unit)
-        {
-            SetInactive();
-            
-        }
+        SetInactive();
         unit = unitToWatch;
         gameObject.SetActive(true);
         unit.onInfoChange += UpdateUI;
         UpdateUI(unit);
-
-
     }
 
     public void SetInactive()
@@ -49,6 +43,7 @@ public class AgentPanel : MonoBehaviour {
         {
             unit.onInfoChange -= UpdateUI;
         }
+       
     }
 
     public void UpdateUI(Unit unit)

@@ -131,7 +131,7 @@ public static class PathFindingUtilities
                 for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
                 {
                     HexCell neighbour = cellToLookFrom.GetNeighbor(d);
-                    if(cellsChecked.Contains(neighbour) == false)
+                    if(neighbour && cellsChecked.Contains(neighbour) == false)
                     {
                         if (!neighbour.IsUnderwater && agent.GetPlayer().exploredCells.Contains(neighbour) == false)
                         {
