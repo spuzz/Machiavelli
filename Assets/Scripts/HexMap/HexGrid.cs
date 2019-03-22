@@ -227,6 +227,7 @@ public class HexGrid : MonoBehaviour {
 	}
 
 	void ClearUnits () {
+        gameController.HexUnitActionController.Clear();
 		for (int i = 0; i < units.Count; i++) {
             gameController.DestroyUnit(units[i].GetComponent<Unit>());
 		}

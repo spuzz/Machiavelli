@@ -141,11 +141,11 @@ public class AgentBehaviourTree : MonoBehaviour {
     }
     public bool CheckBusy()
     {
-        if (agent.HexUnit.pathToTravel == null || agent.HexUnit.pathToTravel.Count == 0)
-        {
-            return true;
-        }
-        return false;
+        //if (agent.HexUnit.pathToTravel == null || agent.HexUnit.pathToTravel.Count == 0)
+        //{
+        //    return true;
+        //}
+        return true;
     }
     public void OnDestroy()
     {

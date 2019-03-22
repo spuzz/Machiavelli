@@ -23,15 +23,15 @@ public class CityStateAIController : MonoBehaviour
             while (unit.Alive && unit.GetMovementLeft() > 0 && currentMovement != unit.GetMovementLeft())
             {
 
-                if (unit.HexUnit.pathToTravel == null || unit.HexUnit.pathToTravel.Count == 0)
-                {
+                //if (unit.HexUnit.pathToTravel == null || unit.HexUnit.pathToTravel.Count == 0)
+                //{
                     currentMovement = unit.GetMovementLeft();
                     yield return StartCoroutine(UpdateUnit(unit));
-                }
-                else
-                {
-                    yield return new WaitForEndOfFrame();
-                }
+                //}
+                //else
+                //{
+                    //yield return new WaitForEndOfFrame();
+                //}
             }
         }
 

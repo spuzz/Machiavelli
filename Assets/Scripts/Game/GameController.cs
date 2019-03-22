@@ -22,6 +22,7 @@ public class GameController : MonoBehaviour
     [SerializeField] HUD hud;
     [SerializeField] HumanPlayer humanPlayer;
     [SerializeField] VisionSystem visionSystem;
+    [SerializeField] HexUnitActionController hexUnitActionController;
     public CityState cityStatePrefab;
     int turn = 1;
 
@@ -57,6 +58,19 @@ public class GameController : MonoBehaviour
         set
         {
             visionSystem = value;
+        }
+    }
+
+    public HexUnitActionController HexUnitActionController
+    {
+        get
+        {
+            return hexUnitActionController;
+        }
+
+        set
+        {
+            hexUnitActionController = value;
         }
     }
 

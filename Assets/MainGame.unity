@@ -36552,9 +36552,32 @@ Prefab:
       propertyPath: humanPlayer
       value: 
       objectReference: {fileID: 557473047}
+    - target: {fileID: 114125984922434256, guid: b20a69b10d1a4a0489a96599bbe03884,
+        type: 2}
+      propertyPath: hexUnitActionController
+      value: 
+      objectReference: {fileID: 1820801466}
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 100100000, guid: b20a69b10d1a4a0489a96599bbe03884, type: 2}
   m_IsPrefabAsset: 0
+--- !u!1 &1820801465 stripped
+GameObject:
+  m_CorrespondingSourceObject: {fileID: 1358163987353110, guid: b20a69b10d1a4a0489a96599bbe03884,
+    type: 2}
+  m_PrefabInternal: {fileID: 1820801464}
+--- !u!114 &1820801466
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 1820801465}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e970f36de4c68eb48b354aaae99708e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hexActionObject: {fileID: 1920979211768248, guid: e57ce7c50011bc74e8aead83a4e7e835,
+    type: 2}
 --- !u!1 &1835556796
 GameObject:
   m_ObjectHideFlags: 0

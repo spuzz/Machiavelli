@@ -426,13 +426,12 @@ public class HexCell : MonoBehaviour {
                     {
                         lastVisibleUnit = true;
                         hexUnits[a].HexVision.Visible = true;
-                           
-
+   
                     }
                 }
                 else
                 {
-                    if(hexUnits[a].HexVision.HasVision == false)
+                    if(hexUnits[a].transform.localPosition == this.Position && hexUnits[a].HexVision.HasVision == false)
                     {
                         hexUnits[a].HexVision.Visible = false;
                     }
@@ -452,7 +451,7 @@ public class HexCell : MonoBehaviour {
             }
             foreach (HexUnit unit in hexUnits)
             {
-                if (unit.HexVision.HasVision == false)
+                if (unit.transform.localPosition == this.Position && unit.HexVision.HasVision == false)
                 {
                     unit.HexVision.Visible = false;
 

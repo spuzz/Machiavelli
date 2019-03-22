@@ -123,7 +123,7 @@ public class HUD : MonoBehaviour {
     public void StartTurn()
     {
         endTurnButton.interactable = true;
-        newTurnText.FadeOut();
+        //newTurnText.FadeOut();
         //UpdateUI();
     }
 
