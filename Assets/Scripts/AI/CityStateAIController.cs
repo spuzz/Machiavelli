@@ -12,7 +12,7 @@ public class CityStateAIController : MonoBehaviour
     [SerializeField] List<BuildConfig> buildConfigs;
 
     bool areaLeftToExplore = true;
-    public IEnumerator UpdateUnits()
+    public void UpdateUnits()
     {
         AssignStance();
         CheckAttackTarget();
@@ -26,7 +26,7 @@ public class CityStateAIController : MonoBehaviour
                 //if (unit.HexUnit.pathToTravel == null || unit.HexUnit.pathToTravel.Count == 0)
                 //{
                     currentMovement = unit.GetMovementLeft();
-                    yield return StartCoroutine(UpdateUnit(unit));
+                    UpdateUnit(unit);
                 //}
                 //else
                 //{
@@ -98,7 +98,7 @@ public class CityStateAIController : MonoBehaviour
         return CombatUnit.Stance.OFFENCE;
     }
 
-    public IEnumerator UpdateUnit(CombatUnit unit)
+    public void UpdateUnit(CombatUnit unit)
     {
         HexCell nextMove = null;
         if(unit.CurrentStance == CombatUnit.Stance.UNASSIGNED)
@@ -120,10 +120,10 @@ public class CityStateAIController : MonoBehaviour
         else
         {
             unit.SetPath(nextMove);
-            while (unit.AttackUnit && unit.HexUnit.pathToTravel != null && unit.HexUnit.pathToTravel.Count != 0)
-            {
-                yield return new WaitForFixedUpdate();
-            }
+            //while (unit.AttackUnit && unit.HexUnit.pathToTravel != null && unit.HexUnit.pathToTravel.Count != 0)
+            //{
+            //    yield return new WaitForFixedUpdate();
+            //}
 
         }
     }

@@ -385,10 +385,10 @@ public class CityState : MonoBehaviour
         NotifyInfoChange();
     }
 
-    public IEnumerator TakeTurn()
+    public void TakeTurn()
     {
         units.RemoveAll(c => c.Alive == false);
-        yield return StartCoroutine(cityStateAIController.UpdateUnits());
+        cityStateAIController.UpdateUnits();
         cityStateAIController.UpdateCities();
         gameController.CityStateTurnFinished(this);
     }

@@ -178,7 +178,7 @@ public class GameController : MonoBehaviour
             if(cityState)
             {
                 cityStatesTakingturns.Add(cityState);
-                yield return StartCoroutine(cityState.TakeTurn());
+                cityState.TakeTurn();
             }
             
         }
