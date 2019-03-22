@@ -26,6 +26,8 @@ public abstract class AbilityConfig : ScriptableObject
     [SerializeField] GameObject textEffect;
     [SerializeField] string abilityName;
     [SerializeField] AbilityType abilityType = AbilityType.Misc;
+    [SerializeField] string displayName;
+    [SerializeField] string toolTipText;
     protected AbilityBehaviour behaviour;
 
     public int Range
@@ -90,6 +92,32 @@ public abstract class AbilityConfig : ScriptableObject
         set
         {
             abilityType = value;
+        }
+    }
+
+    public string DisplayName
+    {
+        get
+        {
+            return displayName;
+        }
+
+        set
+        {
+            displayName = value;
+        }
+    }
+
+    public string ToolTipText
+    {
+        get
+        {
+            return toolTipText;
+        }
+
+        set
+        {
+            toolTipText = value;
         }
     }
 

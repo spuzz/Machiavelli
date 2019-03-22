@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -14,6 +15,8 @@ public class HUD : MonoBehaviour {
     [SerializeField] CityPanel cityPanel;
     [SerializeField] OperationCentrePanel opCentrePanel;
     [SerializeField] TextFadeOut newTurnText;
+    [SerializeField] GameObject toolTip;
+    [SerializeField] TextMeshProUGUI toolTipText;
     Unit unit;
     City city;
     HexCell targetCell;
@@ -169,5 +172,19 @@ public class HUD : MonoBehaviour {
     public void UseOpCentreAbility(int abilityNumber)
     {
         TargetCell = OpCentre.Location;
+    }
+
+    public void ShowToolTip(string text)
+    {
+        toolTip.SetActive(true);
+        toolTip.GetComponent<MoveToMouseCursor>().UpdatePosition();
+        toolTipText.SetText(text);
+
+    }
+
+    public void HideToolTip()
+    {
+        toolTip.SetActive(false);
+
     }
 }

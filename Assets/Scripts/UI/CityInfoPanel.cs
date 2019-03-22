@@ -52,6 +52,11 @@ public abstract class CityInfoPanel : MonoBehaviour {
             }
             
             active = false;
+            if (BuildingChoicePanel)
+            {
+                BuildingChoicePanel.SetInactive();
+            }
+
         }
     }
 }

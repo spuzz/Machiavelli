@@ -17,4 +17,6 @@ MonoBehaviour:
   focusType: 7
   buildingImage: {fileID: 21300000, guid: 01d666d4b5062374694e3a91d39cc2b3, type: 3}
   name: Builder
+  displayName: Builder
+  toolTipText: Constructs new Operation Centres
   agentConfig: {fileID: 11400000, guid: 616e871ae5862d54ca3171f9088d16df, type: 2}

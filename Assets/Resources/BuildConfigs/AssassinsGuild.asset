@@ -18,5 +18,7 @@ MonoBehaviour:
   focusType: 6
   buildingImage: {fileID: 21300000, guid: 94248ce360d126c42a60bfa4b84b9acf, type: 3}
   name: AssassinsGuild
+  displayName: Assassins Guild
+  toolTipText: Hire Assassins to deal with enemy agents
   buildPrefab: {fileID: 1783421317543386, guid: 50f0085b288d12a4b86b5362bc872c2f,
     type: 2}

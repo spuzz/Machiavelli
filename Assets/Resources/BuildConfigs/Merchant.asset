@@ -17,5 +17,7 @@ MonoBehaviour:
   focusType: 0
   buildingImage: {fileID: 21300000, guid: e644552ea3a98ca4597febb6b6dc34a2, type: 3}
   name: Merchant
+  displayName: Merchant
+  toolTipText: Increase city state profits and your own
   buildPrefab: {fileID: 1104886083354260, guid: 85a9ef76ed9e939478dff082b73a3fe7,
     type: 2}

@@ -87,6 +87,32 @@ public class Abilities : MonoBehaviour
 
     public void UseAbility(int index, HexCell hexCell)
     {
+        Player player = unit.GetPlayer();
+        if (player)
+        {
+            if(player.Gold < AbilitiesList[index].GetCost())
+            {
+                return;
+            }
+            else
+            {
+                player.Gold -= AbilitiesList[index].GetCost();
+            }
+            
+        }
+        else
+        {
+            CityState state = unit.GetCityState();
+            if(!state || state.Gold < AbilitiesList[index].GetCost())
+            {
+                return;
+            }
+            else
+            {
+                state.Gold -= AbilitiesList[index].GetCost();
+            }
+        }
+        
         unit.SetMovementLeft(0);
         AbilitiesList[index].Use(hexCell);
     }

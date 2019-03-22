@@ -21,4 +21,6 @@ MonoBehaviour:
   textEffect: {fileID: 1096156621854288, guid: cbce99c46ef89c94f965d408ea4706c6, type: 2}
   abilityName: AssassinateAgent
   abilityType: 3
+  displayName: Assassinate
+  toolTipText: Kill The target
   damage: 50

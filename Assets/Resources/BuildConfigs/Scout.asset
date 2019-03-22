@@ -17,4 +17,6 @@ MonoBehaviour:
   focusType: 7
   buildingImage: {fileID: 21300000, guid: 41e5cf88faac8004fb825e953ae630c3, type: 3}
   name: Scout
+  displayName: Scout
+  toolTipText: Explore the world
   agentConfig: {fileID: 11400000, guid: 1e390ffe2591f214387e9a416e86b464, type: 2}

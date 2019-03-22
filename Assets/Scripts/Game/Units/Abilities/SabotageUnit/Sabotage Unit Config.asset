@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: cec9d5f8eeb765f48b7e6f73379b680e, type: 3}
   m_Name: Sabotage Unit Config
   m_EditorClassIdentifier: 
-  cost: 10
+  cost: 0
   range: 1
   particlePrefab: {fileID: 0}
   abilityAnimation: {fileID: 7400000, guid: f94c62a8b96f5a7469ce0da8ccac09b3, type: 3}
@@ -21,3 +21,5 @@ MonoBehaviour:
   textEffect: {fileID: 1096156621854288, guid: cbce99c46ef89c94f965d408ea4706c6, type: 2}
   abilityName: SabotageUnit
   abilityType: 5
+  displayName: Sabotage Unit
+  toolTipText: Sabotage a city state units movement

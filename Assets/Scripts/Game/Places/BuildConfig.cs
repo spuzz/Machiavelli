@@ -21,7 +21,8 @@ public abstract class BuildConfig : ScriptableObject {
     [SerializeField] FocusType focusType;
     [SerializeField] Sprite buildingImage;
     [SerializeField] string name;
-
+    [SerializeField] string displayName;
+    [SerializeField] string toolTipText;
     public int BaseBuildTime
     {
         get
@@ -86,6 +87,32 @@ public abstract class BuildConfig : ScriptableObject {
         set
         {
             name = value;
+        }
+    }
+
+    public string ToolTipText
+    {
+        get
+        {
+            return toolTipText;
+        }
+
+        set
+        {
+            toolTipText = value;
+        }
+    }
+
+    public string DisplayName
+    {
+        get
+        {
+            return displayName;
+        }
+
+        set
+        {
+            displayName = value;
         }
     }
 

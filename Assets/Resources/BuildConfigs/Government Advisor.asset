@@ -18,5 +18,7 @@ MonoBehaviour:
   focusType: 7
   buildingImage: {fileID: 21300000, guid: 04fc3a1f780501a47ac5b44fba242ae1, type: 3}
   name: GovernmentAdvisor
+  displayName: Advisor
+  toolTipText: Increase your influence on this cities leaders
   buildPrefab: {fileID: 1019405238726722, guid: b990bfb3b8cad644e9794a3128e32d2b,
     type: 2}

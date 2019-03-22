@@ -11,7 +11,7 @@ public class BuildingChoicePanel : MonoBehaviour {
     [SerializeField] List<Button> buttons;
     [SerializeField] OpCentreBuildingsUI opCentreBuildingsUI;
     [SerializeField] CityBuildingUI cityBuildingUI;
-
+    private bool foundBenefit;
     public void SetActive(City cityToBuild)
     {
         SetInactive();
@@ -54,9 +54,30 @@ public class BuildingChoicePanel : MonoBehaviour {
         int count = 0;
         foreach(OpCentreBuildConfig config in opCentre.availableBuilds)
         {
+            ToolTip tooltip = buttons[count].GetComponent<ToolTip>();
+            if (tooltip)
+            {
+                tooltip.Clear();
+                tooltip.SetHeader(config.DisplayName);
+                tooltip.AddText(config.ToolTipText);
+                tooltip.AddText("");
+                tooltip.AddText("Cost");
+                tooltip.AddSymbolWithText(1, config.BasePurchaseCost.ToString());
+                tooltip.AddText("");
+                tooltip.AddText("BuildTime");
+                tooltip.AddSymbolWithText(1, config.BaseBuildTime.ToString());
+            }
             buttons[count].gameObject.SetActive(true);
             buttons[count].image.sprite = config.BuildingImage;
-            buttons[count].interactable = true;
+            if (cityBuildingUI.HumanPlayer.Gold >= config.BasePurchaseCost)
+            {
+                buttons[count].interactable = true;
+            }
+            else
+            {
+                buttons[count].interactable = false;
+            }
+
             count++;
         }
         while(count < buttons.Count)
@@ -72,6 +93,48 @@ public class BuildingChoicePanel : MonoBehaviour {
         int count = 0;
         foreach (CityPlayerBuildConfig config in cityBuildingUI.HumanPlayer.GetCityPlayerBuildConfigs())
         {
+            ToolTip tooltip = buttons[count].GetComponent<ToolTip>();
+            if (tooltip)
+            {
+                tooltip.Clear();
+                tooltip.SetHeader(config.DisplayName);
+                tooltip.AddText(config.ToolTipText);
+                tooltip.AddText("");
+                tooltip.AddText("Cost");
+                tooltip.AddSymbolWithText(1, config.BasePurchaseCost.ToString());
+                tooltip.AddText("");
+                tooltip.AddText("BuildTime");
+                tooltip.AddSymbolWithText(1, config.BaseBuildTime.ToString());
+
+                ResourceBenefit benefit = config.BuildPrefab.GetComponentInChildren<ResourceBenefit>();
+                foundBenefit = false;
+                if (benefit)
+                {
+                    if (benefit.Gold.y != 0)
+                    {
+                        AddBenefitToToolTip(tooltip, 1, benefit.Gold.y.ToString(), "City Bonuses");
+                    }
+                    if (benefit.Gold.x != 0)
+                    {
+                        AddBenefitToToolTip(tooltip, 1, benefit.Gold.x.ToString() + "%", "City Bonuses");
+                    }
+
+                }
+                foundBenefit = false;
+                if (benefit)
+                {
+                    if (benefit.PlayerGold.y != 0)
+                    {
+                        AddBenefitToToolTip(tooltip, 1, benefit.PlayerGold.y.ToString(), "Player Bonuses");
+                    }
+                    if (benefit.PlayerGold.x != 0)
+                    {
+                        AddBenefitToToolTip(tooltip, 1, benefit.PlayerGold.x.ToString() + "%", "Player Bonuses");
+                    }
+
+                }
+
+            }
             buttons[count].gameObject.SetActive(true);
             buttons[count].image.sprite = config.BuildingImage;
             if(cityBuildingUI.HumanPlayer.Gold >= config.BasePurchaseCost)
@@ -82,7 +145,7 @@ public class BuildingChoicePanel : MonoBehaviour {
             {
                 buttons[count].interactable = false;
             }
-            
+
             count++;
         }
         while (count < buttons.Count)
@@ -93,8 +156,20 @@ public class BuildingChoicePanel : MonoBehaviour {
         }
     }
 
+    private void AddBenefitToToolTip(ToolTip tooltip, int symbol, string text, string benefitText)
+    {
+        if (foundBenefit == false)
+        {
+            tooltip.AddText("");
+            tooltip.AddText(benefitText);
+            foundBenefit = true;
+        }
+        tooltip.AddSymbolWithText(symbol, text);
+    }
+
     public void BuildSelected(int id)
     {
+
         if(opCentre)
         {
             opCentreBuildingsUI.Build(id);

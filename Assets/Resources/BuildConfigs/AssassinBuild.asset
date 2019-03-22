@@ -17,4 +17,6 @@ MonoBehaviour:
   focusType: 6
   buildingImage: {fileID: 21300000, guid: 51ba4b057b0745549b2faeba982240ee, type: 3}
   name: Assassin
+  displayName: Assassin
+  toolTipText: Fight enemy agents
   agentConfig: {fileID: 11400000, guid: 99ab66049cd47a84088ae9268102266a, type: 2}

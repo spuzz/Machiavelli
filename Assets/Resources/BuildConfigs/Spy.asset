@@ -17,4 +17,6 @@ MonoBehaviour:
   focusType: 6
   buildingImage: {fileID: 21300000, guid: 9adf7a610e61692488aaeb5e92d82f70, type: 3}
   name: Spy
+  displayName: Spy
+  toolTipText: Influence cities and their leaders
   agentConfig: {fileID: 11400000, guid: 2a94a43b06eb48441b927c2b1619501d, type: 2}

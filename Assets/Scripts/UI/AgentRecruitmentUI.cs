@@ -18,15 +18,29 @@ public class AgentRecruitmentUI : OperationCentreInfoPanel {
         {
             if (a < agentBuildConfigs.Count)
             {
+                AgentBuildConfig config = agentBuildConfigs[a];
                 buttons[a].gameObject.SetActive(true);
-                buttons[a].image.sprite = agentBuildConfigs[a].AgentConfig.Portrait;
-                if (opCentre.Player.Gold >= agentBuildConfigs[a].BasePurchaseCost)
+                buttons[a].image.sprite = config.AgentConfig.Portrait;
+                if (opCentre.Player.Gold >= config.BasePurchaseCost)
                 {
                     buttons[a].interactable = true;
                 }
                 else
                 {
                     buttons[a].interactable = false;
+                }
+                ToolTip tooltip = buttons[a].GetComponent<ToolTip>();
+                if (tooltip)
+                {
+                    tooltip.Clear();
+                    tooltip.SetHeader(config.DisplayName);
+                    tooltip.AddText(config.ToolTipText);
+                    tooltip.AddText("");
+                    tooltip.AddText("Cost");
+                    tooltip.AddSymbolWithText(1, config.BasePurchaseCost.ToString());
+                    tooltip.AddText("");
+                    tooltip.AddText("BuildTime");
+                    tooltip.AddSymbolWithText(1, config.BaseBuildTime.ToString());
                 }
             }
             else

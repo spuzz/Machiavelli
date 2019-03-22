@@ -18,5 +18,7 @@ MonoBehaviour:
   focusType: 1
   buildingImage: {fileID: 21300000, guid: 58538bcf85f717347b62ee2950f24b6b, type: 3}
   name: ProtectionRacket
+  displayName: Protection Racket
+  toolTipText: Take gold from the weak for 'Protection'
   buildPrefab: {fileID: 1019405238726722, guid: 5936b221778a42e4eaec2608aefe330b,
     type: 2}
