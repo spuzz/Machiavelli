@@ -6,7 +6,7 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class HexCell : MonoBehaviour {
-
+    string gitTest = "master";
     [SerializeField] HexCell[] neighbors;
 
     [SerializeField] bool[] roads;
