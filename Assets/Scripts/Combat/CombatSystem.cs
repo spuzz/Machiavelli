@@ -7,25 +7,41 @@ public static class CombatSystem
 {
     static int defaultDamage = 35;
 
-    public static void UnitFight(Unit fighter, Unit target)
+    public static KeyValuePair<int, int> UnitFight(Unit fighter, Unit target)
     {
-        int targetDamage = GetMeleeDamage(fighter.Strength, target.Strength);
-        int fighterDamage = GetMeleeDamage(target.Strength, fighter.Strength);
-        target.HitPoints -= targetDamage;
-        fighter.HitPoints -= fighterDamage;
-
-        if(target.HitPoints <= 0 && fighter.HitPoints <= 0)
+        KeyValuePair<int, int> result;
+        int targetDamage;
+            int fighterDamage;
+        if (fighter.Range == 0)
         {
-            if(target.HitPoints > fighter.HitPoints)
+            targetDamage = GetMeleeDamage(fighter.Strength, target.Strength);
+            fighterDamage = GetMeleeDamage(target.Strength, fighter.Strength);
+        }
+        else
+        {
+            targetDamage = GetRangeDamage(fighter.RangeStrength, target.Strength);
+            fighterDamage = 0;
+        }
+        
+        int currentTargetHealth = target.HitPoints;
+        int currentFighterHealth = fighter.HitPoints;
+        int targetHitpoints = target.HitPoints - targetDamage;
+        int fighterHitpoints = fighter.HitPoints - fighterDamage;
+
+        if(targetHitpoints <= 0 && fighterHitpoints <= 0)
+        {
+            if(targetHitpoints > fighterHitpoints)
             {
-                target.HitPoints = 1;
+                targetHitpoints = 1;
             }
             else
             {
-                fighter.HitPoints = 1;
+                fighterHitpoints = 1;
             }
         }
 
+        target.HitPoints = targetHitpoints;
+        fighter.HitPoints = fighterHitpoints;
         if (target.HitPoints < 0)
         {
             target.HitPoints = 0;
@@ -35,27 +51,34 @@ public static class CombatSystem
         {
             fighter.HitPoints = 0;
         }
+        result = new KeyValuePair<int, int>(currentTargetHealth - target.HitPoints, currentFighterHealth - fighter.HitPoints);
+        return result;
     }
 
-    public static void CityFight(Unit fighter, City target)
+    public static KeyValuePair<int, int> CityFight(Unit fighter, City target)
     {
+        KeyValuePair<int, int> result;
         int targetDamage = GetMeleeDamage(fighter.Strength, target.Strength);
         int fighterDamage = GetMeleeDamage(target.Strength, fighter.Strength);
-        target.HitPoints -= targetDamage;
-        fighter.HitPoints -= fighterDamage;
+        int currentTargetHealth = target.HitPoints;
+        int currentFighterHealth = fighter.HitPoints;
+        int targetHitpoints = target.HitPoints - targetDamage;
+        int fighterHitpoints = fighter.HitPoints - fighterDamage;
 
-        if (target.HitPoints <= 0 && fighter.HitPoints <= 0)
+        if (targetHitpoints <= 0 && fighterHitpoints <= 0)
         {
-            if (target.HitPoints > fighter.HitPoints)
+            if (targetHitpoints > fighterHitpoints)
             {
-                target.HitPoints = 1;
+                targetHitpoints = 1;
             }
             else
             {
-                fighter.HitPoints = 1;
+                fighterHitpoints = 1;
             }
         }
 
+        target.HitPoints = targetHitpoints;
+        fighter.HitPoints = fighterHitpoints;
         if (target.HitPoints < 0)
         {
             target.HitPoints = 0;
@@ -65,6 +88,8 @@ public static class CombatSystem
         {
             fighter.HitPoints = 0;
         }
+        result = new KeyValuePair<int, int>(currentTargetHealth - target.HitPoints, currentFighterHealth - fighter.HitPoints);
+        return result;
     }
 
 
@@ -78,6 +103,18 @@ public static class CombatSystem
         return damage;
 
     }
+
+    public static int GetRangeDamage(int strength, int targetStrength)
+    {
+        int difference = strength - targetStrength;
+        int damageChange = difference * 2;
+        int damage = LimitToRange(defaultDamage + damageChange, 5, 105);
+        damage = UnityEngine.Random.Range(damage - 5, damage + 6);
+        damage = LimitToRange(damage, 1, 100);
+        return damage;
+
+    }
+
 
     public static int LimitToRange(
         this int value, int inclusiveMinimum, int inclusiveMaximum)

@@ -6,7 +6,6 @@ using System.Collections.Generic;
 using System.Linq;
 
 public class HexCell : MonoBehaviour {
-    string gitTest = "master";
     [SerializeField] HexCell[] neighbors;
 
     [SerializeField] bool[] roads;
@@ -422,7 +421,7 @@ public class HexCell : MonoBehaviour {
 
                 if (lastVisibleUnit == false)
                 {
-                    if (hexUnits[a].transform.localPosition == this.Position)
+                    if (Vector3.Distance(hexUnits[a].transform.localPosition, this.Position) < 1)
                     {
                         lastVisibleUnit = true;
                         hexUnits[a].HexVision.Visible = true;
@@ -431,7 +430,7 @@ public class HexCell : MonoBehaviour {
                 }
                 else
                 {
-                    if(hexUnits[a].transform.localPosition == this.Position && hexUnits[a].HexVision.HasVision == false)
+                    if(Vector3.Distance(hexUnits[a].transform.localPosition,this.Position) < 1 && hexUnits[a].HexVision.HasVision == false)
                     {
                         hexUnits[a].HexVision.Visible = false;
                     }
@@ -451,7 +450,7 @@ public class HexCell : MonoBehaviour {
             }
             foreach (HexUnit unit in hexUnits)
             {
-                if (unit.transform.localPosition == this.Position && unit.HexVision.HasVision == false)
+                if (Vector3.Distance(unit.transform.localPosition, this.Position) < 1 && unit.HexVision.HasVision == false)
                 {
                     unit.HexVision.Visible = false;
 

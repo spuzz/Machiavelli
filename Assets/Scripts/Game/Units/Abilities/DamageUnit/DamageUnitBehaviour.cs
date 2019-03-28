@@ -12,8 +12,9 @@ public class DamageUnitBehaviour : AbilityBehaviour
         HexUnit targetUnit = target.hexUnits.Find(C => C.HexUnitType == HexUnit.UnitType.COMBAT);
         if (targetUnit)
         {
-            targetUnit.GetComponent<Unit>().HitPoints -= (config as DamageUnitConfig).GetDamage();
-            targetUnit.GetComponent<Unit>().UpdateUI();
+            int damage = -(config as DamageUnitConfig).GetDamage();
+            targetUnit.GetComponent<Unit>().HitPoints += damage;
+            targetUnit.GetComponent<Unit>().UpdateUI(damage);
             if (targetUnit.GetComponent<Unit>().HitPoints <= 0)
             {
                 targetUnit.DieAnimationAndRemove();

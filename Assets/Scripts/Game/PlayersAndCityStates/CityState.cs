@@ -115,11 +115,11 @@ public class CityState : MonoBehaviour
             }
             foreach (City city in cities)
             {
-                city.UpdateUI();
+                city.UpdateCityBar();
             }
             foreach(CombatUnit unit in units)
             {
-                unit.UpdateUI();
+                unit.UpdateUI(0);
                 unit.UpdateColours();
             }
             UpdateVision();
@@ -207,6 +207,7 @@ public class CityState : MonoBehaviour
         city.HexVision.HasVision = false;
         city.onInfoChange -= cityChanged;
         cities.Remove(city);
+        
         NotifyInfoChange();
     }
 
@@ -399,12 +400,31 @@ public class CityState : MonoBehaviour
         {
             if(unit.HexUnit.Location == city.GetHexCell())
             {
-                gameController.DestroyUnit(unit);
+                unit.KillUnit();
                 break;
             }
         }
     }
 
+    public void KillAllUnits()
+    {
+        foreach (CombatUnit unit in units)
+        {
+            unit.KillUnit();
+        }
+    }
+
+    public void DestroyLocalUnits(City city)
+    {
+        foreach(CombatUnit unit in units.FindAll(c => c.HexUnit.Location == city.GetHexCell()))
+        {
+            if(unit.HexUnit.Location == city.GetHexCell())
+            {
+                gameController.DestroyUnit(unit);
+                break;
+            }
+        }
+    }
     public void UpdateVision()
     {
         if(!Player)

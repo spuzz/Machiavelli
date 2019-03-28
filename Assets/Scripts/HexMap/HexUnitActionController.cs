@@ -6,7 +6,6 @@ using UnityEngine;
 public class HexUnitActionController : MonoBehaviour {
 
     List<HexAction> actionQueue = new List<HexAction>();
-    List<HexCell> blockedCells = new List<HexCell>();
     [SerializeField] GameObject hexActionObject;
     bool controlRunning = false;
     private void Start()
@@ -18,10 +17,9 @@ public class HexUnitActionController : MonoBehaviour {
     {
         foreach(HexAction action in actionQueue)
         {
-            Destroy(action);
+            Destroy(action.gameObject);
         }
         actionQueue.Clear();
-        blockedCells.Clear();
     }
     private IEnumerator StartControl()
     {
@@ -60,30 +58,13 @@ public class HexUnitActionController : MonoBehaviour {
 
     }
 
-    public void BlockCell(HexCell cell)
+    public bool FinishedActions()
     {
-        blockedCells.Add(cell);
-    }
-
-    public void BlockCells(IEnumerable<HexCell> cells)
-    {
-        foreach(HexCell cell in cells)
+        if(actionQueue.Count > 0)
         {
-            BlockCell(cell);
+            return false;
         }
-    }
-
-    public void UnblockCell(HexCell cell)
-    {
-        blockedCells.Remove(cell);
-    }
-
-    public void UnblockCells(IEnumerable<HexCell> cells)
-    {
-        foreach (HexCell cell in cells)
-        {
-            UnblockCell(cell);
-        }
+        return true;
     }
 
     public bool CheckActionValid(HexAction action)
@@ -98,26 +79,32 @@ public class HexUnitActionController : MonoBehaviour {
         }
         foreach(HexCell cell in action.GetPath())
         {
-            if(blockedCells.Contains(cell))
+            if(actionQueue.GetRange(0, actionQueue.IndexOf(action)).FindAll(c => c.ActionCell == cell).Count != 0)
             {
                 return false;
             }
         }
-        if(blockedCells.Contains(action.ActionCell))
+        if(action.ActionCell)
         {
-            return false;
+            HexUnit unit = action.UnitTarget;
+            if(!action.ActionCell.City && actionQueue.GetRange(0,actionQueue.IndexOf(action)).FindAll(c => c.ActionsUnit == unit).Count != 0)
+            {
+                return false;
+            }
         }
-
+        if(action.CityTarget && action.KillTarget && action.CityStateTarget.GetCityCount() == 0)
+        {
+            if (actionQueue.GetRange(0, actionQueue.IndexOf(action)).FindAll(c => c.UnitTarget && c.UnitTarget.unit.GetCityState() == action.CityStateTarget).Count != 0)
+            {
+                return false;
+            }
+        }
         return true;
     }
 
     public void StartAction(HexAction action)
     {
         action.ActionStatus = HexAction.Status.RUNNING;
-        if(action.ActionCell)
-        {
-            BlockCells(action.GetPath());
-        }
         StartCoroutine(action.Run());
     }
 
@@ -129,10 +116,6 @@ public class HexUnitActionController : MonoBehaviour {
             if(action.Child)
             {
                 action.Child.Parent = null;
-            }
-            if (action.ActionCell)
-            {
-                UnblockCells(action.GetPath());
             }
             actionQueue.Remove(action);
             Destroy(action.gameObject);

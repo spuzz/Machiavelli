@@ -28,7 +28,7 @@ public class PlayerAIController : MonoBehaviour
 
         }
 
-        UpdateBuilds();
+        //UpdateBuilds();
     }
 
     private void UpdateBuilds()

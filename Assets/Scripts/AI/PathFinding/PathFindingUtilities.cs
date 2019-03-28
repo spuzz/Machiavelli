@@ -117,41 +117,62 @@ public static class PathFindingUtilities
         return null;
     }
 
-    public static HexCell FindNearestUnexplored(Agent agent, int maxRange = 5, bool movable = true)
+    public static List<HexCell> FindNearestUnexplored(HexCell location, HexCell unitLocation, List<HexCell> exploredCells, int maxRange = 5, bool movable = true)
     {
-        List<HexCell> cellsChecked = new List<HexCell>();
-        List<HexCell> cellsToLookFrom= new List<HexCell>();
-        cellsToLookFrom.Add(agent.HexUnit.Location);
-        cellsChecked.Add(agent.HexUnit.Location);
-        for (int a = 0; a < maxRange; a++)
-        {
-            List<HexCell> neighboursChecked = new List<HexCell>();
-            foreach (HexCell cellToLookFrom in cellsToLookFrom)
-            {
-                for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
-                {
-                    HexCell neighbour = cellToLookFrom.GetNeighbor(d);
-                    if(neighbour && cellsChecked.Contains(neighbour) == false)
-                    {
-                        if (!neighbour.IsUnderwater && agent.GetPlayer().exploredCells.Contains(neighbour) == false)
-                        {
-                            return neighbour;
-                        }
-                        neighboursChecked.Add(neighbour);
-                    }
+        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(location,maxRange);
+        cells = cells.FindAll(c => !exploredCells.Contains(c) && !c.IsUnderwater);
+        cells = cells.OrderBy(c => c.coordinates.DistanceTo(unitLocation.coordinates)).ToList();
+        return cells;
+        //List<HexCell> finalTargets = new List<HexCell>();
+        //List<HexCell> cellsChecked = new List<HexCell>();
+        //List<HexCell> cellsToLookFrom= new List<HexCell>();
+        //cellsToLookFrom.Add(location);
+        //cellsChecked.Add(location);
+        //for (int a = 0; a < maxRange; a++)
+        //{
+        //    List<HexCell> targets = new List<HexCell>();
+        //    List<HexCell> neighboursChecked = new List<HexCell>();
+        //    foreach (HexCell cellToLookFrom in cellsToLookFrom)
+        //    {
+        //        for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+        //        {
+        //            HexCell neighbour = cellToLookFrom.GetNeighbor(d);
+        //            if(neighbour && cellsChecked.Contains(neighbour) == false)
+        //            {
+        //                if(exploredCells.Count > 0)
+        //                {
+        //                    if (!neighbour.IsUnderwater && exploredCells.Contains(neighbour) == false)
+        //                    {
+        //                        targets.Add(neighbour);
+        //                    }
+        //                }
+        //                else
+        //                {
+        //                    if (!neighbour.IsUnderwater)
+        //                    {
+        //                        targets.Add(neighbour);
+        //                    }
+        //                }
 
-                }
-                
-            }
-            cellsToLookFrom.Clear();
-            foreach(HexCell cell in neighboursChecked)
-            {
-                cellsToLookFrom.Add(cell);
-                cellsChecked.Add(cell);
-            }
+        //                neighboursChecked.Add(neighbour);
+        //            }
 
-        }
-        return null;
+        //        }
+        //    }
+        //    targets.Shuffle();
+        //    foreach(HexCell targetcell in targets)
+        //    {
+        //        finalTargets.Add(targetcell);
+        //    }
+        //    cellsToLookFrom.Clear();
+        //    foreach(HexCell cell in neighboursChecked)
+        //    {
+        //        cellsToLookFrom.Add(cell);
+        //        cellsChecked.Add(cell);
+        //    }
+
+        //}
+        //return finalTargets;
     }
 
     public static List<City> FindAllSeenCities(IEnumerable<HexCell> exploredCells)

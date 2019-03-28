@@ -15,37 +15,39 @@ public class CityStateAIController : MonoBehaviour
     public void UpdateUnits()
     {
         AssignStance();
-        CheckAttackTarget();
         foreach (CombatUnit unit in cityState.GetUnits())
         {
             int currentMovement = -1;
             List<HexCell> path = new List<HexCell>();
             while (unit.Alive && unit.GetMovementLeft() > 0 && currentMovement != unit.GetMovementLeft())
             {
-
+                CheckAttackTarget();
                 //if (unit.HexUnit.pathToTravel == null || unit.HexUnit.pathToTravel.Count == 0)
                 //{
-                    currentMovement = unit.GetMovementLeft();
-                    UpdateUnit(unit);
+                currentMovement = unit.GetMovementLeft();
+                UpdateUnit(unit);
                 //}
                 //else
                 //{
-                    //yield return new WaitForEndOfFrame();
+                //yield return new WaitForEndOfFrame();
                 //}
             }
         }
+
 
     }
 
     public void UpdateCities()
     {
+
         foreach (City city in cityState.GetCities())
         {
+            city.TakeTurn();
             if (city.BuildingManager.buildsInQueue() == 0)
             {
 
 
-                if (UnityEngine.Random.value < .5)
+                if (UnityEngine.Random.value < 1)
                 {
                     city.BuildUnit();
                 }
@@ -59,6 +61,7 @@ public class CityStateAIController : MonoBehaviour
     }
     private void CheckAttackTarget()
     {
+        attackTarget = null;
         if (cityState.GetUnits().ToList().FindAll(c => c.CurrentStance == CombatUnit.Stance.OFFENCE).Count >= 3)
         {
             List<City> enemyCities = cityState.GetEnemyCitiesOrderByDistance(cityState.GetCity().GetHexCell().coordinates);
@@ -85,7 +88,7 @@ public class CityStateAIController : MonoBehaviour
 
     private CombatUnit.Stance GetUnitStancePriority()
     {
-        if(areaLeftToExplore && !cityState.GetUnits().ToList().Find(c => c.CurrentStance == CombatUnit.Stance.EXPLORE))
+        if(!cityState.GetUnits().ToList().Find(c => c.CurrentStance == CombatUnit.Stance.EXPLORE))
         {
             return CombatUnit.Stance.EXPLORE;
         }
@@ -100,104 +103,74 @@ public class CityStateAIController : MonoBehaviour
 
     public void UpdateUnit(CombatUnit unit)
     {
-        HexCell nextMove = null;
         if(unit.CurrentStance == CombatUnit.Stance.UNASSIGNED)
         {
             AssignStance(unit);
         }
 
-        nextMove = GetNextMove(unit);
+        NextMove(unit);
 
-        if (!nextMove)
-        {
-            nextMove = unit.Behaviour.Patrol(cityState.GetCity().GetHexCell(), 2);
-        }
-
-        if (!nextMove || nextMove == unit.HexUnit.Location)
-        {
-            unit.EndTurn();
-        }
-        else
-        {
-            unit.SetPath(nextMove);
-            //while (unit.AttackUnit && unit.HexUnit.pathToTravel != null && unit.HexUnit.pathToTravel.Count != 0)
-            //{
-            //    yield return new WaitForFixedUpdate();
-            //}
-
-        }
     }
 
-    private HexCell GetNextMove(CombatUnit unit)
+    private void NextMove(CombatUnit unit)
     {
-        HexCell nextMove = unit.HexUnit.Location;
         switch (unit.CurrentStance)
         {
             case CombatUnit.Stance.DEFENCE:
-                nextMove = DefendCity(unit);
+                DefendCity(unit);
                 break;
             case CombatUnit.Stance.OFFENCE:
-                nextMove = DetermineTarget(unit);
+                DetermineTarget(unit);
                 break;
             case CombatUnit.Stance.EXPLORE:
-                nextMove = unit.Behaviour.ExploreArea(unit.HexUnit.Location, cityState.GetCity().GetHexCell(), 6, cityState.GetExploredCells());
-                if (!nextMove)
-                {
-                    areaLeftToExplore = false;
-                    unit.CurrentStance = CombatUnit.Stance.UNASSIGNED;
-                    AssignStance(unit);
-                    nextMove = GetNextMove(unit);
-                }
+                unit.Behaviour.ExploreArea(unit.HexUnit.Location, cityState.GetCity().GetHexCell(), 6, cityState.GetExploredCells());
                 break;
         }
-        return nextMove;
     }
 
-    private HexCell DetermineTarget(CombatUnit unit)
+    private void DetermineTarget(CombatUnit unit)
     {
-        HexCell nearbyEnemyUnit = CheckNearby(unit);
-        if (nearbyEnemyUnit)
+        List<HexCell> nearbyEnemyUnits = CheckNearby(unit);
+        foreach(HexCell cell in nearbyEnemyUnits)
         {
-            return unit.Behaviour.Attack(nearbyEnemyUnit);
+            if(unit.Behaviour.Attack(cell))
+            {
+                return;
+            }
         }
         if (attackTarget)
         {
-            return unit.Behaviour.Attack(attackTarget);
+            unit.Behaviour.Attack(attackTarget);
         }
-        return unit.Behaviour.Patrol(cityState.GetCity().GetHexCell(),2);
+        //unit.Behaviour.Patrol(cityState.GetCity().GetHexCell(),2);
     }
 
-    private HexCell DefendCity(CombatUnit unit)
+    private void DefendCity(CombatUnit unit)
     {
         IEnumerable<City> cities = cityState.GetCities().OrderBy(c => c.GetHexCell().coordinates.DistanceTo(unit.HexUnit.Location.coordinates));
         foreach (City city in cities)
         {
-            HexCell nextMove = unit.Behaviour.Defend(city);
-            if(nextMove)
-            {
-                return nextMove;
-            }
-        }
+            unit.Behaviour.Defend(city);
 
-        return unit.HexUnit.Location;
+        }
     }
 
-    private HexCell CheckNearby(Unit unit)
+    private List<HexCell> CheckNearby(Unit unit)
     {
-        List<HexCell> nearbyCells = PathFindingUtilities.GetMovableCells(unit);
+        List<HexCell> nearbyCells = PathFindingUtilities.GetCellsInRange(unit.HexUnit.Location,3);
         List<HexCell> enemyCells = new List<HexCell>();
         foreach(HexCell hexCell in nearbyCells)
         {
-            if(cityState.visibleCells.Keys.Contains(hexCell) && unit.HexUnit.IsValidAttackDestination(hexCell))
+            if(cityState.exploredCells.Contains(hexCell) && unit.HexUnit.IsValidAttackDestination(hexCell) && !hexCell.City)
             {
                 enemyCells.Add(hexCell);
             }
         }
         if(enemyCells.Count == 0)
         {
-            return null;
+            return new List<HexCell>();
         }
         enemyCells = enemyCells.OrderBy(c => c.coordinates.DistanceTo(unit.HexUnit.Location.coordinates)).ToList();
-        return enemyCells[0];
+        return enemyCells;
     }
 }

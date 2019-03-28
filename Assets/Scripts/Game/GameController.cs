@@ -168,21 +168,30 @@ public class GameController : MonoBehaviour
             }
 
         }
-        while (playersTakingturns.Count > 0)
+        while (playersTakingturns.Count > 0 || !hexUnitActionController.FinishedActions())
         {
             yield return new WaitForEndOfFrame();
         }
         cityStatesTakingturns.Clear();
-        foreach (CityState cityState in cityStates)
+        List<CityState> statesAtStartOfTurn = new List<CityState>();
+        foreach(CityState state in cityStates)
+        {
+            statesAtStartOfTurn.Add(state);
+        }
+        foreach (CityState cityState in statesAtStartOfTurn)
         {
             if(cityState)
             {
                 cityStatesTakingturns.Add(cityState);
                 cityState.TakeTurn();
+                while (!hexUnitActionController.FinishedActions())
+                {
+                    yield return new WaitForEndOfFrame();
+                }
             }
             
         }
-        while(cityStatesTakingturns.Count > 0)
+        while(cityStatesTakingturns.Count > 0 || !hexUnitActionController.FinishedActions())
         {
             yield return new WaitForEndOfFrame();
         }
@@ -312,7 +321,8 @@ public class GameController : MonoBehaviour
         city.transform.SetParent(citiesObject.transform);
         city.SetCityState(cityState);
         city.HexVision.AddVisibleObject(city.CityUI.gameObject);
-        city.UpdateUI();
+        city.UpdateHealthBar();
+        city.UpdateCityBar();
         cities.Add(city);
         hexGrid.AddCity(city);
         return city;

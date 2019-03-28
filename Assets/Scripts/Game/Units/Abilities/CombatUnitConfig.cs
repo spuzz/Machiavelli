@@ -9,6 +9,8 @@ public class CombatUnitConfig : ScriptableObject {
     [SerializeField] string name;
     [SerializeField] int baseMovement = 2;
     [SerializeField] int baseStrength = 25;
+    [SerializeField] int baseRangeStrength = 0;
+    [SerializeField] int range = 0;
     [SerializeField] Texture symbol;
     [SerializeField] Sprite portrait;
     [SerializeField] GameObject meshChild;
@@ -96,4 +98,29 @@ public class CombatUnitConfig : ScriptableObject {
         }
     }
 
+    public int Range
+    {
+        get
+        {
+            return range;
+        }
+
+        set
+        {
+            range = value;
+        }
+    }
+
+    public int BaseRangeStrength
+    {
+        get
+        {
+            return baseRangeStrength;
+        }
+
+        set
+        {
+            baseRangeStrength = value;
+        }
+    }
 }

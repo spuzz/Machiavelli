@@ -7,7 +7,8 @@ public class UnitHealthBar : MonoBehaviour
 {
     RawImage healthBarRawImage = null;
     Unit unit = null;
-
+    int currentHealth;
+    int maxHealth;
     public Unit Unit
     {
         get
@@ -18,6 +19,9 @@ public class UnitHealthBar : MonoBehaviour
         set
         {
             unit = value;
+            currentHealth = unit.GetBaseHitpoints();
+            maxHealth = unit.GetBaseHitpoints();
+            UpdateHealth(0);
         }
     }
 
@@ -28,9 +32,13 @@ public class UnitHealthBar : MonoBehaviour
     }
 
     // Update is called once per frame
-    public void UpdateHealth()
+    public void UpdateHealth(int healthChange)
     {
-        float xValue = -(Unit.HealthAsPercentage / 2f) - 0.5f;
+        float healthAfterChange = (float)currentHealth + (float)healthChange;
+        if(healthAfterChange < 0) { healthAfterChange = 0;  }
+        float healthAsPerc = healthAfterChange / (float)maxHealth;
+        float xValue = -(healthAsPerc / 2f) - 0.5f;
         healthBarRawImage.uvRect = new Rect(xValue, 0f, 0.5f, 1f);
+        currentHealth = (int)healthAfterChange;
     }
 }

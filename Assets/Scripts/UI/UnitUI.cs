@@ -42,7 +42,7 @@ public class UnitUI : MonoBehaviour {
             {
                 SetUnitSymbol(unit.Symbol);
             }
-            unit.onInfoChange += UpdateUnit;
+            //unit.onInfoChange += UpdateUnit;
         }
     }
 
@@ -113,15 +113,15 @@ public class UnitUI : MonoBehaviour {
         
     }
 
-    public void UpdateUnit(Unit unit)
+    public void UpdateUnit(Unit unit, int healthChange)
     {
-        UpdateHealthBar();
+        UpdateHealthBar(healthChange);
     }
-    public void UpdateHealthBar()
+    public void UpdateHealthBar(int healthChange)
     {
         if(unitHealthBar)
         {
-            unitHealthBar.UpdateHealth();
+            unitHealthBar.UpdateHealth(healthChange);
         }
         
     }

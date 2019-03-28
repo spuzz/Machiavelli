@@ -281,21 +281,25 @@ public class AgentBehaviourTree : MonoBehaviour {
         protected override void DoStart()
         {
             Agent agent = (Blackboard["agent"] as Agent);
-            HexCell cell = PathFindingUtilities.FindNearestUnexplored(agent);
-            if(cell)
+            List<HexCell> cells = PathFindingUtilities.FindNearestUnexplored(agent.HexUnit.Location, agent.HexUnit.Location, agent.GetPlayer().exploredCells);
+            foreach(HexCell cell in cells)
             {
-                HexGrid grid = (Blackboard["hexgrid"] as HexGrid);
-                grid.FindPath(agent.HexUnit.Location,cell,agent.HexUnit,true,false);
-                List<HexCell> path = grid.GetPath();
-                if (path != null && path.Count > 1)
+                if(cell.CanUnitMoveToCell(agent.HexUnit))
                 {
-                    if(agent.SetPath(path[1]))
+                    HexGrid grid = (Blackboard["hexgrid"] as HexGrid);
+                    grid.FindPath(agent.HexUnit.Location, cell, agent.HexUnit, true, false);
+                    List<HexCell> path = grid.GetPath();
+                    if (path != null && path.Count > 1)
                     {
-                        Stopped(true);
-                        return;
+                        if (agent.SetPath(path[1]))
+                        {
+                            Stopped(true);
+                            return;
+                        }
+
                     }
-                    
                 }
+
               
             }
             Stopped(false);

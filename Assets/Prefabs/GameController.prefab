@@ -21,6 +21,7 @@ GameObject:
   - component: {fileID: 4961515384842084}
   - component: {fileID: 114125984922434256}
   - component: {fileID: 114707304956818400}
+  - component: {fileID: 114780388663208930}
   m_Layer: 0
   m_Name: GameController
   m_TagString: Untagged
@@ -136,6 +137,7 @@ MonoBehaviour:
   hud: {fileID: 0}
   humanPlayer: {fileID: 0}
   visionSystem: {fileID: 114707304956818400}
+  hexUnitActionController: {fileID: 114780388663208930}
   cityStatePrefab: {fileID: 114520082041238686, guid: d96be0838ad31724f8698ca73d20e7d2,
     type: 2}
   opCentrePrefab: {fileID: 114708981004321290, guid: bc556770a2653db4ca827ea44dfc9eac,
@@ -158,3 +160,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0fe4506d2d622bc45bbb7eabb60fa44b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+--- !u!114 &114780388663208930
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1358163987353110}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e970f36de4c68eb48b354aaae99708e8, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  hexActionObject: {fileID: 1920979211768248, guid: e57ce7c50011bc74e8aead83a4e7e835,
+    type: 2}

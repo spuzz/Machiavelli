@@ -9,6 +9,8 @@ public abstract class Unit : MonoBehaviour {
     [SerializeField] int baseMovement = 2;
     [SerializeField] int movementLeft = 0;
     [SerializeField] int baseStrength = 20;
+    [SerializeField] int baseRangeStrength = 0;
+    [SerializeField] int range = 0;
     [SerializeField] HexUnit hexUnit;
     [SerializeField] int baseMovementFactor = 5;
     [SerializeField] int baseHitPoints = 100;
@@ -17,7 +19,8 @@ public abstract class Unit : MonoBehaviour {
     [SerializeField] Texture symbol;
     [SerializeField] HexCellTextEffect textEffect;
     [SerializeField] AnimatorOverrideController animatorOverrideController;
-
+    [SerializeField] Projectile projectilePreFab;
+    HexUnitActionController hexUnitActionController;
     protected Abilities abilities;
     bool alive = true;
     List<HexCell> path = new List<HexCell>();
@@ -29,6 +32,7 @@ public abstract class Unit : MonoBehaviour {
     UnitBehaviour behaviour;
     HexUnit attackUnit;
     City attackCity;
+    CityState attackCityState;
     protected GameController gameController;
 
     int hitPoints = 100;
@@ -177,6 +181,12 @@ public abstract class Unit : MonoBehaviour {
         get { return BaseStrength; }
     }
 
+    public int RangeStrength
+    {
+        get { return BaseRangeStrength; }
+    }
+
+
     public bool Alive
     {
         get
@@ -263,6 +273,58 @@ public abstract class Unit : MonoBehaviour {
         }
     }
 
+    public CityState AttackCityState
+    {
+        get
+        {
+            return attackCityState;
+        }
+
+        set
+        {
+            attackCityState = value;
+        }
+    }
+
+    public int Range
+    {
+        get
+        {
+            return range;
+        }
+
+        set
+        {
+            range = value;
+        }
+    }
+
+    public int BaseRangeStrength
+    {
+        get
+        {
+            return baseRangeStrength;
+        }
+
+        set
+        {
+            baseRangeStrength = value;
+        }
+    }
+
+    public Projectile ProjectilePreFab
+    {
+        get
+        {
+            return projectilePreFab;
+        }
+
+        set
+        {
+            projectilePreFab = value;
+        }
+    }
+
     public virtual Player GetPlayer()
     {
         return null;
@@ -279,6 +341,7 @@ public abstract class Unit : MonoBehaviour {
         HUDUI = FindObjectOfType<HUD>();
         Behaviour = gameObject.AddComponent<UnitBehaviour>();
         GameController = FindObjectOfType<GameController>();
+        hexUnitActionController = FindObjectOfType<HexUnitActionController>();
         unitUI = Instantiate(unitUiPrefab).GetComponent<UnitUI>();
         hexVision = gameObject.AddComponent<HexVision>();
         abilities = GetComponent<Abilities>();
@@ -295,6 +358,7 @@ public abstract class Unit : MonoBehaviour {
         audioSource.minDistance = 10;
         HexUnit.Speed = (BaseMovement * BaseMovementFactor);
         hitPoints = baseHitPoints;
+
         Setup();
 
     }
@@ -326,6 +390,70 @@ public abstract class Unit : MonoBehaviour {
 
     }
 
+    public bool AttackCell(HexCell cell)
+    {
+        bool melee = true;
+        if (Range == 0)
+        {
+            if(cell.coordinates.DistanceTo(HexUnit.Location.coordinates) > 1)
+            {
+                return false;
+            }
+        }
+        else
+        {
+            if (cell.coordinates.DistanceTo(HexUnit.Location.coordinates) > Range)
+            {
+                return false;
+            }
+        }
+        if(Range > 0)
+        {
+            melee = false;
+        }
+        if (cell.City)
+        {
+            CityState cityState = cell.City.GetCityState();
+            KeyValuePair<int,int> result = FightCity(cell.City);
+            HexAction action = hexUnitActionController.CreatAction();
+            action.ActionsUnit = this.HexUnit;
+            action.MeleeAction = melee;
+            action.AddAction(cell, hexUnit.Location, cell.City, result.Value, result.Key, cityState);
+            if (cell.City.GetCityState() == GetCityState())
+            {
+                action.SetKillTarget();
+            }
+            if (Alive == false)
+            {
+                action.SetKillSelf();
+            }
+            hexUnitActionController.AddAction(action, hexUnit);
+            return true;
+        }
+        HexUnit unit = cell.GetFightableUnit(this.HexUnit);
+        if(unit)
+        {
+            KeyValuePair<int, int> result =  FightUnit(unit);
+            HexAction action = hexUnitActionController.CreatAction();
+            action.ActionsUnit = this.HexUnit;
+            action.MeleeAction = melee;
+            action.AddAction(cell, hexUnit.Location, unit, result.Value, result.Key);
+            if (unit.unit.HitPoints <= 0)
+            {
+                action.SetKillTarget();
+            }
+            if (Alive == false)
+            {
+                action.SetKillSelf();
+            }
+            hexUnitActionController.AddAction(action, hexUnit);
+            return true;
+        }
+
+
+        return false;
+    }
+        
     public bool IsSomethingToAttack()
     {
         if(AttackCity || AttackUnit)
@@ -409,41 +537,79 @@ public abstract class Unit : MonoBehaviour {
                 break;
             }
         }
-
-        if (move.Count > 1)
+        if(move.Count < 2)
         {
-            AttackUnit = null;
-            AttackCity = null;
-            City city = move[move.Count - 1].City;
-            if (city && hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && GetCityState() != city.GetCityState())
-            {
-                AttackCity = city;
-                CombatSystem.CityFight(this, city);
-                SetMovementLeft(0);
+            return false;
+        }
+        HexAction action = hexUnitActionController.CreatAction();
+        action.ActionsUnit = this.HexUnit;
+        action.AddAction(move);
 
-            }
-            else
+        hexUnit.Location.RemoveUnit(hexUnit);
+        hexUnit.SetLocationOnly(move[move.Count - 1]);
+        if (Alive == true)
+        {
+            hexUnit.AddUnitToLocation(move[move.Count - 1]);
+        }
+
+        hexUnitActionController.AddAction(action, hexUnit);
+        for (int a = 1; a < move.Count; a++)
+        {
+            UpdateOwnerVisiblity(move[a - 1], false);
+            UpdateOwnerVisiblity(move[a], true);
+        }
+        return true;
+    }
+
+    public KeyValuePair<int,int> FightCity(City city)
+    {
+        KeyValuePair<int, int> result = new KeyValuePair<int, int>();
+        if (hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && GetCityState() != city.GetCityState())
+        {
+            CityState currentCityState = city.GetCityState();
+            AttackCity = city;
+            AttackCityState = currentCityState;
+            result = CombatSystem.CityFight(this, city);
+            if (city.HitPoints <= 0)
             {
-                HexUnit unitToFight = move[move.Count - 1].GetFightableUnit(HexUnit);
-                if (unitToFight)
+                if (hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && GetComponent<CombatUnit>().Mercenary && !GetComponent<Unit>().GetCityState())
                 {
-                    AttackUnit = unitToFight;
-                    CombatSystem.UnitFight(this, unitToFight.GetComponent<Unit>());
-                    SetMovementLeft(0);
+                    GetComponent<Unit>().GetPlayer().Gold += city.Plunder();
+                    city.HitPoints = 1;
+                }
+                else
+                {
+                    city.GetCityState().KillLocalUnits(city);
+                    city.SetCityState(GetComponent<Unit>().CityState);
+                    if (currentCityState.GetCityCount() == 0)
+                    {
+                        currentCityState.KillAllUnits();
+                    }
+                    city.HitPoints = 50;
                 }
             }
 
-            path.RemoveRange(0, move.Count - 1);
-            HexUnit.Travel(move);
-            return true;
-
+            SetMovementLeft(0);
         }
-        return false;
+        return result;
     }
 
-    public void UpdateUI()
+    public KeyValuePair<int, int> FightUnit(HexUnit unit)
     {
-        unitUI.UpdateHealthBar();
+        KeyValuePair<int, int> result = new KeyValuePair<int, int>();
+        if (unit)
+        {
+            result = CombatSystem.UnitFight(this, unit.GetComponent<Unit>());
+            SetMovementLeft(0);
+        }
+        return result;
+    }
+    public void UpdateUI(int healthChange)
+    {
+        if(healthChange != 0)
+        {
+            unitUI.UpdateHealthBar(healthChange);
+        }
 
     }
 

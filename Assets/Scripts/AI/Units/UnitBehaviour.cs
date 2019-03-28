@@ -5,7 +5,7 @@ using UnityEngine;
 
 public class UnitBehaviour : MonoBehaviour
 {
-    
+    HexCell target;
     Unit unit;
 
     public Unit ActiveUnit
@@ -35,63 +35,54 @@ public class UnitBehaviour : MonoBehaviour
         }
     }
 
+    public HexCell Target
+    {
+        get
+        {
+            return target;
+        }
+
+        set
+        {
+            target = value;
+        }
+    }
+
     private void Awake()
     {
         GameHexGrid = FindObjectOfType<HexGrid>();
         ActiveUnit = GetComponent<Unit>();
     }
 
-    public HexCell ExploreArea(HexCell startCell, HexCell centreCell, int distanceFromCentre, IEnumerable<HexCell> visibleCells)
+    public void ExploreArea(HexCell startCell, HexCell centreCell, int distanceFromCentre, IEnumerable<HexCell> visibleCells)
     {
-        List<HexCell> cells = new List<HexCell>();
-        List<HexCell> openCells = new List<HexCell>();
-        List<HexCell> searchedCells = new List<HexCell>();
-        openCells.Add(startCell);
-        List<HexCell> hiddenCells = new List<HexCell>();
-        HexCell hiddenCellToGetTo = null;
-        HexCell target = null;
-        while (openCells.Count > 0)
+        if(Target && !unit.GetCityState().exploredCells.Contains(Target))
         {
-            hiddenCells = openCells.FindAll(c => !visibleCells.Contains(c));
-            while (hiddenCells.Count > 0)
+            hexGrid.FindPath(unit.HexUnit.Location, Target, unit.HexUnit, true, false);
+            HexCell nextCell = GetFirstCellFromPath();
+            if(nextCell)
             {
-                hiddenCellToGetTo = hiddenCells[UnityEngine.Random.Range(0, hiddenCells.Count)];
-                hiddenCells.Remove(hiddenCellToGetTo);
-                hexGrid.FindPath(unit.HexUnit.Location, hiddenCellToGetTo, unit.HexUnit, true, false);
-                target = GetFirstCellFromPath();
-                if(target)
-                {
-                    return target;
-                }
-            }
-            if (hiddenCells.Count == 0)
-            {
-                List<HexCell> neighbourCells = new List<HexCell>();
-                for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
-                {
-
-
-                    foreach (HexCell openCell in openCells)
-                    {
-                        HexCell neighbour = openCell.GetNeighbor(d);
-                        if (neighbour && !neighbourCells.Contains(neighbour) 
-                                        && !openCells.Contains(neighbour)
-                                        && !searchedCells.Contains(neighbour) 
-                                        && neighbour.coordinates.DistanceTo(centreCell.coordinates) <= distanceFromCentre)
-                        {
-                            neighbourCells.Add(neighbour);
-                        }
-                        searchedCells.Add(openCell);
-                    }
-                }
-                openCells = neighbourCells;
-
-            }
-
-                
+                unit.SetPath(nextCell);
+                return;
+            };
         }
-        return null;
-       // return unit.HexUnit.Location;
+        List<HexCell> cells = PathFindingUtilities.FindNearestUnexplored(centreCell, unit.HexUnit.Location, unit.GetCityState().exploredCells, distanceFromCentre);
+        foreach (HexCell cell in cells)
+        {
+            if (cell.CanUnitMoveToCell(unit.HexUnit))
+            {
+                hexGrid.FindPath(unit.HexUnit.Location, cell, unit.HexUnit, true, false);
+                
+                HexCell nextCell = GetFirstCellFromPath();
+                if (nextCell)
+                {
+                    target = cell;
+                    unit.SetPath(nextCell);
+                    return;
+                }
+            }
+        }
+
     }
 
     public HexCell Explore()
@@ -103,16 +94,44 @@ public class UnitBehaviour : MonoBehaviour
         return unit.HexUnit.Location;
     }
 
-    public HexCell Attack(Unit target)
+    public bool Attack(Unit target)
     {
-        hexGrid.FindPath(unit.HexUnit.Location, target.HexUnit.Location, unit.HexUnit, true, false);
-        return GetFirstCellFromPath();
+        int distance = target.HexUnit.Location.coordinates.DistanceTo(unit.HexUnit.Location.coordinates);
+        if ((unit.Range == 0 && distance <= 1) || distance <= unit.Range)
+        {
+            unit.AttackCell(target.HexUnit.Location);
+        }
+        else
+        {
+            hexGrid.FindPath(unit.HexUnit.Location, target.HexUnit.Location, unit.HexUnit, true, false);
+            HexCell targetCell = GetFirstCellFromPath();
+            if (targetCell == null)
+            {
+                return false;
+            }
+            unit.SetPath(targetCell);
+        }
+        return true;
     }
 
-    public HexCell Attack(HexCell hexCell)
+    public bool Attack(HexCell hexCell)
     {
-        hexGrid.FindPath(unit.HexUnit.Location, hexCell, unit.HexUnit, true, false);
-        return GetFirstCellFromPath();
+        int distance = hexCell.coordinates.DistanceTo(unit.HexUnit.Location.coordinates);
+        if ((unit.Range == 0 && distance <= 1) || distance <= unit.Range)
+        {
+            unit.AttackCell(hexCell);
+        }
+        else
+        {
+            hexGrid.FindPath(unit.HexUnit.Location, hexCell, unit.HexUnit, true, false);
+            HexCell targetCell = GetFirstCellFromPath();
+            if(targetCell == null)
+            {
+                return false;
+            }
+            unit.SetPath(targetCell);
+        }
+        return true;
     }
 
 
@@ -129,28 +148,32 @@ public class UnitBehaviour : MonoBehaviour
         }
     }
 
-    public HexCell Attack(City city)
+    public void Attack(City city)
     {
-        hexGrid.FindPath(unit.HexUnit.Location, city.GetHexCell(), unit.HexUnit,true,false);
-        return GetFirstCellFromPath();
+        int distance = city.GetHexCell().coordinates.DistanceTo(unit.HexUnit.Location.coordinates);
+        if ((unit.Range == 0 && distance <=1) || distance <= unit.Range)
+        {
+            unit.AttackCell(city.GetHexCell());
+        }
+        else
+        {
+            hexGrid.FindPath(unit.HexUnit.Location, city.GetHexCell(), unit.HexUnit, true, false);
+            unit.SetPath(GetFirstCellFromPath());
+        }
     }
 
-    public HexCell Defend(City city)
+    public void Defend(City city)
     {
         HexCell target = null;
-        List<HexUnit> units = hexGrid.GetUnitsInRange(city.GetHexCell(), 2);
+        List<HexUnit> units = hexGrid.GetUnitsInRange(city.GetHexCell(), 5);
         foreach (HexUnit unit in units)
         {
             if (unit.HexUnitType == HexUnit.UnitType.COMBAT)
             {
                 if (unit.GetComponent<Unit>().CityState && unit.GetComponent<Unit>().CityState.CityStateID != ActiveUnit.GetComponent<Unit>().CityState.CityStateID)
                 {
-                    hexGrid.FindPath(ActiveUnit.HexUnit.Location, unit.Location, ActiveUnit.HexUnit, true, false);
-                    target = GetFirstCellFromPath();
-                    if(target)
-                    {
-                        return target;
-                    }
+                    Attack(unit.unit);
+                    return;
                 }
             }
         }
@@ -161,7 +184,8 @@ public class UnitBehaviour : MonoBehaviour
             target = GetFirstCellFromPath();
             if (target)
             {
-                return target;
+                unit.SetPath(target);
+                return;
             }
         }
 
@@ -174,11 +198,11 @@ public class UnitBehaviour : MonoBehaviour
                 target = GetFirstCellFromPath();
                 if (target)
                 {
-                    return target;
+                    unit.SetPath(target);
+                    return;
                 }
             }
         }
-        return target;
     }
 
     public HexCell Patrol(HexCell hexCell, int radius)
@@ -202,8 +226,16 @@ public class UnitBehaviour : MonoBehaviour
         }
         if (hexCell.coordinates.DistanceTo(unit.HexUnit.Location.coordinates) > radius)
         {
-            hexGrid.FindPath(unit.HexUnit.Location, hexCell, unit.HexUnit);
-            return GetFirstCellFromPath();
+            List<HexCell> cells = PathFindingUtilities.GetCellsInRange(hexCell, radius).OrderBy(c => c.coordinates.DistanceTo(unit.HexUnit.Location.coordinates)).ToList();
+            foreach(HexCell cell in cells)
+            {
+                if(cell.CanUnitMoveToCell(unit.HexUnit))
+                {
+                    hexGrid.FindPath(unit.HexUnit.Location, cell, unit.HexUnit);
+                    return GetFirstCellFromPath();
+                }
+            }
+
         }
 
         List<HexDirection> directions = Enum.GetValues(typeof(HexDirection)).Cast<HexDirection>().ToList();

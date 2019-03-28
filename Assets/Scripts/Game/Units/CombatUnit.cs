@@ -100,6 +100,8 @@ public class CombatUnit : Unit
         HexVision.AddVisibleObject(HexUnit.GetMesh());
         BaseMovement = config.BaseMovement;
         BaseStrength = config.BaseStrength;
+        BaseRangeStrength = config.BaseRangeStrength;
+        Range = config.Range;
         Symbol = config.Symbol;
         foreach (AbilityConfig abilityConfig in config.GetAbilityConfigs())
         {

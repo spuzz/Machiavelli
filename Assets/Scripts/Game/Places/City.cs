@@ -176,10 +176,33 @@ public class City : MonoBehaviour {
         if (cityStateOwner)
         {
             cityStateOwner.RemoveCity(this);
+            UpdateOwnerVisiblity(hexCell, false);
         }
         cityStateOwner = cityState;
         cityStateOwner.AddCity(this);
+        UpdateOwnerVisiblity(hexCell, true);
         NotifyInfoChange();
+
+    }
+    public virtual void UpdateOwnerVisiblity(HexCell hexCell, bool increase)
+    {
+        if (GetCityState())
+        {
+            List<HexCell> cells = PathFindingUtilities.GetCellsInRange(hexCell, VisionRange);
+            for (int i = 0; i < cells.Count; i++)
+            {
+                if (increase)
+                {
+                    GetCityState().AddVisibleCell(cells[i]);
+                }
+                else
+                {
+                    GetCityState().RemoveVisibleCell(cells[i]);
+                }
+            }
+            ListPool<HexCell>.Add(cells);
+
+        }
 
     }
 
@@ -256,20 +279,7 @@ public class City : MonoBehaviour {
         }
 
         
-        BuildingManager.DayPassed(currentProduction);
-        BuildConfig buildConfig = BuildingManager.GetCompletedBuild();
-        while(buildConfig)
-        {
-            if (buildConfig.GetBuildType() == BuildConfig.BUILDTYPE.COMBAT_UNIT )
-            {
-                CreateUnit((buildConfig as CombatUnitBuildConfig).CombatUnitConfig);
-            }
-            else if(buildConfig.GetBuildType() == BuildConfig.BUILDTYPE.CITY_STATE_BUILDING)
-            {
-                AddBuilding(buildConfig as CityStateBuildConfig);
-            }
-            buildConfig = BuildingManager.GetCompletedBuild();
-        }
+
 
         PlayerBuildingControl.StartTurn();
 
@@ -277,11 +287,33 @@ public class City : MonoBehaviour {
     }
 
 
-    public void UpdateUI()
+    public void TakeTurn()
+    {
+        BuildingManager.DayPassed(currentProduction);
+        BuildConfig buildConfig = BuildingManager.GetCompletedBuild();
+        while (buildConfig)
+        {
+            if (buildConfig.GetBuildType() == BuildConfig.BUILDTYPE.COMBAT_UNIT)
+            {
+                CreateUnit((buildConfig as CombatUnitBuildConfig).CombatUnitConfig);
+            }
+            else if (buildConfig.GetBuildType() == BuildConfig.BUILDTYPE.CITY_STATE_BUILDING)
+            {
+                AddBuilding(buildConfig as CityStateBuildConfig);
+            }
+            buildConfig = BuildingManager.GetCompletedBuild();
+        }
+    }
+    public void UpdateHealthBar()
     {
 
         CityUI.UpdateHealthBar();
 
+
+    }
+
+    public void UpdateCityBar()
+    {
         if (cityStateOwner.Player)
         {
             //TowerColor = cityStateOwner.Player.Color;
@@ -346,7 +378,7 @@ public class City : MonoBehaviour {
         List<HexCell> cells = PathFindingUtilities.GetCellsInRange(hexCell, 2);
         foreach(HexCell cell in cells)
         {
-            if(cell.CanUnitMoveToCell(HexUnit.UnitType.COMBAT))
+            if(!cell.IsUnderwater && cell.CanUnitMoveToCell(HexUnit.UnitType.COMBAT))
             {
                 HexUnit hexUnit = gameController.CreateCityStateUnit(combatUnitConfig, cell, cityStateOwner.CityStateID);
                 hexUnit.Location.UpdateVision();

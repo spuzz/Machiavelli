@@ -15,7 +15,7 @@ public class HexUnit : MonoBehaviour {
 
     const float rotationSpeed = 540f;
 	const float travelSpeed = 2f;
-    const float fightSpeed = 3f;
+    const float fightSpeed = 2f;
 
     [SerializeField] Transform meshChild;
 
@@ -221,238 +221,72 @@ public class HexUnit : MonoBehaviour {
         return false;
     }
 
-    public void Travel (List<HexCell> path) {
-        location.RemoveUnit(this);
-        HexAction action = hexUnitActionController.CreatAction();
-        action.SetPath(path);
-        if (unit.IsSomethingToAttack())
-        {
-            action.AddAction(path[path.Count - 1], path[path.Count - 2]);
-            location = path[path.Count - 2];
-            path.Remove(path[path.Count - 1]);
-        }
-        else
-        {
-            location = path[path.Count - 1];
-        }
-		
-        location.AddUnit(this);
-		pathToTravel = path;
-        action.ActionsUnit = this;
-        hexUnitActionController.AddAction(action, this);
-		//StopAllCoroutines();
-		//StartCoroutine(TravelPath());
-	}
-
-	IEnumerator TravelPath () {
-
-        Vector3 lookTowards = new Vector3(0, 0, 0);
-        if (!currentTravelLocation)
-        {
-            currentTravelLocation = pathToTravel[0];
-        }
-        int currentColumn = currentTravelLocation.ColumnIndex;
-        int nextColumn;
-        unit.UpdateOwnerVisiblity(currentTravelLocation, true);
-        if (currentTravelLocation.IsVisible == true || Location.IsVisible == true || HexVision.HasVision)
-        {
-
-            Vector3 a, b, c = pathToTravel[0].Position;
-            yield return LookAt(pathToTravel[1].Position);
-            Animator.SetBool("Walking", true);
-
-            HexVision.ClearCells();
+ //   public void Travel (List<HexCell> path) {
+ //       location.RemoveUnit(this);
+ //       HexAction action = hexUnitActionController.CreatAction();
+ //       action.SetPath(path);
+ //       if (unit.IsSomethingToAttack())
+ //       {
             
+ //           if(unit.AttackUnit)
+ //           {
+ //               action.AddAction(path[path.Count - 1], path[path.Count - 2],unit.AttackUnit, unit.GetLastHitPointChange(), unit.AttackUnit.unit.GetLastHitPointChange());
+ //               if(unit.AttackUnit.unit.HitPoints <= 0)
+ //               {
+ //                   action.KillTarget();
+ //               }
+ //           }
+ //           else if (unit.AttackCity)
+ //           {
+ //               action.AddAction(path[path.Count - 1], path[path.Count - 2], unit.AttackCity, unit.GetLastHitPointChange(), 0, unit.AttackCityState);
+ //               if ( unit.AttackCity.GetCityState() != unit.AttackCityState)
+ //               {
+ //                   action.KillTarget();
+ //               }
+                
+ //           }
 
-            float t = Time.deltaTime * TravelSpeed;
-            for (int i = 1; i < pathToTravel.Count; i++)
-            {
-                currentTravelLocation = pathToTravel[i];
-                a = c;
-                b = pathToTravel[i - 1].Position;
+ //           if(unit.Alive == false)
+ //           {
+ //               action.KillSelf();
+ //           }
+ //           location = path[path.Count - 2];
+ //           path.Remove(path[path.Count - 1]);
+ //       }
+ //       else
+ //       {
+ //           location = path[path.Count - 1];
+ //       }
+ //       for(int a = 1; a < path.Count; a++)
+ //       {
+ //           unit.UpdateOwnerVisiblity(path[a - 1], false);
+ //           unit.UpdateOwnerVisiblity(path[a], true);
+ //       }
+ //       if (unit.Alive == true)
+ //       {
+ //           location.AddUnit(this);
+ //       }
+	//	pathToTravel = path;
+ //       action.ActionsUnit = this;
+ //       hexUnitActionController.AddAction(action, this);
+	//}
 
-                nextColumn = currentTravelLocation.ColumnIndex;
-                if (currentColumn != nextColumn)
-                {
-                    if (nextColumn < currentColumn - 1)
-                    {
-                        a.x -= HexMetrics.innerDiameter * HexMetrics.wrapSize;
-                        b.x -= HexMetrics.innerDiameter * HexMetrics.wrapSize;
-                    }
-                    else if (nextColumn > currentColumn + 1)
-                    {
-                        a.x += HexMetrics.innerDiameter * HexMetrics.wrapSize;
-                        b.x += HexMetrics.innerDiameter * HexMetrics.wrapSize;
-                    }
-                    Grid.MakeChildOfColumn(transform, nextColumn);
-                    currentColumn = nextColumn;
-                }
-
-                c = (b + currentTravelLocation.Position) * 0.5f;
-
-                //if(pathToTravel[i].IsVisible)
-                //{
-                //    EnableMesh(true);
-                //}
-                //else
-                //{
-                //    EnableMesh(false);
-                //}
-                HexVision.AddCells(Grid.GetVisibleCells(pathToTravel[i], VisionRange));
-                if (currentTravelLocation.IsVisible == true)
-                {
-
-                    for (; t < 1f; t += Time.deltaTime * TravelSpeed)
-                    {
-                        transform.localPosition = Bezier.GetPoint(a, b, c, t);
-                        Vector3 d = Bezier.GetDerivative(a, b, c, t);
-                        d.y = 0f;
-                        transform.localRotation = Quaternion.LookRotation(d);
-                        yield return null;
-                    }
-
-                    t -= 1f;
-                }
-                HexVision.ClearCells();
-
-            }
-            a = c;
-            b = Location.Position;
-            c = b;
-
-            HexVision.AddCells(Grid.GetVisibleCells(location, VisionRange));
-
-            //if (location.IsVisible)
-            //{
-            //    EnableMesh(true);
-            //}
-
-
-            if (unit.IsSomethingToAttack())
-            {
-
-                if (unit.AttackCity)
-                {
-                    City city = unit.AttackCity;
-                    lookTowards = city.GetHexCell().Position;
-                    float attackTime = 0;
-                    Animator.SetBool("Attacking", true);
-                    for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
-                    {
-                        yield return null;
-                    }
-                    Animator.SetBool("Attacking", false);
-
-                    if (city.HitPoints <= 0)
-                    {
-                        if (hexUnitType == UnitType.COMBAT && GetComponent<CombatUnit>().Mercenary && !GetComponent<Unit>().GetCityState())
-                        {
-                            GetComponent<Unit>().GetPlayer().Gold += city.Plunder();
-                            city.HitPoints = 1;
-                        }
-                        else
-                        {
-                            city.GetCityState().KillLocalUnits(city);
-                            city.SetCityState(GetComponent<Unit>().CityState);
-                            city.HitPoints = 50;
-                        }
-
-                    }
-                    city.UpdateUI();
-                }
-                else if (unit.AttackUnit)
-                {
-                    HexUnit unitToFight = unit.AttackUnit;
-                    lookTowards = unitToFight.Location.Position;
-                    yield return unitToFight.LookAt(location.Position);
-                    if (unitToFight)
-                    {
-                        float attackTime = 0;
-                        Animator.SetBool("Attacking", true);
-                        unitToFight.Animator.SetBool("Attacking", true);
-                        for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
-                        {
-                            yield return null;
-                        }
-                        Animator.SetBool("Attacking", false);
-                        unitToFight.Animator.SetBool("Attacking", false);
-                        Unit unitToFightUnitComp = unitToFight.GetComponent<Unit>();
-                        unitToFightUnitComp.ShowHealthChange(unitToFightUnitComp.GetLastHitPointChange());
-                        unitToFightUnitComp.UpdateUI();
-                        if (unitToFightUnitComp.HitPoints <= 0)
-                        {
-                            unitToFight.DieAnimationAndRemove();
-                        }
-
-                    }
-                }
-                UpdateUnit();
-
-                nextColumn = Location.ColumnIndex;
-
-                if (currentColumn != nextColumn)
-                {
-                    if (nextColumn < currentColumn - 1)
-                    {
-                        a.x -= HexMetrics.innerDiameter * HexMetrics.wrapSize;
-                    }
-                    else if (nextColumn > currentColumn + 1)
-                    {
-                        a.x += HexMetrics.innerDiameter * HexMetrics.wrapSize;
-                    }
-                    Grid.MakeChildOfColumn(transform, nextColumn);
-                    currentColumn = nextColumn;
-                }
-
-            }
-
-
-
-            currentTravelLocation = null;
-
-            for (; t < 1f; t += Time.deltaTime * (TravelSpeed * 2))
-            {
-                transform.localPosition = Bezier.GetPoint(a, b, c, t);
-                Vector3 d = Bezier.GetDerivative(a, b, c, t);
-                d.y = 0f;
-                transform.localRotation = Quaternion.LookRotation(d);
-                yield return null;
-            }
-        }
-        else
-        {
-            currentTravelLocation = null;
-            nextColumn = Location.ColumnIndex;
-            if (currentColumn != nextColumn)
-            {
-                Grid.MakeChildOfColumn(transform, nextColumn);
-                currentColumn = nextColumn;
-            }
-        }
-
-        transform.localPosition = location.Position;
-        location.UpdateVision();
-        unit.UpdateOwnerVisiblity(location, true);
-        orientation = transform.localRotation.eulerAngles.y;
-        if (unit.IsSomethingToAttack())
-        {
-            yield return LookAt(lookTowards);
-        }
-        ListPool<HexCell>.Add(pathToTravel);
-        pathToTravel = null;
-        if(HexVision.Visible)
-        {
-            Animator.SetBool("Walking", false);
-        }
-        
+    public void SetLocationOnly(HexCell cell)
+    {
+        location = cell;
     }
 
-    public void UpdateUnit()
+    public void AddUnitToLocation(HexCell cell)
+    {
+        location.AddUnit(this);
+    }
+
+    public void UpdateUnit(int healthChange, bool killUnit)
     {
         Unit unitComp = GetComponent<Unit>();
-        unitComp.ShowHealthChange(unitComp.GetLastHitPointChange());
-        unitComp.UpdateUI();
-        if (unitComp.HitPoints <= 0)
+        unitComp.ShowHealthChange(healthChange);
+        unitComp.UpdateUI(-healthChange);
+        if (unitComp.HitPoints <= 0 && killUnit)
         {
             DieAnimationAndRemove();
         }
@@ -492,7 +326,7 @@ public class HexUnit : MonoBehaviour {
 		Orientation = transform.localRotation.eulerAngles.y;
 	}
 
-    public IEnumerator FightCity(City city)
+    public IEnumerator FightCity(City city, bool killTarget, CityState cityState)
     {
         LookAt(city.GetHexCell().Position);
         float attackTime = 0;
@@ -503,46 +337,70 @@ public class HexUnit : MonoBehaviour {
         }
         Animator.SetBool("Attacking", false);
 
-        if (city.HitPoints <= 0)
+        if (killTarget)
         {
-            if (hexUnitType == UnitType.COMBAT && GetComponent<CombatUnit>().Mercenary && !GetComponent<Unit>().GetCityState())
+            if(cityState.GetCityCount() == 0)
             {
-                GetComponent<Unit>().GetPlayer().Gold += city.Plunder();
-                city.HitPoints = 1;
+                unit.GameController.DestroyCityState(cityState);
             }
             else
             {
-                city.GetCityState().KillLocalUnits(city);
-                city.SetCityState(GetComponent<Unit>().CityState);
-                city.HitPoints = 50;
+                cityState.DestroyLocalUnits(city);
             }
 
+            city.UpdateCityBar();
         }
-        city.UpdateUI();
+        city.UpdateHealthBar();
     }
 
-    public IEnumerator FightUnit(HexUnit unit)
+    public IEnumerator FightUnit(HexUnit targetUnit, int damageDone, bool killTarget)
     {
-        HexUnit unitToFight = unit;
-        yield return unitToFight.LookAt(location.Position);
-        if (unitToFight)
+        yield return targetUnit.LookAt(location.Position);
+        if (targetUnit)
         {
-            float attackTime = 0;
-            Animator.SetBool("Attacking", true);
-            unitToFight.Animator.SetBool("Attacking", true);
-            for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
+            Unit unitToFightUnitComp = targetUnit.GetComponent<Unit>();
+            if (Location.IsVisible || targetUnit.Location.IsVisible)
             {
-                yield return null;
+                Location.IncreaseVisibility(false);
+                float attackTime = 0;
+                Animator.SetBool("Attacking", true);
+                if (unit.Range > 0)
+                {
+                    Projectile projectile = Instantiate(unit.ProjectilePreFab, gameObject.transform);
+                    projectile.StartLocation = gameObject;
+                    projectile.Target = targetUnit.gameObject;
+                    yield return StartCoroutine(projectile.FlyProjectile());
+                    targetUnit.Animator.SetTrigger("GetHit");
+                }
+                else
+                {
+                    targetUnit.Animator.SetBool("Attacking", true);
+                    for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
+                    {
+                        yield return null;
+                    }
+                    targetUnit.Animator.SetBool("Attacking", false);
+                }
+
+                Animator.SetBool("Attacking", false);
+                unitToFightUnitComp.ShowHealthChange(damageDone);
+                Location.DecreaseVisibility();
             }
-            Animator.SetBool("Attacking", false);
-            unitToFight.Animator.SetBool("Attacking", false);
-            Unit unitToFightUnitComp = unitToFight.GetComponent<Unit>();
-            unitToFightUnitComp.ShowHealthChange(unitToFightUnitComp.GetLastHitPointChange());
-            unitToFightUnitComp.UpdateUI();
-            if (unitToFightUnitComp.HitPoints <= 0)
+
+            unitToFightUnitComp.UpdateUI(-damageDone);
+            if (unitToFightUnitComp.HitPoints <= 0 && killTarget)
             {
-                unitToFight.DieAnimationAndRemove();
+                if(unitToFightUnitComp.HexUnit.Location.IsVisible)
+                {
+                    targetUnit.DieAnimationAndRemove();
+                }
+                else
+                {
+                    targetUnit.DestroyHexUnit();
+                }
+
             }
+
 
         }
     }
@@ -585,13 +443,14 @@ public class HexUnit : MonoBehaviour {
 
     IEnumerator Death()
     {
-        Animator.SetBool("Dying", true);
+        Animator.SetTrigger("Dying");
         yield return new WaitForSeconds(2);
         DestroyHexUnit();
     }
 
     public void DestroyHexUnit()
     {
+        
         Location = null;
         Destroy(gameObject);
     }
