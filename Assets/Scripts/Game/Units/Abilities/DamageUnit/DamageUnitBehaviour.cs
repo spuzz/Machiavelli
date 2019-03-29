@@ -6,24 +6,38 @@ using UnityEngine;
 
 public class DamageUnitBehaviour : AbilityBehaviour
 {
-
+    HexUnit targetUnit;
     public override void Use(HexCell target = null)
     {
-        HexUnit targetUnit = target.hexUnits.Find(C => C.HexUnitType == HexUnit.UnitType.COMBAT);
+        targetUnit = target.hexUnits.Find(C => C.HexUnitType == HexUnit.UnitType.COMBAT);
         if (targetUnit)
         {
             int damage = -(config as DamageUnitConfig).GetDamage();
             targetUnit.GetComponent<Unit>().HitPoints += damage;
-            targetUnit.GetComponent<Unit>().UpdateUI(damage);
             if (targetUnit.GetComponent<Unit>().HitPoints <= 0)
+            {
+                gameObject.GetComponent<Unit>().GameController.KillUnit(gameObject.GetComponent<Unit>());
+            }
+        }
+    }
+
+    public override void FinishAbility(HexCell target = null)
+    {
+        int damage = -(config as DamageUnitConfig).GetDamage();
+        targetUnit.GetComponent<Unit>().UpdateUI(damage);
+        if (targetUnit.GetComponent<Unit>().HitPoints <= 0)
+        {
+            if(target.IsVisible)
             {
                 targetUnit.DieAnimationAndRemove();
             }
+            else
+            {
+                targetUnit.DestroyHexUnit();
+            }
         }
-        PlayParticleEffect();
-        PlayAbilitySound();
-        PlayAnimation();
     }
+
     public override bool IsValidTarget(HexCell target)
     {
         if(target.hexUnits.FindAll(d => d.HexUnitType == HexUnit.UnitType.COMBAT).Count != 0)
@@ -33,7 +47,6 @@ public class DamageUnitBehaviour : AbilityBehaviour
 
         return false;
     }
-
 
 
 }

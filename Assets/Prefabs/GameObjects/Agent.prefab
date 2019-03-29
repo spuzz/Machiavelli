@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 114637004898301920}
   - component: {fileID: 114331002004606780}
   - component: {fileID: 114704297993211832}
-  m_Layer: 0
+  m_Layer: 9
   m_Name: Agent
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -69,6 +69,8 @@ MonoBehaviour:
   baseMovement: 2
   movementLeft: 0
   baseStrength: 20
+  baseRangeStrength: 0
+  range: 0
   hexUnit: {fileID: 114784200629424832}
   baseMovementFactor: 5
   baseHitPoints: 100
@@ -80,6 +82,7 @@ MonoBehaviour:
     type: 2}
   animatorOverrideController: {fileID: 22100000, guid: 3072cd98f1e1c8a4fa956cefa8f3d2a9,
     type: 2}
+  projectilePreFab: {fileID: 0}
 --- !u!114 &114704297993211832
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -105,3 +108,4 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   meshChild: {fileID: 0}
   pathToTravel: []
+  unit: {fileID: 0}

@@ -6,18 +6,17 @@ using UnityEngine;
 
 public class AttackOpCentreBehaviour : AbilityBehaviour
 {
-
+    OperationCentre opCentreTarget;
     public override void Use(HexCell target = null)
     {
-        if(target.OpCentre)
+        if(IsValidTarget(target))
         {
-            Player player = target.OpCentre.Player;
-            //target.OpCentre.DestroyOperationCentre();
+            opCentreTarget = target.OpCentre;
+            Player player = opCentreTarget.Player;
+            
+            gameObject.GetComponent<Unit>().GameController.KillOperationCentre(opCentreTarget);
 
         }
-        PlayParticleEffect();
-        PlayAbilitySound();
-        PlayAnimation();
     }
     public override bool IsValidTarget(HexCell target)
     {
@@ -26,6 +25,11 @@ public class AttackOpCentreBehaviour : AbilityBehaviour
             return true;
         }
         return false;
+    }
+
+    public override void FinishAbility(HexCell target = null)
+    {
+        gameObject.GetComponent<Unit>().GameController.DestroyOperationCentre(opCentreTarget);
     }
 }
 

@@ -17,7 +17,8 @@ public class HexAction : MonoBehaviour
     {
         ATTACKCITY,
         ATTACKUNIT,
-        MOVE
+        MOVE,
+        USEABILITY
     }
     ActionType actionType = ActionType.MOVE;
     List<HexCell> path = new List<HexCell>();
@@ -29,6 +30,7 @@ public class HexAction : MonoBehaviour
     City cityTarget;
     HexUnit unitTarget;
     CityState cityStateTarget;
+    AbilityConfig abilityConfigToShow;
     bool meleeAction = true;
     bool killTarget = false;
     bool killSelf = false;
@@ -234,6 +236,16 @@ public class HexAction : MonoBehaviour
         this.FinalMove = finalMove;
     }
 
+    public void AddAction(HexCell actionCell, AbilityConfig abilityConfig)
+    {
+        path.Add(actionsUnit.Location);
+        path.Add(actionCell);
+        actionType = ActionType.USEABILITY;
+        abilityConfigToShow = abilityConfig;
+        this.actionCell = actionCell;
+    }
+
+
 
     public IEnumerator Run()
     {
@@ -245,6 +257,11 @@ public class HexAction : MonoBehaviour
         if (actionType == ActionType.ATTACKCITY || actionType == ActionType.ATTACKUNIT)
         {
             yield return StartCoroutine(DoAction());
+        }
+
+        if (actionType == ActionType.USEABILITY)
+        {
+            yield return StartCoroutine(DoAbility());
         }
 
         ActionStatus = Status.FINISHED;
@@ -299,6 +316,19 @@ public class HexAction : MonoBehaviour
             yield return StartCoroutine(MoveUnitEnd(currentTravelLocation, finalMove));
         }
     }
+
+    public IEnumerator DoAbility()
+    {
+        abilityConfigToShow.Show(actionCell);
+        t = Time.deltaTime * HexUnit.TravelSpeed;
+        for (; t < 1f; t += Time.deltaTime * 1)
+        {
+            yield return null;
+        }
+        abilityConfigToShow.Finish(actionCell);
+
+    }
+
     public IEnumerator MoveUnit(HexCell currentTravelLocation, HexCell newTravelLocation)
     {
         a = c;

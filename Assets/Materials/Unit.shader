@@ -8,7 +8,7 @@
 		[NoScaleOffset] _GridCoordinates("Grid Coordinates", 2D) = "white" {}
 	}
 		SubShader{
-			Tags { "RenderType" = "Opaque" }
+			Tags { "Queue" = "Geometry" "RenderType" = "Opaque" }
 			LOD 200
 
 			CGPROGRAM

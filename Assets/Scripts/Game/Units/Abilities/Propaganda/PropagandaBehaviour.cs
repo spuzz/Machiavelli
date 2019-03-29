@@ -14,8 +14,11 @@ public class PropagandaBehaviour : AbilityBehaviour
             CityState cityState = target.City.GetCityState();
             cityState.AdjustInfluenceForAllExcluding(gameObject.GetComponent<Unit>().GetPlayer(), (config as PropagandaConfig).GetInfluence());
             cityState.CheckInfluence();
-
         }
+    }
+
+    public override void ShowAbility(HexCell target = null)
+    {
         if (target.IsVisible)
         {
             PlayParticleEffect();
@@ -32,6 +35,10 @@ public class PropagandaBehaviour : AbilityBehaviour
 
         }
     }
+    public override void FinishAbility(HexCell target = null)
+    {
+
+    }
     public override bool IsValidTarget(HexCell target)
     {
 
@@ -46,7 +53,6 @@ public class PropagandaBehaviour : AbilityBehaviour
 
         return false;
     }
-
 
 
 }

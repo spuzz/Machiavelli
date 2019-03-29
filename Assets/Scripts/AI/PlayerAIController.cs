@@ -28,7 +28,7 @@ public class PlayerAIController : MonoBehaviour
 
         }
 
-        //UpdateBuilds();
+        UpdateBuilds();
     }
 
     private void UpdateBuilds()
@@ -54,15 +54,15 @@ public class PlayerAIController : MonoBehaviour
         buildList.Clear();
         foreach (OperationCentre opCentre in player.opCentres)
         {
-            foreach(HexCell cell in player.exploredCells.FindAll(c => c.City))
+            List<BuildConfig> opCentreBuilds = new List<BuildConfig>();
+            foreach (HexCell cell in player.exploredCells.FindAll(c => c.City))
             {
                 if(!cell.City.PlayerBuildingControl.HasOutpost(player))
                 {
-                    buildList.Add(opCentre.Location, opCentre.GetAgentBuildConfigs("Builder"));
-                    return;
+                    opCentreBuilds.Add(opCentre.GetAgentBuildConfigs("Builder"));
                 }
             }
-            List<BuildConfig> opCentreBuilds = new List<BuildConfig>();
+
             if (opCentre.IsConstructingBuilding() == false && opCentre.buildingSpaceAvailable())
             {
                 IEnumerable<OpCentreBuildConfig> configs = opCentre.availableBuilds;

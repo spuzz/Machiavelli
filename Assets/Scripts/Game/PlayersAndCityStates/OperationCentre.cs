@@ -159,6 +159,17 @@ public class OperationCentre : MonoBehaviour
         }
     }
 
+    public void UpdateLocation(HexCell loc)
+    {
+        location = loc;
+        location.OpCentre = this;
+    }
+
+    public void UpdateVision()
+    {
+        HexVision.SetCells(hexGrid.GetVisibleCells(Location, VisionRange));
+    }
+
     public IEnumerable<AgentBuildConfig> GetAgentBuildConfigs(List<string> excluded = null)
     {
         if(excluded == null)
@@ -181,7 +192,6 @@ public class OperationCentre : MonoBehaviour
     {
         return opCentreBuildConfigs;
     }
-
 
     public void AddAgentBuildConfigs(AgentBuildConfig agentBuildConfig)
     {

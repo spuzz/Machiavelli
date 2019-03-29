@@ -15,26 +15,26 @@ public class CityStateAIController : MonoBehaviour
     public void UpdateUnits()
     {
         AssignStance();
+
+        List<CombatUnit> unitsAtStart = new List<CombatUnit>();
+
         foreach (CombatUnit unit in cityState.GetUnits())
+        {
+            unitsAtStart.Add(unit);
+        }
+
+        foreach (CombatUnit unit in unitsAtStart)
         {
             int currentMovement = -1;
             List<HexCell> path = new List<HexCell>();
-            while (unit.Alive && unit.GetMovementLeft() > 0 && currentMovement != unit.GetMovementLeft())
+            while (unit && unit.Alive && unit.GetMovementLeft() > 0 && currentMovement != unit.GetMovementLeft())
             {
                 CheckAttackTarget();
-                //if (unit.HexUnit.pathToTravel == null || unit.HexUnit.pathToTravel.Count == 0)
-                //{
                 currentMovement = unit.GetMovementLeft();
                 UpdateUnit(unit);
-                //}
-                //else
-                //{
-                //yield return new WaitForEndOfFrame();
-                //}
+ 
             }
         }
-
-
     }
 
     public void UpdateCities()
@@ -77,24 +77,25 @@ public class CityStateAIController : MonoBehaviour
         List<CombatUnit> unassignedUnits = cityState.GetUnits().ToList().FindAll(c => c.CurrentStance == CombatUnit.Stance.UNASSIGNED);
         foreach (CombatUnit unit in unassignedUnits)
         {
-            unit.CurrentStance = GetUnitStancePriority();
+            unit.CurrentStance = GetUnitStancePriority(unit);
         }
     }
 
     private void AssignStance(CombatUnit unit)
     {
-        unit.CurrentStance = GetUnitStancePriority();
+        unit.CurrentStance = GetUnitStancePriority(unit);
     }
 
-    private CombatUnit.Stance GetUnitStancePriority()
+    private CombatUnit.Stance GetUnitStancePriority(CombatUnit unit)
     {
-        if(!cityState.GetUnits().ToList().Find(c => c.CurrentStance == CombatUnit.Stance.EXPLORE))
+        // if(!cityState.GetUnits().ToList().Find(c => c.CurrentStance == CombatUnit.Stance.EXPLORE))
+        if (unit.GetCombatUnitConfig().Name.CompareTo("Scout") == 0)
         {
             return CombatUnit.Stance.EXPLORE;
         }
 
         List<CombatUnit> defenceUnits = cityState.GetUnits().ToList().FindAll(c => c.CurrentStance == CombatUnit.Stance.DEFENCE);
-        if(defenceUnits.Count < cityState.GetCityCount())
+        if (defenceUnits.Count < cityState.GetCityCount())
         {
             return CombatUnit.Stance.DEFENCE;
         }

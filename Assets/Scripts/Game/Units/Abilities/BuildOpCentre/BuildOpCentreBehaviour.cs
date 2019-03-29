@@ -9,18 +9,22 @@ public class BuildOpCentreBehaviour : AbilityBehaviour
 
     public override void Use(HexCell target = null)
     {
-
+        
         if (IsValidTarget(target))
         {
-            PlayParticleEffect();
-            PlayAbilitySound();
-            PlayAnimation();
-            gameObject.GetComponent<Unit>().GetPlayer().CreateOperationCentre(target);
-            gameObject.GetComponent<Unit>().GameController.DestroyUnit(gameObject.GetComponent<Unit>());
+            gameObject.GetComponent<Unit>().GameController.AddOperationCentre(target, gameObject.GetComponent<Unit>().GetPlayer());
+            gameObject.GetComponent<Unit>().GameController.KillUnit(gameObject.GetComponent<Unit>());
+        }
+    }
+
+    public override void FinishAbility(HexCell target = null)
+    {
+        if (gameObject.GetComponent<Unit>().GetPlayer() && gameObject.GetComponent<Unit>().GetPlayer().IsHuman)
+        {
             gameObject.GetComponent<Unit>().HUDUI.OpCentre = target.OpCentre;
         }
-
-
+        gameObject.GetComponent<Unit>().GameController.ShowOperationCentre(target.OpCentre);
+        gameObject.GetComponent<Unit>().GameController.DestroyUnit(gameObject.GetComponent<Unit>());
     }
 
     public override bool IsValidTarget(HexCell target)
@@ -36,7 +40,6 @@ public class BuildOpCentreBehaviour : AbilityBehaviour
 
         return false;
     }
-
 
 
 }

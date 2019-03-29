@@ -55,7 +55,7 @@ public class HexGameUI : MonoBehaviour {
 
     private void DoSelectionInput()
     {
-        if (!EventSystem.current.IsPointerOverGameObject())
+        if (gameController.TurnOver == false && !EventSystem.current.IsPointerOverGameObject())
         {
             if (Input.GetMouseButtonDown(0))
             {
@@ -101,16 +101,29 @@ public class HexGameUI : MonoBehaviour {
 		if (currentCell) {
             if(currentCell.GetTopUnit() && currentCell.GetTopUnit().Controllable)
             {
+                if(selectedUnit)
+                {
+                    SetLayerRecursively(selectedUnit.gameObject,0);
+                }
                 selectedUnit = currentCell.GetTopUnit();
+                SetLayerRecursively(selectedUnit.gameObject, 9);
                 HUD.Unit = selectedUnit.GetComponent<Unit>();
             }
             else if (currentCell.City)
             {
+                if (selectedUnit)
+                {
+                    SetLayerRecursively(selectedUnit.gameObject, 0);
+                }
                 selectedUnit = null;
                 HUD.City  = currentCell.City;
             }
             else if(currentCell.OpCentre)
             {
+                if (selectedUnit)
+                {
+                    SetLayerRecursively(selectedUnit.gameObject, 0);
+                }
                 selectedUnit = null;
                 HUD.OpCentre = currentCell.OpCentre;
             }
@@ -171,7 +184,7 @@ public class HexGameUI : MonoBehaviour {
         HexCell target = grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
         if (selectedUnit && target && abilityTargetOptions.Contains(target))
         {
-            selectedUnit.GetComponent<Unit>().UseAbility(abilityIndex, target);
+            selectedUnit.GetComponent<Unit>().RunAbility(abilityIndex, target);
         }
         grid.ClearHighlightedCells(abilityTargetOptions);
         abilitySelection = false;
@@ -188,4 +201,24 @@ public class HexGameUI : MonoBehaviour {
 		}
 		return false;
 	}
+
+    void SetLayerRecursively(GameObject obj, int newLayer)
+    {
+        if (null == obj)
+        {
+            return;
+        }
+
+        obj.layer = newLayer;
+
+        foreach (Transform child in obj.transform)
+        {
+            if (null == child)
+            {
+                continue;
+            }
+            SetLayerRecursively(child.gameObject, newLayer);
+        }
+    }
+
 }

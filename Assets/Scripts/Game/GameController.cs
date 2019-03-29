@@ -43,6 +43,8 @@ public class GameController : MonoBehaviour
     public Dictionary<string, CombatUnitConfig> combatUnitConfigs = new Dictionary<string, CombatUnitConfig>();
     public Dictionary<string, BuildConfig> buildConfigs = new Dictionary<string, BuildConfig>();
     HexGrid hexGrid;
+
+    private bool turnOver = false;
     public HumanPlayer HumanPlayer
     {
         get { return humanPlayer; }
@@ -71,6 +73,19 @@ public class GameController : MonoBehaviour
         set
         {
             hexUnitActionController = value;
+        }
+    }
+
+    public bool TurnOver
+    {
+        get
+        {
+            return turnOver;
+        }
+
+        set
+        {
+            turnOver = value;
         }
     }
 
@@ -151,6 +166,7 @@ public class GameController : MonoBehaviour
     }
     public void EndPlayerTurn()
     {
+        TurnOver = true;
         humanPlayer.EndTurn();
         StartCoroutine(NewTurn());
 
@@ -209,6 +225,7 @@ public class GameController : MonoBehaviour
         {
             EndGame();
         }
+        TurnOver = false;
         humanPlayer.StartTurn();
 
         hud.StartTurn();
@@ -249,30 +266,56 @@ public class GameController : MonoBehaviour
 
     public OperationCentre CreateOperationCentre(HexCell cell, Player player)
     {
-        if(!cell.OpCentre)
+        OperationCentre opCentre = AddOperationCentre(cell, player);
+        if (opCentre)
+        {
+            ShowOperationCentre(opCentre);
+        }
+        return opCentre;
+
+    }
+
+    public OperationCentre AddOperationCentre(HexCell cell, Player player)
+    {
+        if (!cell.OpCentre)
         {
             OperationCentre instance = Instantiate(opCentrePrefab);
             instance.transform.localPosition = HexMetrics.Perturb(cell.Position);
-            instance.Location = cell;
+            instance.UpdateLocation(cell);
             instance.Player = player;
             instance.Player.AddOperationCentre(instance);
-            instance.HexVision.AddVisibleObject(instance.OpCentreUI.gameObject);
-            cell.SpecialIndex = 3;
             hexGrid.AddOperationCentre(instance);
             instance.BuildCommandCentre();
             return instance;
         }
         return null;
-
+    }
+    public void ShowOperationCentre(OperationCentre opCentre)
+    {
+        opCentre.HexVision.AddVisibleObject(opCentre.OpCentreUI.gameObject);
+        opCentre.Location.SpecialIndex = 3;
+        opCentre.UpdateVision();
     }
 
-    public void DestroyOperationCentre(OperationCentre opCentre)
+    public void KillAndDestroyOperationCentre(OperationCentre opCentre)
+    {
+        KillOperationCentre(opCentre);
+        DestroyOperationCentre(opCentre);
+ 
+    }
+
+    public void KillOperationCentre(OperationCentre opCentre)
     {
         hexGrid.RemoveOperationCentre(opCentre);
         opCentre.Player.RemoveOperationCentre(opCentre);
         opCentres.Remove(opCentre);
+    }
+
+    public void DestroyOperationCentre(OperationCentre opCentre)
+    {
         opCentre.DestroyOperationCentre();
     }
+
     public CityState CreateCityState()
     {
         CityState instance = Instantiate(cityStatePrefab);
@@ -460,7 +503,11 @@ public class GameController : MonoBehaviour
     public void KillUnit(Unit unit)
     {
         hexGrid.RemoveUnit(unit.HexUnit);
-        unit.KillUnit();
+        if(unit.Alive)
+        {
+            unit.KillUnit();
+        }
+
         if(unit.HexUnit.HexUnitType == HexUnit.UnitType.AGENT)
         {
             unit.GetComponent<Agent>().GetPlayer().RemoveAgent(unit.GetComponent<Agent>());
@@ -472,7 +519,7 @@ public class GameController : MonoBehaviour
         }
     }
 
-    public void AnimateonlyDestroyUnit(Unit unit)
+    public void AnimateAndDestroyUnit(Unit unit)
     {
         unit.HexUnit.DieAnimationAndRemove();
     }

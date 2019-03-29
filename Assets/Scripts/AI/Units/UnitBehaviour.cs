@@ -83,6 +83,23 @@ public class UnitBehaviour : MonoBehaviour
             }
         }
 
+        cells = PathFindingUtilities.FindNearestUnexplored(unit.HexUnit.Location, unit.HexUnit.Location, unit.GetCityState().exploredCells, distanceFromCentre);
+        foreach (HexCell cell in cells)
+        {
+            if (cell.CanUnitMoveToCell(unit.HexUnit))
+            {
+                hexGrid.FindPath(unit.HexUnit.Location, cell, unit.HexUnit, true, false);
+
+                HexCell nextCell = GetFirstCellFromPath();
+                if (nextCell)
+                {
+                    target = cell;
+                    unit.SetPath(nextCell);
+                    return;
+                }
+            }
+        }
+
     }
 
     public HexCell Explore()

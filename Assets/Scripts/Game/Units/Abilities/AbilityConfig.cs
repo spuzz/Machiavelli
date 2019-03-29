@@ -133,6 +133,21 @@ public abstract class AbilityConfig : ScriptableObject
     {
         behaviour.Use(target);
     }
+
+    public void Show(HexCell target = null)
+    {
+        behaviour.ShowAbility(target);
+    }
+
+    public void Finish(HexCell target = null)
+    {
+        behaviour.FinishAbility(target);
+    }
+
+    public void RunAll(HexCell target = null)
+    {
+        behaviour.RunAll(target);
+    }
     public bool IsValidTarget(HexCell target)
     {
         return behaviour.IsValidTarget(target);

@@ -40,7 +40,7 @@ public class HexUnitActionController : MonoBehaviour {
         
     }
 
-    public HexAction CreatAction()
+    public HexAction CreateAction()
     {
         return Instantiate(hexActionObject, gameObject.transform).GetComponent<HexAction>();
     }

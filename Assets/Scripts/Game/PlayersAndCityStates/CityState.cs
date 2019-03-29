@@ -183,7 +183,6 @@ public class CityState : MonoBehaviour
 
     public void RemoveUnit(CombatUnit unit)
     {
-        unit.HexVision.HasVision = false;
         if (unit)
         {
             units.Remove(unit);
@@ -400,7 +399,7 @@ public class CityState : MonoBehaviour
         {
             if(unit.HexUnit.Location == city.GetHexCell())
             {
-                unit.KillUnit();
+                gameController.KillUnit(unit);
                 break;
             }
         }
@@ -410,7 +409,7 @@ public class CityState : MonoBehaviour
     {
         foreach (CombatUnit unit in units)
         {
-            unit.KillUnit();
+            gameController.KillUnit(unit);
         }
     }
 

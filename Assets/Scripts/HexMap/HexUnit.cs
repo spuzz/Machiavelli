@@ -14,8 +14,8 @@ public class HexUnit : MonoBehaviour {
 
 
     const float rotationSpeed = 540f;
-	const float travelSpeed = 2f;
-    const float fightSpeed = 2f;
+	const float travelSpeed = 3f;
+    const float fightSpeed = 1f;
 
     [SerializeField] Transform meshChild;
 

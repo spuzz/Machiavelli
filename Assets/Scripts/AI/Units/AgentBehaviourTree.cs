@@ -118,6 +118,7 @@ public class AgentBehaviourTree : MonoBehaviour {
     public void TakeTurn()
     {
         behaviourTree.Blackboard["TakeTurn"] = true;
+        behaviourTree.Blackboard["ignoreExtraMovement"] = false;
 
     }
     public void FinishTurn()
@@ -176,7 +177,7 @@ public class AgentBehaviourTree : MonoBehaviour {
         protected override void DoStart()
         {
             Agent agent = (Blackboard["agent"] as Agent);
-            if (agent.GetMovementLeft() <= 0)
+            if (agent.GetMovementLeft() <= 0 || (bool)Blackboard["ignoreExtraMovement"] == true)
             {
                 Stopped(false);
                 return;
@@ -256,11 +257,16 @@ public class AgentBehaviourTree : MonoBehaviour {
             List<HexCell> path = grid.GetPath();
             if (path != null && path.Count > 1)
             {
-                if (agent.SetPath(path[1]))
+                if(!agent.SetPath(path[1]))
                 {
-                    Stopped(true);
-                    return;
+                    Blackboard["ignoreExtraMovement"] = true;
                 }
+                else
+                {
+                    Blackboard["ignoreExtraMovement"] = false;
+                }
+                Stopped(true);
+                return;
             }
             Stopped(false);
         }
@@ -355,7 +361,7 @@ public class AgentBehaviourTree : MonoBehaviour {
             }
             Agent agent = (Blackboard["agent"] as Agent);
             HexCell targetCell = (Blackboard["targetCell"] as HexCell);
-            agent.UseAbility(abilityName, targetCell);
+            agent.RunAbility(abilityName, targetCell);
             Stopped(true);
         }
         protected override void DoStop()

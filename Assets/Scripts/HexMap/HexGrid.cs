@@ -143,7 +143,7 @@ public class HexGrid : MonoBehaviour {
     {
         if (cell.OpCentre)
         {
-            gameController.DestroyOperationCentre(cell.OpCentre);
+            gameController.KillAndDestroyOperationCentre(cell.OpCentre);
         }
         
     }

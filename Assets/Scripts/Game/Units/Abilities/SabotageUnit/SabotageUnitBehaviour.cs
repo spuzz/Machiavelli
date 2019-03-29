@@ -13,11 +13,12 @@ public class SabotageUnitBehaviour : AbilityBehaviour
         if (targetUnit)
         {
             targetUnit.GetComponent<Unit>().SetMovementLeft(0);
-
         }
-        PlayParticleEffect();
-        PlayAbilitySound();
-        PlayAnimation();
+    }
+
+    public override void FinishAbility(HexCell target = null)
+    {
+
     }
     public override bool IsValidTarget(HexCell target)
     {
@@ -28,7 +29,6 @@ public class SabotageUnitBehaviour : AbilityBehaviour
 
         return false;
     }
-
 
 
 }

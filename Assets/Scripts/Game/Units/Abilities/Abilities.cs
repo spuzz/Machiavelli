@@ -12,6 +12,7 @@ public class Abilities : MonoBehaviour
     AudioSource audioSource;
     Unit unit;
     HexGameUI hexGameUI;
+    HexUnitActionController hexUnitActionController;
     public List<AbilityConfig> AbilitiesList
     {
         get
@@ -28,6 +29,7 @@ public class Abilities : MonoBehaviour
     void Awake()
     {
         hexGameUI = FindObjectOfType<HexGameUI>();
+        hexUnitActionController = FindObjectOfType<HexUnitActionController>();
     }
     void Start()
     {
@@ -76,7 +78,7 @@ public class Abilities : MonoBehaviour
         List<HexCell> targets = ValidTargets(index, hexCell);
         if(targets.Count == 1 && AbilitiesList[index].Range == 0)
         {
-            UseAbility(index, targets[0]);
+            RunAbility(index, targets[0]);
         }
         else
         {
@@ -85,14 +87,14 @@ public class Abilities : MonoBehaviour
         
     }
 
-    public void UseAbility(int index, HexCell hexCell)
+    private bool UseAbility(int index, HexCell hexCell)
     {
         Player player = unit.GetPlayer();
         if (player)
         {
             if(player.Gold < AbilitiesList[index].GetCost())
             {
-                return;
+                return false;
             }
             else
             {
@@ -105,7 +107,7 @@ public class Abilities : MonoBehaviour
             CityState state = unit.GetCityState();
             if(!state || state.Gold < AbilitiesList[index].GetCost())
             {
-                return;
+                return false;
             }
             else
             {
@@ -115,8 +117,29 @@ public class Abilities : MonoBehaviour
         
         unit.SetMovementLeft(0);
         AbilitiesList[index].Use(hexCell);
+        return true;
     }
 
+    private void ShowAbility(int index, HexCell hexCell)
+    {
+        AbilitiesList[index].Show(hexCell);
+    }
+
+    private void FinishAbility(int index, HexCell hexCell)
+    {
+        AbilitiesList[index].Finish(hexCell);
+    }
+
+    public void RunAbility(int index, HexCell hexCell)
+    {
+        if(UseAbility(index, hexCell))
+        {
+            HexAction action = hexUnitActionController.CreateAction();
+            action.ActionsUnit = unit.HexUnit;
+            action.AddAction(hexCell, AbilitiesList[index]);
+            hexUnitActionController.AddAction(action, unit.HexUnit);
+        }
+    }
     public int GetNumberOfAbilities()
     {
         return AbilitiesList.Count;

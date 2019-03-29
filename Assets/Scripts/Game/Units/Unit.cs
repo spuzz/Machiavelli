@@ -139,7 +139,7 @@ public abstract class Unit : MonoBehaviour {
             NotifyInfoChange();
             if(hitPoints <= 0)
             {
-                KillUnit();
+                GameController.KillUnit(this);
             }
         }
     }
@@ -415,7 +415,7 @@ public abstract class Unit : MonoBehaviour {
         {
             CityState cityState = cell.City.GetCityState();
             KeyValuePair<int,int> result = FightCity(cell.City);
-            HexAction action = hexUnitActionController.CreatAction();
+            HexAction action = hexUnitActionController.CreateAction();
             action.ActionsUnit = this.HexUnit;
             action.MeleeAction = melee;
             action.AddAction(cell, hexUnit.Location, cell.City, result.Value, result.Key, cityState);
@@ -434,7 +434,7 @@ public abstract class Unit : MonoBehaviour {
         if(unit)
         {
             KeyValuePair<int, int> result =  FightUnit(unit);
-            HexAction action = hexUnitActionController.CreatAction();
+            HexAction action = hexUnitActionController.CreateAction();
             action.ActionsUnit = this.HexUnit;
             action.MeleeAction = melee;
             action.AddAction(cell, hexUnit.Location, unit, result.Value, result.Key);
@@ -453,7 +453,62 @@ public abstract class Unit : MonoBehaviour {
 
         return false;
     }
-        
+
+    public bool MoveUnit()
+    {
+        AttackUnit = null;
+        if (path.Count == 0)
+        {
+            return false;
+        }
+        List<HexCell> move = new List<HexCell>();
+        move.Add(path[0]);
+        int cellNumber = 1;
+        while (movementLeft > 0 && path.Count > 1)
+        {
+            if (path.Count > cellNumber)
+            {
+                int movementCost = HexUnit.GetMoveCost(path[cellNumber - 1], path[cellNumber], path[cellNumber - 1].GetNeighborDirection(path[cellNumber]), true);
+                if (movementCost == -1 || movementCost > movementLeft)
+                {
+                    break;
+                }
+                else
+                {
+                    move.Add(path[cellNumber]);
+                    movementLeft -= movementCost;
+                    cellNumber++;
+                }
+            }
+            else
+            {
+                break;
+            }
+        }
+        if (move.Count < 2)
+        {
+            return false;
+        }
+        HexAction action = hexUnitActionController.CreateAction();
+        action.ActionsUnit = this.HexUnit;
+        action.AddAction(move);
+
+        hexUnit.Location.RemoveUnit(hexUnit);
+        hexUnit.SetLocationOnly(move[move.Count - 1]);
+        if (Alive == true)
+        {
+            hexUnit.AddUnitToLocation(move[move.Count - 1]);
+        }
+
+        hexUnitActionController.AddAction(action, hexUnit);
+        for (int a = 1; a < move.Count; a++)
+        {
+            UpdateOwnerVisiblity(move[a - 1], false);
+            UpdateOwnerVisiblity(move[a], true);
+        }
+        return true;
+    }
+
     public bool IsSomethingToAttack()
     {
         if(AttackCity || AttackUnit)
@@ -506,60 +561,7 @@ public abstract class Unit : MonoBehaviour {
         }
     }
 
-    public bool MoveUnit()
-    {
-        AttackUnit = null;
-        if (path.Count == 0)
-        {
-            return false;
-        }
-        List<HexCell> move = new List<HexCell>();
-        move.Add(path[0]);
-        int cellNumber = 1;
-        while (movementLeft > 0 && path.Count > 1)
-        {
-            if (path.Count > cellNumber)
-            {
-                int movementCost = HexUnit.GetMoveCost(path[cellNumber - 1], path[cellNumber], path[cellNumber - 1].GetNeighborDirection(path[cellNumber]), true);
-                if (movementCost == -1 || movementCost > movementLeft)
-                {
-                    break;
-                }
-                else
-                {
-                    move.Add(path[cellNumber]);
-                    movementLeft -= movementCost;
-                    cellNumber++;
-                }
-            }
-            else
-            {
-                break;
-            }
-        }
-        if(move.Count < 2)
-        {
-            return false;
-        }
-        HexAction action = hexUnitActionController.CreatAction();
-        action.ActionsUnit = this.HexUnit;
-        action.AddAction(move);
 
-        hexUnit.Location.RemoveUnit(hexUnit);
-        hexUnit.SetLocationOnly(move[move.Count - 1]);
-        if (Alive == true)
-        {
-            hexUnit.AddUnitToLocation(move[move.Count - 1]);
-        }
-
-        hexUnitActionController.AddAction(action, hexUnit);
-        for (int a = 1; a < move.Count; a++)
-        {
-            UpdateOwnerVisiblity(move[a - 1], false);
-            UpdateOwnerVisiblity(move[a], true);
-        }
-        return true;
-    }
 
     public KeyValuePair<int,int> FightCity(City city)
     {
@@ -684,18 +686,60 @@ public abstract class Unit : MonoBehaviour {
         NotifyInfoChange();
     }
 
-    public void UseAbility(int abilityNumber, HexCell hexCell)
+    //public void UseAbility(int abilityNumber, HexCell hexCell)
+    //{
+    //    abilities.UseAbility(abilityNumber, hexCell);
+    //    NotifyInfoChange();
+
+    //}
+    //public void UseAbility(string abilityName, HexCell hexCell)
+    //{
+    //    abilities.UseAbility(abilities.AbilitiesList.IndexOf(abilities.AbilitiesList.Find(c=> c.AbilityName == abilityName)), hexCell);
+    //    NotifyInfoChange();
+
+    //}
+
+    public void RunAbility(int abilityNumber, HexCell hexCell)
     {
-        abilities.UseAbility(abilityNumber, hexCell);
+        abilities.RunAbility(abilityNumber, hexCell);
         NotifyInfoChange();
 
     }
-    public void UseAbility(string abilityName, HexCell hexCell)
+    public void RunAbility(string abilityName, HexCell hexCell)
     {
-        abilities.UseAbility(abilities.AbilitiesList.IndexOf(abilities.AbilitiesList.Find(c=> c.AbilityName == abilityName)), hexCell);
+        abilities.RunAbility(abilities.AbilitiesList.IndexOf(abilities.AbilitiesList.Find(c => c.AbilityName == abilityName)), hexCell);
         NotifyInfoChange();
 
     }
+
+
+    //public void ShowAbility(int abilityNumber, HexCell hexCell)
+    //{
+    //    abilities.ShowAbility(abilityNumber, hexCell);
+    //    NotifyInfoChange();
+
+    //}
+    //public void ShowAbility(string abilityName, HexCell hexCell)
+    //{
+    //    abilities.ShowAbility(abilities.AbilitiesList.IndexOf(abilities.AbilitiesList.Find(c => c.AbilityName == abilityName)), hexCell);
+    //    NotifyInfoChange();
+
+    //}
+
+
+    //public void FinishAbility(int abilityNumber, HexCell hexCell)
+    //{
+    //    abilities.FinishAbility(abilityNumber, hexCell);
+    //    NotifyInfoChange();
+
+    //}
+    //public void FinishAbility(string abilityName, HexCell hexCell)
+    //{
+    //    abilities.FinishAbility(abilities.AbilitiesList.IndexOf(abilities.AbilitiesList.Find(c => c.AbilityName == abilityName)), hexCell);
+    //    NotifyInfoChange();
+
+    //}
+
 
     public IEnumerable<AbilityConfig> GetAbilities()
     {

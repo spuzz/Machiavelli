@@ -14,14 +14,18 @@ public class BribeBehaviour : AbilityBehaviour
             CityState cityState = target.City.GetCityState();
             cityState.AdjustInfluence(gameObject.GetComponent<Unit>().GetPlayer(), (config as BribeConfig).GetInfluence());
             cityState.CheckInfluence();
-
         }
-        //if(target.IsVisible)
-        //{
+
+    }
+
+    public override void ShowAbility(HexCell target = null)
+    {
+        if (target.IsVisible)
+        {
             PlayParticleEffect();
             PlayAbilitySound();
             PlayAnimation();
-            if(gameObject.GetComponent<Unit>().GetPlayer().IsHuman)
+            if (gameObject.GetComponent<Unit>().GetPlayer().IsHuman)
             {
                 PlayTextEffect((config as BribeConfig).GetInfluence().ToString(), target, Color.yellow);
             }
@@ -29,8 +33,11 @@ public class BribeBehaviour : AbilityBehaviour
             {
                 PlayTextEffect((config as BribeConfig).GetInfluence().ToString(), target, Color.blue);
             }
-            
-        //}
+
+        }
+    }
+    public override void FinishAbility(HexCell target = null)
+    {
 
     }
     public override bool IsValidTarget(HexCell target)
@@ -52,7 +59,6 @@ public class BribeBehaviour : AbilityBehaviour
 
         return false;
     }
-
 
 
 }

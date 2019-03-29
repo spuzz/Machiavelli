@@ -16,6 +16,6 @@ MonoBehaviour:
   baseStrength: 25
   symbol: {fileID: 2800000, guid: 0f5717ea26144f84bb2c0a8f4553f714, type: 3}
   portrait: {fileID: 21300000, guid: 9adf7a610e61692488aaeb5e92d82f70, type: 3}
-  meshChild: {fileID: 1013290438072960, guid: 1f3418579ea4e5043ba93d4532c5b9df, type: 2}
+  meshChild: {fileID: 1109299150685732, guid: c1bfd32d95c7f7d4ca50ee7af3464c76, type: 2}
   abilityConfigs:
   - {fileID: 11400000, guid: e463953041a712c4288b7e3ab301c8c2, type: 2}

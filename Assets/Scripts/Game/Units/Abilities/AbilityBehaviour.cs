@@ -9,8 +9,26 @@ public abstract class AbilityBehaviour : MonoBehaviour
 
     const float PARTICLE_CLEAN_UP_DELAY = 20;
     public abstract void Use(HexCell target = null);
+
+    public virtual void ShowAbility(HexCell target = null)
+    {
+        if (target.IsVisible)
+        {
+            PlayParticleEffect();
+            PlayAbilitySound();
+            PlayAnimation();
+        }
+    }
+
+    public abstract void FinishAbility(HexCell target = null);
     public abstract bool IsValidTarget(HexCell target);
 
+    public void RunAll(HexCell target = null)
+    {
+        Use(target);
+        ShowAbility(target);
+        FinishAbility(target);
+    }
     public List<HexCell> GetValidTargets(HexCell location)
     {
         List<HexCell> cells = PathFindingUtilities.GetCellsInRange(location, config.Range);
@@ -56,15 +74,12 @@ public abstract class AbilityBehaviour : MonoBehaviour
 
     protected void PlayAnimation()
     {
-        if(gameObject.GetComponent<HexUnit>().Location.IsVisible)
-        {
-            var abilityAnimation = config.GetAbilityAnimation();
-            var overrideController = GetComponent<Unit>().AnimatorOverrideController;
-            var animator = GetComponentInChildren<Animator>();
+        var abilityAnimation = config.GetAbilityAnimation();
+        var overrideController = GetComponent<Unit>().AnimatorOverrideController;
+        var animator = GetComponentInChildren<Animator>();
 
-            overrideController["Ability"] = abilityAnimation;
-            animator.SetTrigger("UseAbility");
-        }
+        overrideController["Ability"] = abilityAnimation;
+        animator.SetTrigger("UseAbility");
 
     }
 

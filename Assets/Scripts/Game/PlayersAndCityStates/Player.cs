@@ -172,7 +172,6 @@ public abstract class Player : MonoBehaviour {
 
     public void RemoveAgent(Agent agent)
     {
-        agent.HexVision.HasVision = false;
         agents.Remove(agent);
         NotifyInfoChange();
     }
