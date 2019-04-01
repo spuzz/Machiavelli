@@ -619,13 +619,15 @@ public abstract class Unit : MonoBehaviour {
     {
         if (GetPlayer())
         {
-            unitUI.SetColour(GetPlayer().GetColour());
+            unitUI.SetColour(GetPlayer().GetColour().Colour);
+            HexUnit.MaterialColourChanger.ChangeMaterial(GetPlayer().GetColour());
         }
         else if(GetCityState())
         {
             if(GetCityState().Player)
             {
-                unitUI.SetColour(GetCityState().Player.GetColour());
+                unitUI.SetColour(GetCityState().Player.GetColour().Colour);
+                HexUnit.MaterialColourChanger.ChangeMaterial(GetCityState().Player.GetColour());
             }
         }
     }

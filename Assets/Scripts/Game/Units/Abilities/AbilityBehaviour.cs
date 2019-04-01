@@ -16,7 +16,7 @@ public abstract class AbilityBehaviour : MonoBehaviour
         {
             PlayParticleEffect();
             PlayAbilitySound();
-            PlayAnimation();
+            PlayAnimation(target);
         }
     }
 
@@ -72,8 +72,9 @@ public abstract class AbilityBehaviour : MonoBehaviour
         audioSource.Play();
     }
 
-    protected void PlayAnimation()
+    protected void PlayAnimation(HexCell target)
     {
+        StartCoroutine(gameObject.GetComponent<Unit>().HexUnit.LookAt(target.transform.position));
         var abilityAnimation = config.GetAbilityAnimation();
         var overrideController = GetComponent<Unit>().AnimatorOverrideController;
         var animator = GetComponentInChildren<Animator>();

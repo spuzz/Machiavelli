@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b972d92cd21251d41b252e00c993e6bb, type: 3}
+  m_Name: Purple
+  m_EditorClassIdentifier: 
+  id: 3
+  unitMaterial: {fileID: 2100000, guid: 8a171cf0e2e91304bba5ee360bf75e15, type: 2}
+  buildingMaterial: {fileID: 2100000, guid: 9c29451398b643c489881e5cd2a64cd2, type: 2}
+  colour: {r: 0.46837, g: 0.14117645, b: 0.53333336, a: 1}

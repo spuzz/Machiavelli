@@ -100,8 +100,8 @@ public class OperationCentre : MonoBehaviour
             }
             player = value;
             transform.parent = player.operationCenterTransformParent.transform;
-            Location.CellColor = player.GetColour();
-            OpCentreUI.SetPlayerColour(player.GetColour());
+            Location.PlayerColour = player.GetColour();
+            OpCentreUI.SetPlayerColour(player.GetColour().Colour);
             player.onInfoChange += OnPlayerInfoChange;
 
         }

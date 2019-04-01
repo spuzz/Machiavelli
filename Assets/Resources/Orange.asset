@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b972d92cd21251d41b252e00c993e6bb, type: 3}
+  m_Name: Orange
+  m_EditorClassIdentifier: 
+  id: 4
+  unitMaterial: {fileID: 2100000, guid: e70460ce9ec478f4187568e5ffab3c14, type: 2}
+  buildingMaterial: {fileID: 2100000, guid: 1fae569ed431bbf48b18f4298538e903, type: 2}
+  colour: {r: 0.8867924, g: 0.37226102, b: 0.12967247, a: 1}

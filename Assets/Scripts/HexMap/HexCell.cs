@@ -13,7 +13,8 @@ public class HexCell : MonoBehaviour {
     [SerializeField] int production = 2;
     [SerializeField] int food = 2;
     [SerializeField] int income = 20;
-
+    [SerializeField] PlayerColour playerColour;
+    [SerializeField] PlayerColour defaultPlayerColour;
     public HexCoordinates coordinates;
 
 	public RectTransform uiRect;
@@ -43,7 +44,6 @@ public class HexCell : MonoBehaviour {
     bool hasIncomingRiver, hasOutgoingRiver;
     HexDirection incomingRiver, outgoingRiver;
 
-    Color cellColor = Color.black;
 
     public List<HexUnit> hexUnits = new List<HexUnit>();
     public int Elevation {
@@ -91,16 +91,20 @@ public class HexCell : MonoBehaviour {
 	}
 
     
-    public Color CellColor
+    public PlayerColour PlayerColour
     {
         get
         {
-            return cellColor;
+            return playerColour;
         }
 
         set
         {
-            cellColor = value;
+            playerColour = value;
+            if(playerColour == null)
+            {
+                playerColour = defaultPlayerColour;
+            }
             Refresh();
         }
     }

@@ -51,6 +51,9 @@ MonoBehaviour:
   production: 2
   food: 2
   income: 20
+  playerColour: {fileID: 11400000, guid: 161eae315320911498bc688f1e07b822, type: 2}
+  defaultPlayerColour: {fileID: 11400000, guid: 161eae315320911498bc688f1e07b822,
+    type: 2}
   coordinates:
     x: 0
     z: 0

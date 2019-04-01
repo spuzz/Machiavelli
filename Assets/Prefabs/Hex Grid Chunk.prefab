@@ -766,9 +766,10 @@ MonoBehaviour:
   bridge: {fileID: 4000012598710820, guid: 234387bb7219042168570e127fbd5b58, type: 2}
   special:
   - {fileID: 4000013750885840, guid: f2967fed6444e43559e32916c2465d27, type: 2}
-  - {fileID: 4000011263270592, guid: 4c44e7abe9d6c464aafa47b7c0ec0b95, type: 2}
-  - {fileID: 4000011263270592, guid: cb7be9a74fd6e4cbdb5be2ac7319e699, type: 2}
+  - {fileID: 4845102214047022, guid: 77e9cddcaf089fd4cb4a643e60f8aa31, type: 2}
+  - {fileID: 4584721323793508, guid: a0b8283ec34ddc3458d71a784e5c42a1, type: 2}
   featureColor: {r: 0, g: 0, b: 0, a: 0}
+  secondaryColor: {r: 0, g: 0, b: 0, a: 0}
 --- !u!114 &114000013445900128
 MonoBehaviour:
   m_ObjectHideFlags: 1

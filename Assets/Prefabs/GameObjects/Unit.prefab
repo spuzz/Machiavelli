@@ -71,6 +71,7 @@ MonoBehaviour:
   projectilePreFab: {fileID: 114422966237196876, guid: c012d8d9dcf72b94983b6b43f45b55eb,
     type: 2}
   mercBackground: {fileID: 2800000, guid: d970acfae50454242b24f529d8dd21e2, type: 3}
+  defaultUnitMaterial: {fileID: 2100000, guid: 9d77ff106ac12c84c9bc1728c0590226, type: 2}
 --- !u!114 &114628642190381158
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -6,6 +6,7 @@ using UnityEngine;
 public class CombatUnit : Unit
 {
     [SerializeField] Texture mercBackground;
+    [SerializeField] Material defaultUnitMaterial;
     public enum Stance
     {
         UNASSIGNED,
@@ -19,6 +20,7 @@ public class CombatUnit : Unit
     bool mercenary;
     CityState cityState;
     Player player;
+
     public Stance CurrentStance
     {
         get { return currentStance; }
@@ -47,14 +49,16 @@ public class CombatUnit : Unit
         if (player)
         {
             UpdateOwnerVisiblity(HexUnit.Location, false);
+
         }
         this.player = player;
 
         UpdateOwnerVisiblity(HexUnit.Location, true);
         if (unitUI)
         {
-            unitUI.SetColour(player.GetColour());
+            unitUI.SetColour(player.GetColour().Colour);
         }
+        HexUnit.MaterialColourChanger.ChangeMaterial(player.GetColour());
 
     }
     public override Player GetPlayer()
@@ -83,12 +87,19 @@ public class CombatUnit : Unit
                 unitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(cityState.SymbolID));
                 if (!player && cityState.Player)
                 {
-                    unitUI.SetColour(cityState.Player.GetColour());
+                    unitUI.SetColour(cityState.Player.GetColour().Colour);
+                    HexUnit.MaterialColourChanger.ChangeMaterial(cityState.Player.GetColour());
                 }
+                else if(!player)
+                {
+                    HexUnit.MaterialColourChanger.ChangeMaterial(defaultUnitMaterial);
+                }
+
             }
             else
             {
                 unitUI.SetCityStateSymbolToDefault();
+                HexUnit.MaterialColourChanger.ChangeMaterial(defaultUnitMaterial);
             }
         }
     }
@@ -115,6 +126,7 @@ public class CombatUnit : Unit
         if (cityState)
         {
             unitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(cityState.SymbolID));
+            HexUnit.MaterialColourChanger.ChangeMaterial(defaultUnitMaterial);
         }
 
     }

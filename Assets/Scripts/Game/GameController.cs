@@ -17,7 +17,7 @@ public class GameController : MonoBehaviour
     [SerializeField] AIPlayer aiPlayerPrefab;
 
     [SerializeField] List<Sprite> possibleCityStateSymbols;
-    [SerializeField] List<Color> possiblePlayerColors;
+    [SerializeField] List<PlayerColour> possiblePlayerColors;
     [SerializeField] HexMapCamera hexMapCamera;
     [SerializeField] HUD hud;
     [SerializeField] HumanPlayer humanPlayer;
@@ -630,13 +630,14 @@ public class GameController : MonoBehaviour
     }
 
 
-    public Color GetPlayerColor(int colorID)
+    public PlayerColour GetPlayerColor(int colorID)
     {
-        if(colorID < 0 || colorID >= possiblePlayerColors.Count)
+        PlayerColour colour = possiblePlayerColors.Find(c => c.Id == colorID);
+        if(!colour)
         {
             throw new ArgumentException("Invalid color");
         }
-        return possiblePlayerColors[colorID];
+        return colour;
     }
 
     public int PickSymbol()

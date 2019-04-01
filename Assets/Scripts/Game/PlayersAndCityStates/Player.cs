@@ -40,7 +40,7 @@ public abstract class Player : MonoBehaviour {
         set { playerNumber = value;  }
     }
 
-    public Color GetColour()
+    public PlayerColour GetColour()
     {
         return gameController.GetPlayerColor(ColorID);
     }

@@ -23,7 +23,7 @@ public class PropagandaBehaviour : AbilityBehaviour
         {
             PlayParticleEffect();
             PlayAbilitySound();
-            PlayAnimation();
+            PlayAnimation(target);
             if (gameObject.GetComponent<Unit>().GetPlayer().IsHuman)
             {
                 PlayTextEffect((config as PropagandaConfig).GetInfluence().ToString(), target, Color.yellow);

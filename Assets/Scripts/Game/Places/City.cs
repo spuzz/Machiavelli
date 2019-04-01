@@ -214,7 +214,7 @@ public class City : MonoBehaviour {
     public void SetHexCell(HexCell cell)
     {
         hexCell = cell;
-        hexCell.Walled = true;
+        hexCell.Walled = false;
         hexCell.City = this;
         ownedCells.Clear();
         for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
@@ -317,12 +317,14 @@ public class City : MonoBehaviour {
         if (cityStateOwner.Player)
         {
             //TowerColor = cityStateOwner.Player.Color;
-            CityUI.SetPlayerColour(cityStateOwner.Player.GetColour());
+            CityUI.SetPlayerColour(cityStateOwner.Player.GetColour().Colour);
+            hexCell.PlayerColour = cityStateOwner.Player.GetColour();
         }
         else
         {
             //TowerColor = Color.gray;
             CityUI.SetPlayerColour(Color.black);
+            hexCell.PlayerColour = null;
         }
 
         cityUI.CityStateSymbol.sprite = gameController.GetCityStateSymbol(cityStateOwner.SymbolID);

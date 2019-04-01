@@ -54,8 +54,10 @@ public class Agent : Unit {
     {
         if (player)
         {
-            unitUI.SetColour(player.GetColour());
+            unitUI.SetColour(player.GetColour().Colour);
+            HexUnit.MaterialColourChanger.ChangeMaterial(player.GetColour());
         }
+
     }
 
     public void SetPlayer(Player player)
@@ -69,8 +71,11 @@ public class Agent : Unit {
         UpdateOwnerVisiblity(HexUnit.Location, true);
         if (unitUI)
         {
-            unitUI.SetColour(player.GetColour());
+            unitUI.SetColour(player.GetColour().Colour);
         }
+        MaterialColourChanger changer = HexUnit.MaterialColourChanger;
+        changer.ChangeMaterial(player.GetColour());
+
 
     }
     public override Player GetPlayer()

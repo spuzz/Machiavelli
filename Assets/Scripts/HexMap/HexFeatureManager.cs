@@ -105,10 +105,15 @@ public class HexFeatureManager : MonoBehaviour {
 	public void AddSpecialFeature (HexCell cell, Vector3 position) {
 		//HexHash hash = HexMetrics.SampleHashGrid(position);
 		Transform instance = Instantiate(special[cell.SpecialIndex - 1]);
-        foreach(ColourChange colourChange in instance.GetComponentsInChildren<ColourChange>())
+        MaterialColourChanger materialColourChanger = instance.GetComponent<MaterialColourChanger>();
+        if(materialColourChanger)
         {
-            colourChange.ChangeColour(cell.CellColor);
+            materialColourChanger.ChangeMaterial(cell.PlayerColour);
         }
+        //foreach(ColourChange colourChange in instance.GetComponentsInChildren<ColourChange>())
+        //{
+        //    colourChange.ChangeColour(cell.PlayerColour.);
+        //}
 		instance.localPosition = HexMetrics.Perturb(position);
 		//instance.localRotation = Quaternion.Euler(0f, 360f * hash.e, 0f);
         instance.SetParent(container, false);

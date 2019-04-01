@@ -34,6 +34,7 @@ public class HexUnit : MonoBehaviour {
     HexVision hexVision;
 
     HexUnitActionController hexUnitActionController;
+    MaterialColourChanger materialColourChanger;
     public HexCell Location
     {
         get
@@ -176,6 +177,19 @@ public class HexUnit : MonoBehaviour {
         }
     }
 
+    public MaterialColourChanger MaterialColourChanger
+    {
+        get
+        {
+            return materialColourChanger;
+        }
+
+        set
+        {
+            materialColourChanger = value;
+        }
+    }
+
     public void Awake()
     {
         Animator = GetComponentInChildren<Animator>();
@@ -198,6 +212,7 @@ public class HexUnit : MonoBehaviour {
     {
         meshChild = childTransform;
         Animator = GetComponentInChildren<Animator>();
+        MaterialColourChanger = GetComponentInChildren<MaterialColourChanger>();
     }
     public void ValidateLocation () {
 		transform.localPosition = location.Position;
