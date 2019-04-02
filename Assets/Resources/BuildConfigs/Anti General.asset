@@ -1,0 +1,24 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea61b27dab4118a488e2ef2e7b6a504d, type: 3}
+  m_Name: Anti General
+  m_EditorClassIdentifier: 
+  baseProductionCost: 3
+  basePurchaseCost: 30
+  prerequisites:
+  - {fileID: 11400000, guid: 108a1a4beb8b044498d7f95ea06b1130, type: 2}
+  focusType: 7
+  buildingImage: {fileID: 21300000, guid: 62a362328c69ec24586d9094ad8f1660, type: 3}
+  name: Anti General
+  displayName: Anti General
+  toolTipText: Decrease City Unit Cap
+  buildPrefab: {fileID: 1019405238726722, guid: 195a5e586204e8d418e944a73d8ecd9a,
+    type: 2}

@@ -20,6 +20,7 @@ public abstract class Unit : MonoBehaviour {
     [SerializeField] HexCellTextEffect textEffect;
     [SerializeField] AnimatorOverrideController animatorOverrideController;
     [SerializeField] Projectile projectilePreFab;
+    List<HexAction> actions = new List<HexAction>();
     HexUnitActionController hexUnitActionController;
     protected Abilities abilities;
     bool alive = true;
@@ -427,7 +428,7 @@ public abstract class Unit : MonoBehaviour {
             {
                 action.SetKillSelf();
             }
-            hexUnitActionController.AddAction(action, hexUnit);
+            actions.Add(action);
             return true;
         }
         HexUnit unit = cell.GetFightableUnit(this.HexUnit);
@@ -446,7 +447,7 @@ public abstract class Unit : MonoBehaviour {
             {
                 action.SetKillSelf();
             }
-            hexUnitActionController.AddAction(action, hexUnit);
+            actions.Add(action);
             return true;
         }
 
@@ -500,7 +501,7 @@ public abstract class Unit : MonoBehaviour {
             hexUnit.AddUnitToLocation(move[move.Count - 1]);
         }
 
-        hexUnitActionController.AddAction(action, hexUnit);
+        actions.Add(action);
         for (int a = 1; a < move.Count; a++)
         {
             UpdateOwnerVisiblity(move[a - 1], false);
@@ -539,7 +540,14 @@ public abstract class Unit : MonoBehaviour {
 
     public void EndTurn()
     {
+        DoActions();
         movementLeft = 0;
+    }
+    public void DoActions()
+    {
+
+        hexUnitActionController.AddActions(actions, hexUnit);
+        actions.Clear();
     }
 
     public bool CheckPath()

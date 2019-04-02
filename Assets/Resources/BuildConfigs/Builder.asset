@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00538d5d87873434b907c764de750305, type: 3}
   m_Name: Builder
   m_EditorClassIdentifier: 
-  baseProductionCost: 1
+  baseProductionCost: 5
   basePurchaseCost: 50
   prerequisites: []
   focusType: 7

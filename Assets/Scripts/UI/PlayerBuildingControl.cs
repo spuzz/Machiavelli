@@ -167,6 +167,19 @@ public class PlayerBuildingControl : MonoBehaviour {
             outposts.Add(player, gameController.CreateCityPlayerBuilding(OutpostConfig));
             playerBuildingManagers.Add(player, new BuildingManager());
             playerBuildings.Add(player, new CityPlayerBuilding[5]);
+            HexVision hexVision = outposts[player].gameObject.AddComponent<HexVision>();
+            if(player.IsHuman)
+            {
+                hexVision.HasVision = true;
+            }
+
+            List<HexCell> cells = (PathFindingUtilities.GetCellsInRange(city.GetHexCell(), 1));
+            hexVision.SetCells(cells);
+            for (int i = 0; i < cells.Count; i++)
+            {
+                player.AddVisibleCell(cells[i]);
+            }
+            gameController.VisionSystem.AddHexVision(hexVision);
         }
     }
     public bool HasOutpost(Player player)

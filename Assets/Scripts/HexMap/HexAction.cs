@@ -13,14 +13,14 @@ public class HexAction : MonoBehaviour
         FINISHED
     }
 
-    private enum ActionType
+    public enum ActionType
     {
         ATTACKCITY,
         ATTACKUNIT,
         MOVE,
         USEABILITY
     }
-    ActionType actionType = ActionType.MOVE;
+    ActionType hexActionType = ActionType.MOVE;
     List<HexCell> path = new List<HexCell>();
     HexCell actionCell;
     HexCell finalMove;
@@ -196,6 +196,19 @@ public class HexAction : MonoBehaviour
         }
     }
 
+    public ActionType HexActionType
+    {
+        get
+        {
+            return hexActionType;
+        }
+
+        set
+        {
+            hexActionType = value;
+        }
+    }
+
     public void SetKillTarget()
     {
         KillTarget = true;
@@ -209,13 +222,35 @@ public class HexAction : MonoBehaviour
     public void AddAction(List<HexCell> path)
     {
         this.path = path;
-        actionType = ActionType.MOVE;
+        HexActionType = ActionType.MOVE;
     }
+
+    public bool AddAction(HexAction action)
+    {
+        if(action.HexActionType != ActionType.MOVE)
+        {
+            return false;
+        }
+        bool initial = true;
+        foreach (HexCell cell in action.GetPath())
+        {
+            if(initial == false)
+            {
+                path.Add(cell);
+            }
+            else
+            {
+                initial = false;
+            }
+        }
+        return true;
+    }
+
     public void AddAction(HexCell actionCell, HexCell finalMove, City cityTarget, int damageToSelf, int damageToTarget, CityState cityState)
     {
         path.Add(actionsUnit.Location);
         path.Add(actionCell);
-        actionType = ActionType.ATTACKCITY;
+        HexActionType = ActionType.ATTACKCITY;
         this.CityStateTarget = cityState;
         this.CityTarget = cityTarget;
         this.actionCell = actionCell;
@@ -228,7 +263,7 @@ public class HexAction : MonoBehaviour
     {
         path.Add(actionsUnit.Location);
         path.Add(actionCell);
-        actionType = ActionType.ATTACKUNIT;
+        HexActionType = ActionType.ATTACKUNIT;
         this.UnitTarget = unitTarget;
         this.actionCell = actionCell;
         this.damageToSelf = damageToSelf;
@@ -240,7 +275,7 @@ public class HexAction : MonoBehaviour
     {
         path.Add(actionsUnit.Location);
         path.Add(actionCell);
-        actionType = ActionType.USEABILITY;
+        HexActionType = ActionType.USEABILITY;
         abilityConfigToShow = abilityConfig;
         this.actionCell = actionCell;
     }
@@ -250,16 +285,16 @@ public class HexAction : MonoBehaviour
     public IEnumerator Run()
     {
         t = Time.deltaTime * HexUnit.TravelSpeed;
-        if (actionType == ActionType.MOVE)
+        if (HexActionType == ActionType.MOVE)
         {
             yield return StartCoroutine(DoMove());
         }
-        if (actionType == ActionType.ATTACKCITY || actionType == ActionType.ATTACKUNIT)
+        if (HexActionType == ActionType.ATTACKCITY || HexActionType == ActionType.ATTACKUNIT)
         {
             yield return StartCoroutine(DoAction());
         }
 
-        if (actionType == ActionType.USEABILITY)
+        if (HexActionType == ActionType.USEABILITY)
         {
             yield return StartCoroutine(DoAbility());
         }

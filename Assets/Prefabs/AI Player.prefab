@@ -96,6 +96,9 @@ MonoBehaviour:
   gold: 100
   cityPlayerBuildConfigs:
   - {fileID: 11400000, guid: 1eaaf0b6389fef242af0016541b290cc, type: 2}
+  - {fileID: 11400000, guid: 770d5744356f1a74893f31d20d81f2cb, type: 2}
+  - {fileID: 11400000, guid: f01311a60fa519846a9e09c464e91091, type: 2}
+  - {fileID: 11400000, guid: 79c4cb32f7e70f1448b9c38220c37fe4, type: 2}
   operationCenterTransformParent: {fileID: 1737152953586042}
   agents: []
   mercenaries: []

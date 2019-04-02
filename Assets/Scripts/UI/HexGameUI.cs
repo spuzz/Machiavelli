@@ -165,7 +165,8 @@ public class HexGameUI : MonoBehaviour {
 	void DoMove () {
 		if (grid.HasPath) {
 			selectedUnit.GetComponent<Unit>().SetPath(grid.GetPath());
-			grid.ClearPath();
+            selectedUnit.GetComponent<Unit>().DoActions();
+            grid.ClearPath();
             HUD.UpdateUI();
 		}
 	}

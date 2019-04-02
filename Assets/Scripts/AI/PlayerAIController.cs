@@ -25,7 +25,10 @@ public class PlayerAIController : MonoBehaviour
             {
                 yield return new WaitForEndOfFrame();
             }
-
+            if (agent && agent.Alive)
+            {
+                agent.EndTurn();
+            }
         }
 
         UpdateBuilds();

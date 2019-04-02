@@ -271,6 +271,7 @@ public class GameController : MonoBehaviour
         {
             ShowOperationCentre(opCentre);
         }
+
         return opCentre;
 
     }
@@ -286,6 +287,7 @@ public class GameController : MonoBehaviour
             instance.Player.AddOperationCentre(instance);
             hexGrid.AddOperationCentre(instance);
             instance.BuildCommandCentre();
+            opCentres.Add(instance);
             return instance;
         }
         return null;
@@ -515,7 +517,9 @@ public class GameController : MonoBehaviour
 
         if (unit.HexUnit.HexUnitType == HexUnit.UnitType.COMBAT && unit.CityState)
         {
-            unit.CityState.RemoveUnit(unit.GetComponent<CombatUnit>());
+            CombatUnit combatUnit = unit.GetComponent<CombatUnit>();
+            unit.CityState.RemoveUnit(combatUnit);
+            combatUnit.CityOwner.RemoveUnit(combatUnit);
         }
     }
 
@@ -683,10 +687,10 @@ public class GameController : MonoBehaviour
     }
     public void CentreMap()
     {
-        CityState cityState = humanPlayer.GetCityStates().FirstOrDefault();
-        if(cityState)
+        OperationCentre opCentre = humanPlayer.GetOperationCentres().FirstOrDefault();
+        if(opCentre)
         {
-            hexMapCamera.MoveCamera(cityState.GetCity().GetHexCell());
+            hexMapCamera.MoveCamera(opCentre.Location);
         }
         else
         {
@@ -737,7 +741,7 @@ public class GameController : MonoBehaviour
     {
         foreach (OperationCentre opCentre in opCentres)
         {
-            opCentre.DestroyOperationCentre();
+            DestroyOperationCentre(opCentre);
         }
         opCentres.Clear();
 
@@ -745,6 +749,10 @@ public class GameController : MonoBehaviour
         {
             player.DestroyPlayer();
         }
+
+        humanPlayer.ClearOperationCentres();
+        humanPlayer.ClearMercenaries();
+        humanPlayer.ClearAgents();
         players.Clear();
         Player.nextPlayerNumber = 1;
         usedColors.Clear();

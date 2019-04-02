@@ -98,3 +98,4 @@ MonoBehaviour:
   science: {x: 0, y: 0}
   food: {x: 0, y: 0}
   defence: {x: 0, y: 0}
+  playerGold: {x: 0, y: 0}

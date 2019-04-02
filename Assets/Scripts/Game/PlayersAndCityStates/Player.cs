@@ -267,7 +267,7 @@ public abstract class Player : MonoBehaviour {
 
     public void StartTurn()
     {
-        if(cityStates.Count == 0)
+        if(opCentres.Count == 0)
         {
             PlayerDefeated();
         }

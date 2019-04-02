@@ -21,9 +21,11 @@ public class City : MonoBehaviour {
     [SerializeField] int food = 0;
     [SerializeField] int population = 1;
     [SerializeField] int visionRange = 2;
+    [SerializeField] int unitCap = 3;
     [SerializeField] PlayerBuildingControl playerBuildingControl;
 
     BuildingManager buildingManager = new BuildingManager();
+    private bool capital = false;
     public int currentStrength = 0;
     public int currentProduction = 0;
     public int currentFood = 0;
@@ -37,6 +39,8 @@ public class City : MonoBehaviour {
     HexCell hexCell;
     List<HexCell> ownedCells = new List<HexCell>();
     HexVision hexVision;
+
+    List<CombatUnit> cityUnits = new List<CombatUnit>();
 
     public delegate void OnInfoChange(City city);
     public event OnInfoChange onInfoChange;
@@ -62,7 +66,7 @@ public class City : MonoBehaviour {
     }
     public int Strength
     {
-        get { return baseStrength; }
+        get { return currentStrength; }
     }
 
     public BuildingManager BuildingManager
@@ -171,6 +175,39 @@ public class City : MonoBehaviour {
         }
     }
 
+    public bool Capital
+    {
+        get
+        {
+            return capital;
+        }
+
+        set
+        {
+            capital = value;
+            RefreshYields();
+        }
+    }
+
+    public bool HasUnitSpace()
+    {
+        return cityUnits.Count < unitCap;
+
+    }
+
+    public void RemoveUnit(CombatUnit unit)
+    {
+        cityUnits.Remove(unit);
+        NotifyInfoChange();
+    }
+
+    public void AddUnit(CombatUnit unit)
+    {
+        cityUnits.Add(unit);
+        unit.CityOwner = this;
+        NotifyInfoChange();
+    }
+
     public void SetCityState(CityState cityState)
     {
         if (cityStateOwner)
@@ -261,25 +298,22 @@ public class City : MonoBehaviour {
     public void StartTurn()
     {
        // cityStateOwner.Gold += currentIncome;
-        Food += currentFood;
-        if(Food >= foodForNextPop)
-        {
-            Food -= foodForNextPop;
-            Population += 1;
-            foodConsumption += 1;
-            AddCellYield(hexCell);
-            CalculateFoodForNextPop();
-        }
-        else if(Food <= 0 && population != 1)
-        {
-            Population -= 1;
-            foodConsumption -= 1;
-            RemoveCellYield(hexCell);
-            CalculateFoodForNextPop();
-        }
-
-        
-
+        //Food += currentFood;
+        //if(Food >= foodForNextPop)
+        //{
+        //    Food -= foodForNextPop;
+        //    Population += 1;
+        //    foodConsumption += 1;
+        //    AddCellYield(hexCell);
+        //    CalculateFoodForNextPop();
+        //}
+        //else if(Food <= 0 && population != 1)
+        //{
+        //    Population -= 1;
+        //    foodConsumption -= 1;
+        //    RemoveCellYield(hexCell);
+        //    CalculateFoodForNextPop();
+        //}
 
         PlayerBuildingControl.StartTurn();
 
@@ -383,6 +417,7 @@ public class City : MonoBehaviour {
             if(!cell.IsUnderwater && cell.CanUnitMoveToCell(HexUnit.UnitType.COMBAT))
             {
                 HexUnit hexUnit = gameController.CreateCityStateUnit(combatUnitConfig, cell, cityStateOwner.CityStateID);
+                AddUnit(hexUnit.GetComponent<CombatUnit>());
                 hexUnit.Location.UpdateVision();
                 cityStateOwner.UpdateVision();
                 return true;
@@ -391,6 +426,19 @@ public class City : MonoBehaviour {
         return false;
     }
 
+    public void KillCityUnits()
+    {
+        List<CombatUnit> unitsToKill = new List<CombatUnit>();
+        foreach(CombatUnit unit in cityUnits)
+        {
+            unitsToKill.Add(unit);
+        }
+        foreach (CombatUnit unit in unitsToKill)
+        {
+            gameController.KillUnit(unit);
+        }
+        cityUnits.Clear();
+    }
     public void BuildBuilding()
     {
 
@@ -463,6 +511,12 @@ public class City : MonoBehaviour {
         currentProduction += (int)((float)baseProduction * (playerBenefits.Production.x / 100.0f));
 
         currentPlayerIncome = (int)(((float)currentIncome / 100.0f) * (30.0f + playerBenefits.PlayerGold.x) + playerBenefits.PlayerGold.y);
+
+        unitCap = GameConsts.baseUnitCap + playerBenefits.UnitCap;
+        if(capital)
+        {
+            unitCap += 2;
+        }
         NotifyInfoChange();
     }
 
@@ -484,6 +538,11 @@ public class City : MonoBehaviour {
         playerBuildingControl.Save(writer);
         writer.Write(food);
         writer.Write(population);
+        writer.Write(cityUnits.Count);
+        foreach(CombatUnit unit in cityUnits)
+        {
+            unit.Save(writer);
+        }
     }
 
     public static void Load(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
@@ -504,6 +563,15 @@ public class City : MonoBehaviour {
             for (int a = 1; a < city.population; a++)
             {
                 city.AddCellYield(city.GetHexCell());
+            }
+        }
+        if (header >= 7)
+        {
+            int unitCount = reader.ReadInt32();
+            for (int i = 0; i < unitCount; i++)
+            {
+                CombatUnit combatUnit = CombatUnit.Load(reader, gameController, hexGrid, header, city.GetCityState().CityStateID);
+                city.AddUnit(combatUnit);
             }
         }
 

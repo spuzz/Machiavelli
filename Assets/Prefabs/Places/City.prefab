@@ -397,9 +397,7 @@ MonoBehaviour:
   cityUI: {fileID: 114176040660542350}
   hexGrid: {fileID: 0}
   buildings: []
-  availableBuildings:
-  - {fileID: 11400000, guid: 85006ef9fd86f4e4481a620579af206d, type: 2}
-  - {fileID: 11400000, guid: 25f605a984d7ed442a798920f162de13, type: 2}
+  availableBuildings: []
   availableUnits:
   - {fileID: 11400000, guid: 7973809bfbff6bf48b631fa6acd585b9, type: 2}
   - {fileID: 11400000, guid: b9fa9b4ce7313e24eabd7a40c6b71f37, type: 2}
@@ -407,6 +405,7 @@ MonoBehaviour:
   food: 0
   population: 1
   visionRange: 2
+  unitCap: 3
   playerBuildingControl: {fileID: 114906063587015198}
   currentStrength: 0
   currentProduction: 0

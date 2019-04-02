@@ -6,6 +6,7 @@ using UnityEngine.UI;
 public class AgentRecruitmentUI : OperationCentreInfoPanel {
 
     [SerializeField] List<Button> buttons;
+    [SerializeField] List<Button> buildQueueButtons;
     List<AgentBuildConfig> agentBuildConfigs = new List<AgentBuildConfig>();
     public override void UpdateUI(OperationCentre opCentre)
     {
@@ -46,6 +47,29 @@ public class AgentRecruitmentUI : OperationCentreInfoPanel {
             else
             {
                 buttons[a].gameObject.SetActive(false);
+            }
+        }
+
+        for (int a = 0; a < buildQueueButtons.Count; a++)
+        {
+            if (a < opCentre.BuildingManagerForAgents.buildsInQueue())
+            {
+                AgentBuildConfig config = (opCentre.BuildingManagerForAgents.GetConfigInQueue(a) as AgentBuildConfig);
+                buildQueueButtons[a].gameObject.SetActive(true);
+                buildQueueButtons[a].image.sprite = config.AgentConfig.Portrait;
+                if(a == 0)
+                {
+                    buildQueueButtons[a].GetComponentInChildren<Text>().text = opCentre.BuildingManagerForAgents.TimeLeftOnBuild(1).ToString();
+                }
+                else
+                {
+                    buildQueueButtons[a].GetComponentInChildren<Text>().text = config.BaseBuildTime.ToString();
+                }
+                
+            }
+            else
+            {
+                buildQueueButtons[a].gameObject.SetActive(false);
             }
         }
     }

@@ -26,13 +26,16 @@ public class CityStateAIController : MonoBehaviour
         foreach (CombatUnit unit in unitsAtStart)
         {
             int currentMovement = -1;
-            List<HexCell> path = new List<HexCell>();
             while (unit && unit.Alive && unit.GetMovementLeft() > 0 && currentMovement != unit.GetMovementLeft())
             {
                 CheckAttackTarget();
                 currentMovement = unit.GetMovementLeft();
                 UpdateUnit(unit);
  
+            }
+            if(unit && unit.Alive)
+            {
+                unit.EndTurn();
             }
         }
     }
@@ -43,18 +46,9 @@ public class CityStateAIController : MonoBehaviour
         foreach (City city in cityState.GetCities())
         {
             city.TakeTurn();
-            if (city.BuildingManager.buildsInQueue() == 0)
+            if (city.BuildingManager.buildsInQueue() == 0 && city.HasUnitSpace())
             {
-
-
-                if (UnityEngine.Random.value < 1)
-                {
-                    city.BuildUnit();
-                }
-                else
-                    city.BuildBuilding();
-
-
+                city.BuildUnit();
             }
 
         }

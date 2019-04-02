@@ -20,6 +20,7 @@ public class CombatUnit : Unit
     bool mercenary;
     CityState cityState;
     Player player;
+    City cityOwner;
 
     public Stance CurrentStance
     {
@@ -41,6 +42,19 @@ public class CombatUnit : Unit
             {
                 BackGround = mercBackground;
             }
+        }
+    }
+
+    public City CityOwner
+    {
+        get
+        {
+            return cityOwner;
+        }
+
+        set
+        {
+            cityOwner = value;
         }
     }
 

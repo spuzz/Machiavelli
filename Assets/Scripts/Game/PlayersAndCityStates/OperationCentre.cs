@@ -159,6 +159,19 @@ public class OperationCentre : MonoBehaviour
         }
     }
 
+    public BuildingManager BuildingManagerForAgents
+    {
+        get
+        {
+            return buildingManagerForAgents;
+        }
+
+        set
+        {
+            buildingManagerForAgents = value;
+        }
+    }
+
     public void UpdateLocation(HexCell loc)
     {
         location = loc;
@@ -167,7 +180,7 @@ public class OperationCentre : MonoBehaviour
 
     public void UpdateVision()
     {
-        HexVision.SetCells(hexGrid.GetVisibleCells(Location, VisionRange));
+        HexVision.SetCells(PathFindingUtilities.GetCellsInRange(Location, VisionRange));
     }
 
     public IEnumerable<AgentBuildConfig> GetAgentBuildConfigs(List<string> excluded = null)
@@ -244,15 +257,15 @@ public class OperationCentre : MonoBehaviour
             }
             buildConfig = buildingManagerForBuildings.GetCompletedBuild();
         }
-        buildingManagerForAgents.DayPassed(1);
-        buildConfig = buildingManagerForAgents.GetCompletedBuild();
+        BuildingManagerForAgents.DayPassed(1);
+        buildConfig = BuildingManagerForAgents.GetCompletedBuild();
         while (buildConfig)
         {
             if (buildConfig.GetBuildType() == BuildConfig.BUILDTYPE.AGENT)
             {
-                HireAgent((buildConfig as AgentBuildConfig));
+                CreateAgent((buildConfig as AgentBuildConfig).AgentConfig);
             }
-            buildConfig = buildingManagerForAgents.GetCompletedBuild();
+            buildConfig = BuildingManagerForAgents.GetCompletedBuild();
         }
 
         NotifyInfoChange();
@@ -270,7 +283,8 @@ public class OperationCentre : MonoBehaviour
         if(agentBuildConfig.BasePurchaseCost <= player.Gold)
         {
             player.Gold -= agentBuildConfig.BasePurchaseCost;
-            CreateAgent(agentBuildConfig.AgentConfig);
+            BuildingManagerForAgents.AddBuild(agentBuildConfig);
+            NotifyInfoChange();
             return true;
         }
         return false;
@@ -318,14 +332,6 @@ public class OperationCentre : MonoBehaviour
     public void BuildCommandCentre()
     {
         commandCentre = gameController.CreateOpCentreBuilding(commandCentreBuildConfig);
-        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(Location, 2);
-        foreach(HexCell cell in cells)
-        {
-            if(cell.City)
-            {
-                cell.City.PlayerBuildingControl.AddOutpost(player);
-            }
-        }
     }
 
     public void BuildAvailableBuilding(int listID, int slotID)
@@ -411,6 +417,7 @@ public class OperationCentre : MonoBehaviour
 
     public void DestroyOperationCentre()
     {
+        Destroy(opCentreUI.gameObject);
         Destroy(gameObject);
     }
 
@@ -444,7 +451,7 @@ public class OperationCentre : MonoBehaviour
 
         }
         buildingManagerForBuildings.Save(writer);
-        buildingManagerForAgents.Save(writer);
+        BuildingManagerForAgents.Save(writer);
     }
 
     public static void Load(BinaryReader reader, GameController gameController, HexGrid hexGrid, Player player, int header)
@@ -463,7 +470,7 @@ public class OperationCentre : MonoBehaviour
         }
 
         opCentre.buildingManagerForBuildings.Load(reader,gameController,header);
-        opCentre.buildingManagerForAgents.Load(reader, gameController, header);
+        opCentre.BuildingManagerForAgents.Load(reader, gameController, header);
 
     }
 

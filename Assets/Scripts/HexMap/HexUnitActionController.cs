@@ -58,6 +58,30 @@ public class HexUnitActionController : MonoBehaviour {
 
     }
 
+    public void AddActions(List<HexAction> hexActions, HexUnit unit)
+    {
+        List<HexAction> moveActions = hexActions.FindAll(c => c.HexActionType == HexAction.ActionType.MOVE);
+        while(moveActions.Count >= 2)
+        {
+            moveActions[0].AddAction(moveActions[1]);
+            moveActions.Remove(moveActions[1]);
+        }
+
+        if(moveActions.Count > 0)
+        {
+            hexActions.RemoveAll(c => c.HexActionType == HexAction.ActionType.MOVE);
+            hexActions.Insert(0, moveActions[0]);
+        }
+
+        foreach(HexAction action in hexActions)
+        {
+            AddAction(action,unit);
+        }
+
+    }
+
+
+
     public bool FinishedActions()
     {
         if(actionQueue.Count > 0)

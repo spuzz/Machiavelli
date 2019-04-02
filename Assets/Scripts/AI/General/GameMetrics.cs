@@ -26,5 +26,13 @@ static class TextColors
 
     public static Color AIGainedInfluence = Color.cyan;
     public static Color AIlostInfluence = new Color(0.3f, 0, 0.5f);
+
+
+}
+
+static class GameConsts
+{
+    public static int capitalUnitCap = 2;
+    public static int baseUnitCap = 3;
 }
 

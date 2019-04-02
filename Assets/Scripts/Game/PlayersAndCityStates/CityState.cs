@@ -197,12 +197,26 @@ public class CityState : MonoBehaviour
             city.HexVision.HasVision = true;
         }
         city.onInfoChange += cityChanged;
+        city.KillCityUnits();
+        if(cities.Count == 0)
+        {
+            city.Capital = true;
+        }
         cities.Add(city);
         NotifyInfoChange();
     }
 
     public void RemoveCity(City city)
     {
+        if(city.Capital)
+        {
+            city.Capital = false;
+            if(cities.Count > 1)
+            {
+                cities[1].Capital = true;
+            }
+        }
+        city.KillCityUnits();
         city.HexVision.HasVision = false;
         city.onInfoChange -= cityChanged;
         cities.Remove(city);
@@ -403,6 +417,7 @@ public class CityState : MonoBehaviour
                 break;
             }
         }
+        city.KillCityUnits();
     }
 
     public void KillAllUnits()
@@ -472,13 +487,6 @@ public class CityState : MonoBehaviour
         {
             writer.Write(-1);
         }
-        
-        writer.Write(units.Count);
-        for (int i = 0; i < units.Count; i++)
-        {
-            units[i].Save(writer);
-        }
-
 
         writer.Write(exploredCells.Count);
         for (int i = 0; i < exploredCells.Count; i++)
@@ -515,11 +523,16 @@ public class CityState : MonoBehaviour
             }
             
         }
-        int unitCount = reader.ReadInt32();
-        for (int i = 0; i < unitCount; i++)
+        if(header <= 6)
         {
-            CombatUnit combatUnit = CombatUnit.Load(reader, gameController, hexGrid, header, instance.CityStateID);
+            int unitCount = reader.ReadInt32();
+            for (int i = 0; i < unitCount; i++)
+            {
+                CombatUnit combatUnit = CombatUnit.Load(reader, gameController, hexGrid, header, instance.CityStateID);
+                combatUnit.CityOwner = instance.GetCity();
+            }
         }
+
         if (header >= 3)
         {
             int exploredCellCount = reader.ReadInt32();

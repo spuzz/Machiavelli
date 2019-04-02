@@ -10,7 +10,7 @@ public class ResourceBenefit : MonoBehaviour {
     [SerializeField] Vector2 food;
     [SerializeField] Vector2 defence;
     [SerializeField] Vector2 playerGold;
-
+    [SerializeField] int unitCap;
     public Vector2 Production
     {
         get
@@ -89,6 +89,19 @@ public class ResourceBenefit : MonoBehaviour {
         }
     }
 
+    public int UnitCap
+    {
+        get
+        {
+            return unitCap;
+        }
+
+        set
+        {
+            unitCap = value;
+        }
+    }
+
     public void AddBenefit(ResourceBenefit benefit)
     {
         Gold += benefit.Gold;
@@ -97,6 +110,7 @@ public class ResourceBenefit : MonoBehaviour {
         Science += benefit.Science;
         Defence += benefit.Defence;
         PlayerGold += benefit.PlayerGold;
+        unitCap += benefit.UnitCap;
     }
 
     public void ResetBenefit()
@@ -107,5 +121,6 @@ public class ResourceBenefit : MonoBehaviour {
         Science = new Vector2(0, 0);
         Defence = new Vector2(0, 0);
         PlayerGold = new Vector2(0, 0);
+        unitCap = 0;
     }
 }
