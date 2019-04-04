@@ -257,6 +257,7 @@ public class HexAction : MonoBehaviour
         this.damageToSelf = damageToSelf;
         this.damageToTarget = damageToTarget;
         this.FinalMove = finalMove;
+        this.UnitTarget = cityTarget.GetHexCell().hexUnits.Find(c => c.HexUnitType == HexUnit.UnitType.COMBAT);
     }
 
     public void AddAction(HexCell actionCell, HexCell finalMove, HexUnit unitTarget, int damageToSelf, int damageToTarget)
@@ -279,8 +280,6 @@ public class HexAction : MonoBehaviour
         abilityConfigToShow = abilityConfig;
         this.actionCell = actionCell;
     }
-
-
 
     public IEnumerator Run()
     {
@@ -337,7 +336,7 @@ public class HexAction : MonoBehaviour
         {
             if (CityTarget)
             {
-                yield return StartCoroutine(actionsUnit.FightCity(ActionCell.City, KillTarget, CityStateTarget));
+                yield return StartCoroutine(actionsUnit.FightCity(ActionCell.City, KillTarget, CityStateTarget, UnitTarget));
             }
             else if (UnitTarget)
             {

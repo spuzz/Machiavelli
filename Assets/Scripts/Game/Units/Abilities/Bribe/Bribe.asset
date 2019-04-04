@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5f5263f937a78f84485e61afb6b8d5d2, type: 3}
   m_Name: Bribe
   m_EditorClassIdentifier: 
-  cost: 20
+  cost: 5
   range: 1
   particlePrefab: {fileID: 0}
   abilityAnimation: {fileID: 7400000, guid: f94c62a8b96f5a7469ce0da8ccac09b3, type: 3}
@@ -23,4 +23,4 @@ MonoBehaviour:
   abilityType: 1
   displayName: Bribe
   toolTipText: Gain influence with this cities leader
-  influence: 100
+  influence: 10

@@ -4,6 +4,7 @@ using UnityEngine;
 
 public class MaterialColourChanger : MonoBehaviour {
 
+    [SerializeField] List<Material> excludedMaterials;
     public enum MaterialType
     {
         UNIT,
@@ -44,7 +45,15 @@ public class MaterialColourChanger : MonoBehaviour {
             var mats = new Material[rend.materials.Length];
             for (var j = 0; j < rend.materials.Length; j++)
             {
-                mats[j] = newMat;
+                if(!excludedMaterials.Find(c => rend.materials[j].name.StartsWith(c.name)))
+                {
+                    mats[j] = newMat;
+                }
+                else
+                {
+                    mats[j] = rend.materials[j];
+                }
+
             }
             rend.materials = mats;
         }

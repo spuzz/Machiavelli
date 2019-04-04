@@ -114,7 +114,7 @@ public class HexFeatureManager : MonoBehaviour {
         //{
         //    colourChange.ChangeColour(cell.PlayerColour.);
         //}
-		instance.localPosition = HexMetrics.Perturb(position);
+		instance.localPosition = position;
 		//instance.localRotation = Quaternion.Euler(0f, 360f * hash.e, 0f);
         instance.SetParent(container, false);
 	}

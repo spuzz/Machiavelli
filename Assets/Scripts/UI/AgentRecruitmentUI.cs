@@ -1,5 +1,6 @@
 ﻿using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
@@ -22,7 +23,7 @@ public class AgentRecruitmentUI : OperationCentreInfoPanel {
                 AgentBuildConfig config = agentBuildConfigs[a];
                 buttons[a].gameObject.SetActive(true);
                 buttons[a].image.sprite = config.AgentConfig.Portrait;
-                if (opCentre.Player.Gold >= config.BasePurchaseCost)
+                if (opCentre.Player.Gold >= config.BasePurchaseCost && opCentre.Player.CanHireAgent(config.AgentConfig))
                 {
                     buttons[a].interactable = true;
                 }
@@ -30,6 +31,8 @@ public class AgentRecruitmentUI : OperationCentreInfoPanel {
                 {
                     buttons[a].interactable = false;
                 }
+                
+
                 ToolTip tooltip = buttons[a].GetComponent<ToolTip>();
                 if (tooltip)
                 {
@@ -42,6 +45,13 @@ public class AgentRecruitmentUI : OperationCentreInfoPanel {
                     tooltip.AddText("");
                     tooltip.AddText("BuildTime");
                     tooltip.AddSymbolWithText(1, config.BaseBuildTime.ToString());
+                    int currentCap = opCentre.Player.PlayerAgentTracker.CurrentCap(config.AgentConfig);
+                    if (currentCap != -1)
+                    {
+                        tooltip.AddText("");
+                        tooltip.AddText("Limit");
+                        tooltip.AddSymbolWithText(1, opCentre.Player.PlayerAgentTracker.CurrentUsage(config.AgentConfig) + "/" + currentCap);
+                    }
                 }
             }
             else

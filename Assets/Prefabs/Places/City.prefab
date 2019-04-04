@@ -76,7 +76,7 @@ GameObject:
   - component: {fileID: 222752763235432098}
   - component: {fileID: 114474624663275106}
   m_Layer: 0
-  m_Name: Population
+  m_Name: Influence
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -224,6 +224,7 @@ MonoBehaviour:
   food: {x: 0, y: 0}
   defence: {x: 0, y: 0}
   playerGold: {x: 0, y: 0}
+  unitCap: 0
 --- !u!114 &114176040660542350
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -239,7 +240,7 @@ MonoBehaviour:
   cityHealthBar: {fileID: 114105987027955466}
   cityStateSymbol: {fileID: 114385817747930390}
   cityName: {fileID: 114252449335611880}
-  population: {fileID: 114474624663275106}
+  influence: {fileID: 114474624663275106}
   city: {fileID: 114574744724499650}
   backGround: {fileID: 114132559925525118}
 --- !u!114 &114211817612771742
@@ -376,7 +377,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 1
+  m_Text: 0
 --- !u!114 &114574744724499650
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -402,11 +403,13 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7973809bfbff6bf48b631fa6acd585b9, type: 2}
   - {fileID: 11400000, guid: b9fa9b4ce7313e24eabd7a40c6b71f37, type: 2}
   - {fileID: 11400000, guid: 5d79ae666f4c039469c9033d500d14be, type: 2}
+  - {fileID: 11400000, guid: 6dc6daf6916e4f04eade2fae6d730d34, type: 2}
   food: 0
   population: 1
   visionRange: 2
   unitCap: 3
   playerBuildingControl: {fileID: 114906063587015198}
+  playerCityBonus: {fileID: 11400000, guid: 0e8386496a6c0384aaee1c405638fae2, type: 2}
   currentStrength: 0
   currentProduction: 0
   currentFood: 0

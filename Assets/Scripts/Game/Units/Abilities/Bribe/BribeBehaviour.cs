@@ -11,9 +11,8 @@ public class BribeBehaviour : AbilityBehaviour
     {
         if(target.City)
         {
-            CityState cityState = target.City.GetCityState();
-            cityState.AdjustInfluence(gameObject.GetComponent<Unit>().GetPlayer(), (config as BribeConfig).GetInfluence());
-            cityState.CheckInfluence();
+            target.City.AdjustInfluence(gameObject.GetComponent<Unit>().GetPlayer(), (config as BribeConfig).GetInfluence());
+            target.City.CheckInfluence();
         }
 
     }
@@ -44,13 +43,7 @@ public class BribeBehaviour : AbilityBehaviour
     {
         if(target.City)
         {
-            CityState cityState = target.City.GetCityState();
-            if (!cityState)
-            {
-                return false;
-            }
-
-            Player player = cityState.Player;
+            Player player = target.City.Player;
             if (!player)
             {
                 return true;

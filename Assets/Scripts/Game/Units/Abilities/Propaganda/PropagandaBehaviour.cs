@@ -11,9 +11,8 @@ public class PropagandaBehaviour : AbilityBehaviour
     {
         if(target.City)
         {
-            CityState cityState = target.City.GetCityState();
-            cityState.AdjustInfluenceForAllExcluding(gameObject.GetComponent<Unit>().GetPlayer(), (config as PropagandaConfig).GetInfluence());
-            cityState.CheckInfluence();
+            target.City.AdjustInfluenceForAllExcluding(gameObject.GetComponent<Unit>().GetPlayer(), (config as PropagandaConfig).GetInfluence());
+            target.City.CheckInfluence();
         }
     }
 
@@ -44,8 +43,7 @@ public class PropagandaBehaviour : AbilityBehaviour
 
         if(target.City)
         {
-            CityState cityState = target.City.GetCityState();
-            if (cityState && cityState.Player && cityState.Player != gameObject.GetComponent<Unit>().GetPlayer())
+            if (target.City.Player && target.City.Player != gameObject.GetComponent<Unit>().GetPlayer())
             {
                 return true;
             }

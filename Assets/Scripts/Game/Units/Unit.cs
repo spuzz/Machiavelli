@@ -20,6 +20,7 @@ public abstract class Unit : MonoBehaviour {
     [SerializeField] HexCellTextEffect textEffect;
     [SerializeField] AnimatorOverrideController animatorOverrideController;
     [SerializeField] Projectile projectilePreFab;
+    [SerializeField] Material defaultUnitMaterial;
     List<HexAction> actions = new List<HexAction>();
     HexUnitActionController hexUnitActionController;
     protected Abilities abilities;
@@ -31,9 +32,6 @@ public abstract class Unit : MonoBehaviour {
     protected UnitUI unitUI;
     HUD hudUI;
     UnitBehaviour behaviour;
-    HexUnit attackUnit;
-    City attackCity;
-    CityState attackCityState;
     protected GameController gameController;
 
     int hitPoints = 100;
@@ -43,31 +41,6 @@ public abstract class Unit : MonoBehaviour {
     public event OnInfoChange onInfoChange;
 
     HexVision hexVision;
-    public HexUnit AttackUnit
-    {
-        get
-        {
-            return attackUnit;
-        }
-
-        set
-        {
-            attackUnit = value;
-        }
-    }
-
-    public City AttackCity
-    {
-        get
-        {
-            return attackCity;
-        }
-
-        set
-        {
-            attackCity = value;
-        }
-    }
 
     public Texture BackGround
     {
@@ -103,27 +76,20 @@ public abstract class Unit : MonoBehaviour {
     {
         return baseHitPoints;
     }
-    public CityState CityState
-    {
-        get
-        {
-            return GetCityState();
-        }
 
-        set
-        {
-            SetCityState(value);
-        }
-    }
-
-    public virtual CityState GetCityState()
+    public virtual City GetCityOwner()
     {
         return null;
     }
 
-    public virtual void SetCityState(CityState cityState)
+    public CityState GetCityState()
     {
-
+        City city = GetCityOwner();
+        if (city)
+        {
+            return city.GetCityState();
+        }
+        return null;
     }
 
     public int HitPoints
@@ -274,18 +240,6 @@ public abstract class Unit : MonoBehaviour {
         }
     }
 
-    public CityState AttackCityState
-    {
-        get
-        {
-            return attackCityState;
-        }
-
-        set
-        {
-            attackCityState = value;
-        }
-    }
 
     public int Range
     {
@@ -420,7 +374,7 @@ public abstract class Unit : MonoBehaviour {
             action.ActionsUnit = this.HexUnit;
             action.MeleeAction = melee;
             action.AddAction(cell, hexUnit.Location, cell.City, result.Value, result.Key, cityState);
-            if (cell.City.GetCityState() == GetCityState())
+            if (cell.City.GetCityState() == GetCityOwner())
             {
                 action.SetKillTarget();
             }
@@ -457,7 +411,6 @@ public abstract class Unit : MonoBehaviour {
 
     public bool MoveUnit()
     {
-        AttackUnit = null;
         if (path.Count == 0)
         {
             return false;
@@ -510,14 +463,6 @@ public abstract class Unit : MonoBehaviour {
         return true;
     }
 
-    public bool IsSomethingToAttack()
-    {
-        if(AttackCity || AttackUnit)
-        {
-            return true;
-        }
-        return false;
-    }
     void Start() {
 
         StartTurn();
@@ -569,32 +514,29 @@ public abstract class Unit : MonoBehaviour {
         }
     }
 
-
-
     public KeyValuePair<int,int> FightCity(City city)
     {
         KeyValuePair<int, int> result = new KeyValuePair<int, int>();
-        if (hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && GetCityState() != city.GetCityState())
+        if (hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && GetCityOwner() != city.GetCityState())
         {
             CityState currentCityState = city.GetCityState();
-            AttackCity = city;
-            AttackCityState = currentCityState;
             result = CombatSystem.CityFight(this, city);
             if (city.HitPoints <= 0)
             {
-                if (hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && GetComponent<CombatUnit>().Mercenary && !GetComponent<Unit>().GetCityState())
+                if (hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && GetComponent<CombatUnit>().Mercenary && !GetComponent<Unit>().GetCityOwner())
                 {
                     GetComponent<Unit>().GetPlayer().Gold += city.Plunder();
                     city.HitPoints = 1;
                 }
                 else
                 {
-                    city.GetCityState().KillLocalUnits(city);
-                    city.SetCityState(GetComponent<Unit>().CityState);
-                    if (currentCityState.GetCityCount() == 0)
+                    HexUnit unitInCity = city.GetHexCell().hexUnits.Find(c => c.HexUnitType == HexUnit.UnitType.COMBAT);
+                    if(unitInCity)
                     {
-                        currentCityState.KillAllUnits();
+                        gameController.KillUnit(unitInCity.unit);
                     }
+                    city.KillCityUnits();
+                    city.SetCityState(GetCityState());
                     city.HitPoints = 50;
                 }
             }
@@ -630,13 +572,15 @@ public abstract class Unit : MonoBehaviour {
             unitUI.SetColour(GetPlayer().GetColour().Colour);
             HexUnit.MaterialColourChanger.ChangeMaterial(GetPlayer().GetColour());
         }
-        else if(GetCityState())
+        else if(GetCityOwner() && GetCityOwner().Player)
         {
-            if(GetCityState().Player)
-            {
-                unitUI.SetColour(GetCityState().Player.GetColour().Colour);
-                HexUnit.MaterialColourChanger.ChangeMaterial(GetCityState().Player.GetColour());
-            }
+            unitUI.SetColour(GetCityOwner().Player.GetColour().Colour);
+            HexUnit.MaterialColourChanger.ChangeMaterial(GetCityOwner().Player.GetColour());
+        }
+        else
+        {
+            unitUI.SetColour(Color.black);
+            HexUnit.MaterialColourChanger.ChangeMaterial(defaultUnitMaterial);
         }
     }
 
@@ -680,7 +624,23 @@ public abstract class Unit : MonoBehaviour {
             ListPool<HexCell>.Add(cells);
 
         }
+        if (GetPlayer())
+        {
+            List<HexCell> cells = hexGrid.GetVisibleCells(hexCell, hexUnit.VisionRange);
+            for (int i = 0; i < cells.Count; i++)
+            {
+                if (increase)
+                {
+                    GetPlayer().AddVisibleCell(cells[i]);
+                }
+                else
+                {
+                    GetPlayer().RemoveVisibleCell(cells[i]);
+                }
+            }
+            ListPool<HexCell>.Add(cells);
 
+        }
     }
 
     public void KillUnit()
@@ -696,19 +656,6 @@ public abstract class Unit : MonoBehaviour {
         NotifyInfoChange();
     }
 
-    //public void UseAbility(int abilityNumber, HexCell hexCell)
-    //{
-    //    abilities.UseAbility(abilityNumber, hexCell);
-    //    NotifyInfoChange();
-
-    //}
-    //public void UseAbility(string abilityName, HexCell hexCell)
-    //{
-    //    abilities.UseAbility(abilities.AbilitiesList.IndexOf(abilities.AbilitiesList.Find(c=> c.AbilityName == abilityName)), hexCell);
-    //    NotifyInfoChange();
-
-    //}
-
     public void RunAbility(int abilityNumber, HexCell hexCell)
     {
         abilities.RunAbility(abilityNumber, hexCell);
@@ -721,35 +668,6 @@ public abstract class Unit : MonoBehaviour {
         NotifyInfoChange();
 
     }
-
-
-    //public void ShowAbility(int abilityNumber, HexCell hexCell)
-    //{
-    //    abilities.ShowAbility(abilityNumber, hexCell);
-    //    NotifyInfoChange();
-
-    //}
-    //public void ShowAbility(string abilityName, HexCell hexCell)
-    //{
-    //    abilities.ShowAbility(abilities.AbilitiesList.IndexOf(abilities.AbilitiesList.Find(c => c.AbilityName == abilityName)), hexCell);
-    //    NotifyInfoChange();
-
-    //}
-
-
-    //public void FinishAbility(int abilityNumber, HexCell hexCell)
-    //{
-    //    abilities.FinishAbility(abilityNumber, hexCell);
-    //    NotifyInfoChange();
-
-    //}
-    //public void FinishAbility(string abilityName, HexCell hexCell)
-    //{
-    //    abilities.FinishAbility(abilities.AbilitiesList.IndexOf(abilities.AbilitiesList.Find(c => c.AbilityName == abilityName)), hexCell);
-    //    NotifyInfoChange();
-
-    //}
-
 
     public IEnumerable<AbilityConfig> GetAbilities()
     {

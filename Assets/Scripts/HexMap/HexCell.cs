@@ -660,7 +660,7 @@ public class HexCell : MonoBehaviour {
         {
             return false;
         }
-        if(City && unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.GetComponent<Unit>().CityState != City.GetCityState())
+        if(City && unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.GetComponent<Unit>().GetCityState() != City.GetCityState())
         {
             return false;
         }

@@ -61,19 +61,19 @@ public class HexUnitActionController : MonoBehaviour {
     public void AddActions(List<HexAction> hexActions, HexUnit unit)
     {
         List<HexAction> moveActions = hexActions.FindAll(c => c.HexActionType == HexAction.ActionType.MOVE);
-        while(moveActions.Count >= 2)
+        while (moveActions.Count >= 2)
         {
             moveActions[0].AddAction(moveActions[1]);
             moveActions.Remove(moveActions[1]);
         }
-
-        if(moveActions.Count > 0)
+        if (moveActions.Count > 0)
         {
             hexActions.RemoveAll(c => c.HexActionType == HexAction.ActionType.MOVE);
             hexActions.Insert(0, moveActions[0]);
         }
 
-        foreach(HexAction action in hexActions)
+
+        foreach (HexAction action in hexActions)
         {
             AddAction(action,unit);
         }
@@ -118,7 +118,7 @@ public class HexUnitActionController : MonoBehaviour {
         }
         if(action.CityTarget && action.KillTarget && action.CityStateTarget.GetCityCount() == 0)
         {
-            if (actionQueue.GetRange(0, actionQueue.IndexOf(action)).FindAll(c => c.UnitTarget && c.UnitTarget.unit.GetCityState() == action.CityStateTarget).Count != 0)
+            if (actionQueue.GetRange(0, actionQueue.IndexOf(action)).FindAll(c => c.UnitTarget && c.UnitTarget.unit.GetCityOwner() == action.CityStateTarget).Count != 0)
             {
                 return false;
             }

@@ -225,7 +225,7 @@ public class HexUnit : MonoBehaviour {
 
     public bool IsValidAttackDestination(HexCell cell)
     {
-        if(cell.City && hexUnitType == UnitType.COMBAT && cell.City.GetCityState() != GetComponent<Unit>().CityState)
+        if(cell.City && hexUnitType == UnitType.COMBAT && cell.City.GetCityState() != GetComponent<Unit>().GetCityState())
         {
             return true;
         }
@@ -235,56 +235,6 @@ public class HexUnit : MonoBehaviour {
         }
         return false;
     }
-
- //   public void Travel (List<HexCell> path) {
- //       location.RemoveUnit(this);
- //       HexAction action = hexUnitActionController.CreatAction();
- //       action.SetPath(path);
- //       if (unit.IsSomethingToAttack())
- //       {
-            
- //           if(unit.AttackUnit)
- //           {
- //               action.AddAction(path[path.Count - 1], path[path.Count - 2],unit.AttackUnit, unit.GetLastHitPointChange(), unit.AttackUnit.unit.GetLastHitPointChange());
- //               if(unit.AttackUnit.unit.HitPoints <= 0)
- //               {
- //                   action.KillTarget();
- //               }
- //           }
- //           else if (unit.AttackCity)
- //           {
- //               action.AddAction(path[path.Count - 1], path[path.Count - 2], unit.AttackCity, unit.GetLastHitPointChange(), 0, unit.AttackCityState);
- //               if ( unit.AttackCity.GetCityState() != unit.AttackCityState)
- //               {
- //                   action.KillTarget();
- //               }
-                
- //           }
-
- //           if(unit.Alive == false)
- //           {
- //               action.KillSelf();
- //           }
- //           location = path[path.Count - 2];
- //           path.Remove(path[path.Count - 1]);
- //       }
- //       else
- //       {
- //           location = path[path.Count - 1];
- //       }
- //       for(int a = 1; a < path.Count; a++)
- //       {
- //           unit.UpdateOwnerVisiblity(path[a - 1], false);
- //           unit.UpdateOwnerVisiblity(path[a], true);
- //       }
- //       if (unit.Alive == true)
- //       {
- //           location.AddUnit(this);
- //       }
-	//	pathToTravel = path;
- //       action.ActionsUnit = this;
- //       hexUnitActionController.AddAction(action, this);
-	//}
 
     public void SetLocationOnly(HexCell cell)
     {
@@ -341,7 +291,7 @@ public class HexUnit : MonoBehaviour {
 		Orientation = transform.localRotation.eulerAngles.y;
 	}
 
-    public IEnumerator FightCity(City city, bool killTarget, CityState cityState)
+    public IEnumerator FightCity(City city, bool killTarget, CityState cityState, HexUnit targetUnit)
     {
         LookAt(city.GetHexCell().Position);
         float attackTime = 0;
@@ -358,9 +308,11 @@ public class HexUnit : MonoBehaviour {
             {
                 unit.GameController.DestroyCityState(cityState);
             }
-            else
+
+            city.DestroyCityUnits();
+            if(targetUnit)
             {
-                cityState.DestroyLocalUnits(city);
+                targetUnit.DestroyHexUnit();
             }
 
             city.UpdateCityBar();

@@ -7,8 +7,8 @@ public class Politician : CityPlayerBuilding {
     [SerializeField] int influencePerTurn = -2;
     public override void StartTurn()
     {
-        cityBuildIn.GetCityState().AdjustInfluenceForAllExcluding(PlayersBuilding, influencePerTurn);
-        cityBuildIn.GetCityState().CheckInfluence();
+        cityBuildIn.AdjustInfluenceForAllExcluding(PlayersBuilding, influencePerTurn);
+        cityBuildIn.CheckInfluence();
     }
 
 }

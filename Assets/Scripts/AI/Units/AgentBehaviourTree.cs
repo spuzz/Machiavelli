@@ -471,7 +471,7 @@ public class AgentBehaviourTree : MonoBehaviour {
             List<City> targets = new List<City>();
             foreach (HexCell cell in cells)
             {
-                if(cell.City && cell.City.GetCityState().Player && cell.City.GetCityState().Player != agent.GetPlayer() && agent.GetPlayer().exploredCells.Contains(cell))
+                if(cell.City && cell.City.Player && cell.City.Player != agent.GetPlayer() && agent.GetPlayer().exploredCells.Contains(cell))
                 {
                     targets.Add(cell.City);
                 }
@@ -509,7 +509,7 @@ public class AgentBehaviourTree : MonoBehaviour {
             List<City> targets = new List<City>();
             foreach (HexCell cell in cells)
             {
-                if (cell.City && !cell.City.GetCityState().Player && agent.GetPlayer().exploredCells.Contains(cell))
+                if (cell.City && !cell.City.Player && agent.GetPlayer().exploredCells.Contains(cell))
                 {
                     targets.Add(cell.City);
                 }
@@ -549,7 +549,7 @@ public class AgentBehaviourTree : MonoBehaviour {
                 {
                     foreach (HexUnit unit in cell.hexUnits)
                     {
-                        if (unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.unit.GetCityState() && unit.unit.GetCityState().Player && unit.unit.GetCityState().Player != agent.GetPlayer())
+                        if (unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.unit.GetCityOwner() && unit.unit.GetCityOwner().Player && unit.unit.GetCityOwner().Player != agent.GetPlayer())
                         {
                             targets.Add(cell);
                         }
@@ -593,7 +593,7 @@ public class AgentBehaviourTree : MonoBehaviour {
                 {
                     foreach (HexUnit unit in cell.hexUnits)
                     {
-                        if (unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.unit.GetCityState() && !unit.unit.GetCityState().Player)
+                        if (unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.unit.GetCityOwner() && !unit.unit.GetCityOwner().Player)
                         {
                             targets.Add(cell);
                         }

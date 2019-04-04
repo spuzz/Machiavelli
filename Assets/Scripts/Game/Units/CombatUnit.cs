@@ -6,7 +6,7 @@ using UnityEngine;
 public class CombatUnit : Unit
 {
     [SerializeField] Texture mercBackground;
-    [SerializeField] Material defaultUnitMaterial;
+
     public enum Stance
     {
         UNASSIGNED,
@@ -18,9 +18,8 @@ public class CombatUnit : Unit
     Stance currentStance = Stance.UNASSIGNED;
     CombatUnitConfig combatUnitConfig;
     bool mercenary;
-    CityState cityState;
-    Player player;
     City cityOwner;
+    Player player;
 
     public Stance CurrentStance
     {
@@ -54,7 +53,26 @@ public class CombatUnit : Unit
 
         set
         {
+            if (cityOwner)
+            {
+                UpdateOwnerVisiblity(HexUnit.Location, false);
+            }
+
             cityOwner = value;
+            UpdateOwnerVisiblity(HexUnit.Location, true);
+            if (unitUI)
+            {
+                if (GetCityState())
+                {
+                    unitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(GetCityState().SymbolID));
+
+                }
+                else
+                {
+                    unitUI.SetCityStateSymbolToDefault();
+                }
+            }
+            UpdateColours();
         }
     }
 
@@ -63,16 +81,11 @@ public class CombatUnit : Unit
         if (player)
         {
             UpdateOwnerVisiblity(HexUnit.Location, false);
-
         }
         this.player = player;
 
         UpdateOwnerVisiblity(HexUnit.Location, true);
-        if (unitUI)
-        {
-            unitUI.SetColour(player.GetColour().Colour);
-        }
-        HexUnit.MaterialColourChanger.ChangeMaterial(player.GetColour());
+        UpdateColours();
 
     }
     public override Player GetPlayer()
@@ -80,42 +93,9 @@ public class CombatUnit : Unit
         return player;
     }
 
-    public override CityState GetCityState()
+    public override City GetCityOwner()
     {
-        return cityState;
-    }
-    public override void SetCityState(CityState value)
-    {
-        if (cityState)
-        {
-            UpdateOwnerVisiblity(HexUnit.Location, false);
-        }
-
-
-        cityState = value;
-        UpdateOwnerVisiblity(HexUnit.Location, true);
-        if (unitUI)
-        {
-            if(cityState)
-            {
-                unitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(cityState.SymbolID));
-                if (!player && cityState.Player)
-                {
-                    unitUI.SetColour(cityState.Player.GetColour().Colour);
-                    HexUnit.MaterialColourChanger.ChangeMaterial(cityState.Player.GetColour());
-                }
-                else if(!player)
-                {
-                    HexUnit.MaterialColourChanger.ChangeMaterial(defaultUnitMaterial);
-                }
-
-            }
-            else
-            {
-                unitUI.SetCityStateSymbolToDefault();
-                HexUnit.MaterialColourChanger.ChangeMaterial(defaultUnitMaterial);
-            }
-        }
+        return cityOwner;
     }
 
     public void SetCombatUnitConfig(CombatUnitConfig config)
@@ -137,10 +117,11 @@ public class CombatUnit : Unit
 
     public override void Setup()
     {
-        if (cityState)
+        if (CityOwner)
         {
-            unitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(cityState.SymbolID));
-            HexUnit.MaterialColourChanger.ChangeMaterial(defaultUnitMaterial);
+            
+            unitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(GetCityState().SymbolID));
+            UpdateColours();
         }
 
     }
@@ -151,7 +132,7 @@ public class CombatUnit : Unit
 
     public override bool CanAttack(Unit unit)
     {
-        if(unit.CityState && unit.CityState != CityState)
+        if(unit.GetCityState() && unit.GetCityState() != GetCityState())
         {
             return true;
         }
@@ -166,7 +147,7 @@ public class CombatUnit : Unit
         writer.Write(combatUnitConfig.Name);
     }
 
-    public static CombatUnit Load(BinaryReader reader,GameController gameController, HexGrid grid, int header, int cityStateID)
+    public static CombatUnit Load(BinaryReader reader,GameController gameController, HexGrid grid, int header, City city)
     {
         HexCoordinates coordinates = HexCoordinates.Load(reader);
         float orientation = reader.ReadSingle();
@@ -186,7 +167,7 @@ public class CombatUnit : Unit
         }
 
 
-        HexUnit hexUnit = gameController.CreateCityStateUnit(combatUnitConfig, grid.GetCell(coordinates), cityStateID);
+        HexUnit hexUnit = gameController.CreateCityStateUnit(combatUnitConfig, grid.GetCell(coordinates), city);
         CombatUnit combatUnit = hexUnit.GetComponent<CombatUnit>();
         if (header >= 3)
         {

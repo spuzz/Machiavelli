@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: b77b9e0882bb82d49aec8e519ba47776, type: 3}
   m_Name: Propaganda Config
   m_EditorClassIdentifier: 
-  cost: 20
+  cost: 0
   range: 1
   particlePrefab: {fileID: 0}
   abilityAnimation: {fileID: 7400000, guid: f94c62a8b96f5a7469ce0da8ccac09b3, type: 3}
@@ -23,4 +23,4 @@ MonoBehaviour:
   abilityType: 0
   displayName: Propaganda
   toolTipText: Spread the 'Truth' about enemy players
-  influence: -50
+  influence: -5

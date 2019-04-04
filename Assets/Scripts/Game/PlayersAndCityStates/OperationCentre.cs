@@ -280,10 +280,11 @@ public class OperationCentre : MonoBehaviour
 
     public bool HireAgent(AgentBuildConfig agentBuildConfig)
     {
-        if(agentBuildConfig.BasePurchaseCost <= player.Gold)
+        if(agentBuildConfig.BasePurchaseCost <= player.Gold && player.CanHireAgent(agentBuildConfig.AgentConfig))
         {
             player.Gold -= agentBuildConfig.BasePurchaseCost;
             BuildingManagerForAgents.AddBuild(agentBuildConfig);
+            player.UseAgentSpace(agentBuildConfig.AgentConfig);
             NotifyInfoChange();
             return true;
         }

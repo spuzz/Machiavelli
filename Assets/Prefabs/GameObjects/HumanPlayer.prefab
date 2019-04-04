@@ -9,16 +9,16 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1822550599904512}
+  m_RootGameObject: {fileID: 1746500598780918}
   m_IsPrefabAsset: 1
---- !u!1 &1737152953586042
+--- !u!1 &1558523403609084
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4567134498492458}
+  - component: {fileID: 4715177218267290}
   m_Layer: 0
   m_Name: OperationCentres
   m_TagString: Untagged
@@ -26,69 +26,56 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!1 &1822550599904512
+--- !u!1 &1746500598780918
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4656054464881580}
-  - component: {fileID: 114520537494477776}
-  - component: {fileID: 114119021097983002}
-  - component: {fileID: 114220412578490972}
+  - component: {fileID: 4498640209154000}
+  - component: {fileID: 114850114750911376}
+  - component: {fileID: 114264635372078162}
   m_Layer: 0
-  m_Name: AI Player
+  m_Name: HumanPlayer
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4567134498492458
+--- !u!4 &4498640209154000
 Transform:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1737152953586042}
+  m_GameObject: {fileID: 1746500598780918}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children:
+  - {fileID: 4715177218267290}
+  m_Father: {fileID: 0}
+  m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4715177218267290
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1558523403609084}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
-  m_Father: {fileID: 4656054464881580}
+  m_Father: {fileID: 4498640209154000}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!4 &4656054464881580
-Transform:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1822550599904512}
-  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
-  m_LocalPosition: {x: 0, y: 0, z: 0}
-  m_LocalScale: {x: 1, y: 1, z: 1}
-  m_Children:
-  - {fileID: 4567134498492458}
-  m_Father: {fileID: 0}
-  m_RootOrder: 0
-  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114119021097983002
+--- !u!114 &114264635372078162
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1822550599904512}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 90e4961cf80d15847b6ecd06d937ae65, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  player: {fileID: 114520537494477776}
---- !u!114 &114220412578490972
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1822550599904512}
+  m_GameObject: {fileID: 1746500598780918}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: fb785f5341af9c5468d2045ec5a09a1e, type: 3}
@@ -102,30 +89,35 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 1e390ffe2591f214387e9a416e86b464, type: 2}
   - {fileID: 11400000, guid: 99ab66049cd47a84088ae9268102266a, type: 2}
   - {fileID: 11400000, guid: 2a94a43b06eb48441b927c2b1619501d, type: 2}
---- !u!114 &114520537494477776
+--- !u!114 &114850114750911376
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1822550599904512}
+  m_GameObject: {fileID: 1746500598780918}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 5c23756758871f64ca762f164ceffce9, type: 3}
+  m_Script: {fileID: 11500000, guid: 03486d68f9108444cae6d6e9894c64dc, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
   gold: 100
   cityPlayerBuildConfigs:
   - {fileID: 11400000, guid: 1eaaf0b6389fef242af0016541b290cc, type: 2}
   - {fileID: 11400000, guid: 770d5744356f1a74893f31d20d81f2cb, type: 2}
-  - {fileID: 11400000, guid: f01311a60fa519846a9e09c464e91091, type: 2}
   - {fileID: 11400000, guid: 79c4cb32f7e70f1448b9c38220c37fe4, type: 2}
-  playerAgentTracker: {fileID: 114220412578490972}
+  - {fileID: 11400000, guid: f01311a60fa519846a9e09c464e91091, type: 2}
+  - {fileID: 11400000, guid: 832fec4590ef6304da09302d4a662727, type: 2}
+  - {fileID: 11400000, guid: 8e54705171a8b9746baad05a0d580b81, type: 2}
+  - {fileID: 11400000, guid: 7959a2425a4d4ae409add9d4617f104c, type: 2}
+  - {fileID: 11400000, guid: 9403dae0cd752554ca6d7dabdafec7b5, type: 2}
+  - {fileID: 11400000, guid: 6960c711dea9c0d439f1e8e74edf3ab3, type: 2}
+  - {fileID: 11400000, guid: 6440965652c69c54683eeb84c0bd1678, type: 2}
+  playerAgentTracker: {fileID: 114264635372078162}
   textEffect: {fileID: 1096156621854288, guid: cbce99c46ef89c94f965d408ea4706c6, type: 2}
-  operationCenterTransformParent: {fileID: 1737152953586042}
+  operationCenterTransformParent: {fileID: 1558523403609084}
   agents: []
   mercenaries: []
   cityStates: []
   cities: []
   opCentres: []
   exploredCells: []
-  playerAIController: {fileID: 114119021097983002}

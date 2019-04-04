@@ -82,7 +82,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceBenefit: {fileID: 114300103701174494}
-  influencePerTurn: 2
+  influencePerTurn: 5
 --- !u!114 &114300103701174494
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -100,3 +100,4 @@ MonoBehaviour:
   food: {x: 0, y: 0}
   defence: {x: 0, y: 0}
   playerGold: {x: 0, y: 0}
+  unitCap: 0

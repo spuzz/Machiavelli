@@ -149,7 +149,12 @@ public class HexMapEditor : MonoBehaviour {
 				HandleInput();
 				return;
 			}
-			if (Input.GetKeyDown(KeyCode.U)) {
+            if (Input.GetMouseButton(1))
+            {
+                HandleRightClickInput();
+                return;
+            }
+            if (Input.GetKeyDown(KeyCode.U)) {
 				if (Input.GetKey(KeyCode.LeftShift)) {
 					DestroyUnit();
 				}
@@ -237,13 +242,13 @@ public class HexMapEditor : MonoBehaviour {
         {
             string name = cityStateUnits.options[cityStateUnits.value].text;
             int cityStateID = System.Convert.ToInt32(cityStates.options[cityStates.value].text);
-            gameController.CreateCityStateUnit(name, cell, cityStateID);
+            //gameController.CreateCityStateUnit(name, cell, cityStateID);
         }
     }
 
-    public void SetCityStatePlayer()
+    public void SetCityPlayer(City city)
     {
-        int cityStateID = System.Convert.ToInt32(cityStates.options[cityStates.value].text);
+        
         string playerName = players.options[players.value].text;
         Player player;
         if (playerName == "Human Player")
@@ -257,9 +262,9 @@ public class HexMapEditor : MonoBehaviour {
         }
 
 
-        if(player)
+        if(player && city.Player != player)
         {
-            gameController.SetCityStatePlayer(player, cityStateID);
+            city.Player = player;
         }
     }
 
@@ -279,6 +284,18 @@ public class HexMapEditor : MonoBehaviour {
 			previousCell = null;
 		}
 	}
+
+    void HandleRightClickInput()
+    {
+        HexCell currentCell = GetCellUnderCursor();
+        if (currentCell)
+        {
+            if (currentCell.City)
+            {
+                SetCityPlayer(currentCell.City);
+            }
+        }
+    }
 
 	void ValidateDrag (HexCell currentCell) {
 		for (

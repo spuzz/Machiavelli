@@ -13,7 +13,7 @@ public class CityUI : MonoBehaviour
     [SerializeField] CityHealthBar cityHealthBar;
     [SerializeField] Image cityStateSymbol;
     [SerializeField] Text cityName;
-    [SerializeField] Text population;
+    [SerializeField] Text influence;
     [SerializeField] City city;
     [SerializeField] RawImage backGround;
     Camera cameraToLookAt;
@@ -28,11 +28,37 @@ public class CityUI : MonoBehaviour
 
         set
         {
+            if(city)
+            {
+                city.onInfoChange -= UpdateInfo;
+            }
             city = value;
-            cityHealthBar.CityObject = city;
+            if (city)
+            {
+                city.onInfoChange += UpdateInfo;
+                cityHealthBar.CityObject = city;
+            }
+            UpdateInfo(city);
         }
     }
 
+    private void OnEnable()
+    {
+        if(city)
+        {
+            city.onInfoChange += UpdateInfo;
+            UpdateInfo(city);
+        }
+        
+    }
+
+    private void OnDisable()
+    {
+        if(city)
+        {
+            city.onInfoChange -= UpdateInfo;
+        }
+    }
     public bool Visible
     {
         get
@@ -68,7 +94,12 @@ public class CityUI : MonoBehaviour
 
     public void SetPopulation(string pop)
     {
-        population.text = pop;
+
+    }
+
+    public void SetInfluence(string inf)
+    {
+        influence.text = inf;
     }
 
     private void Awake()
@@ -100,5 +131,17 @@ public class CityUI : MonoBehaviour
     public void SelectCity()
     {
         hexGameUI.SelectCity(city);
+    }
+
+    public void UpdateInfo(City city)
+    {
+        if(city.Player)
+        {
+            influence.text = city.GetInfluence(city.Player).ToString();
+        }
+        else
+        {
+            influence.text = city.GetInfluence(GameController.Instance.HumanPlayer).ToString();
+        }
     }
 }

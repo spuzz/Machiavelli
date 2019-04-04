@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d94c7650982a1ed48aa40794f4bdc5c7, type: 3}
   m_Name: BuildOutpost
   m_EditorClassIdentifier: 
-  cost: 30
+  cost: 0
   range: 0
   particlePrefab: {fileID: 0}
   abilityAnimation: {fileID: 7400000, guid: d195d26fd19d3514e827e5ee91e1e26f, type: 3}

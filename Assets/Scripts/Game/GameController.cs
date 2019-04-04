@@ -45,6 +45,7 @@ public class GameController : MonoBehaviour
     HexGrid hexGrid;
 
     private bool turnOver = false;
+    static GameController instance;
     public HumanPlayer HumanPlayer
     {
         get { return humanPlayer; }
@@ -87,6 +88,19 @@ public class GameController : MonoBehaviour
         {
             turnOver = value;
         }
+    }
+
+    public static GameController Instance
+    {
+        get
+        {
+            if(!instance)
+            {
+                instance = FindObjectOfType<GameController>();
+            }
+            return instance;
+        }
+
     }
 
     public int GetTurn()
@@ -247,6 +261,27 @@ public class GameController : MonoBehaviour
         SceneManager.LoadScene(0);
     }
 
+    public void CheckWinner()
+    {
+        if(HumanPlayer.cityStates.Count == cityStates.Count)
+        {
+            Debug.Log("Winner");
+            EndGame();
+        }
+        else
+        {
+            foreach(Player player in players)
+            {
+                if (player.cityStates.Count == cityStates.Count)
+                {
+                    Debug.Log("Loser");
+                    EndGame();
+                }
+            }
+        }
+
+    }
+
     public int PlayerCount()
     {
         return players.Count + 1;
@@ -353,6 +388,7 @@ public class GameController : MonoBehaviour
         if(city.GetCityState())
         {
             city.GetCityState().RemoveCity(city);
+
         }
         cities.Remove(city);
         city.DestroyCity();
@@ -415,9 +451,8 @@ public class GameController : MonoBehaviour
         return hexUnit;
     }
 
-    public HexUnit CreateCityStateUnit(CombatUnitConfig combatUnitConfig, HexCell cell, int cityStateID)
+    public HexUnit CreateCityStateUnit(CombatUnitConfig combatUnitConfig, HexCell cell, City city)
     {
-        CityState cityState = cityStates.Find(c => c.CityStateID == cityStateID);
         HexUnit hexUnit = Instantiate(combatUnitPrefab).GetComponent<HexUnit>();
         CombatUnit combatUnit = hexUnit.GetComponent<CombatUnit>();
         combatUnit.SetCombatUnitConfig(combatUnitConfig);
@@ -426,10 +461,10 @@ public class GameController : MonoBehaviour
         hexUnit.Orientation = Random.Range(0f, 360f);
         hexUnit.HexUnitType = HexUnit.UnitType.COMBAT;
         hexGrid.AddUnit(hexUnit);
-        cityState.AddUnit(hexUnit.GetComponent<CombatUnit>());
+        city.AddUnit(hexUnit.GetComponent<CombatUnit>());
         return hexUnit;
     }
-    public HexUnit CreateCityStateUnit(string combatUnitConfig, HexCell cell, int cityStateID)
+    public HexUnit CreateCityStateUnit(string combatUnitConfig, HexCell cell, City city)
     {
         
         HexUnit hexUnit = Instantiate(combatUnitPrefab).GetComponent<HexUnit>();
@@ -441,8 +476,7 @@ public class GameController : MonoBehaviour
         hexUnit.Orientation = Random.Range(0f, 360f);
         hexUnit.HexUnitType = HexUnit.UnitType.COMBAT;
         hexGrid.AddUnit(hexUnit);
-        CityState cityState = cityStates.Find(c => c.CityStateID == cityStateID);
-        cityState.AddUnit(hexUnit.GetComponent<CombatUnit>());
+        city.AddUnit(hexUnit.GetComponent<CombatUnit>());
         return hexUnit;
     }
 
@@ -458,11 +492,6 @@ public class GameController : MonoBehaviour
         hexUnit.Orientation = Random.Range(0f, 360f);
         hexUnit.HexUnitType = HexUnit.UnitType.COMBAT;
         hexGrid.AddUnit(hexUnit);
-        CityState cityState = cityStates.Find(c => c.CityStateID == cityStateID);
-        if(cityState)
-        {
-            combatUnit.SetCityState(cityState);
-        }
         if (player.IsHuman)
         {
             hexUnit.Controllable = true;
@@ -515,11 +544,10 @@ public class GameController : MonoBehaviour
             unit.GetComponent<Agent>().GetPlayer().RemoveAgent(unit.GetComponent<Agent>());
         }
 
-        if (unit.HexUnit.HexUnitType == HexUnit.UnitType.COMBAT && unit.CityState)
+        if (unit.HexUnit.HexUnitType == HexUnit.UnitType.COMBAT && unit.GetCityOwner())
         {
+            unit.GetCityOwner().RemoveUnit(unit as CombatUnit);
             CombatUnit combatUnit = unit.GetComponent<CombatUnit>();
-            unit.CityState.RemoveUnit(combatUnit);
-            combatUnit.CityOwner.RemoveUnit(combatUnit);
         }
     }
 
@@ -552,8 +580,34 @@ public class GameController : MonoBehaviour
             cityState.Player = player;
         }
     }
+    public void CheckCityState(CityState cityState)
+    {
+        List<City> cityStateCities = cities.FindAll(c => c.GetCityState() == cityState);
+        if (CheckIfPlayerControlsCityState(cityStateCities, HumanPlayer, cityState))
+        {
+            CheckWinner();
+            return;
+        }
+        foreach(Player player in players)
+        {
+            if (CheckIfPlayerControlsCityState(cityStateCities, player, cityState))
+            {
+                CheckWinner();
+                return;
+            }
+        }
+    }
 
+    public bool CheckIfPlayerControlsCityState(List<City> cityStateCities, Player player, CityState cityState)
+    {
 
+        if (cityStateCities.FindAll(c => c.Player == player).Count >= (float)(cityStateCities.Count) / 2.0f)
+        {
+            SetCityStatePlayer(player, cityState.CityStateID);
+            return true;
+        }
+        return false;
+    }
     public AIPlayer CreateAIPlayer()
     {
         AIPlayer instance = Instantiate(aiPlayerPrefab);

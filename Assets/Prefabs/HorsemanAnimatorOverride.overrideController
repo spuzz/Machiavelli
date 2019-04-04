@@ -5,18 +5,18 @@ AnimatorOverrideController:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 0}
-  m_Name: AgentAnimatorOverride
+  m_Name: HorsemanAnimatorOverride
   m_Controller: {fileID: 9100000, guid: a0cc171a84207604a9a786fbe70fb048, type: 2}
   m_Clips:
   - m_OriginalClip: {fileID: 7400002, guid: 0ac1541d2f45af74cb24d20defd48d74, type: 3}
-    m_OverrideClip: {fileID: 7400000, guid: f94c62a8b96f5a7469ce0da8ccac09b3, type: 3}
+    m_OverrideClip: {fileID: 7400000, guid: d9e08ecb223b5684ebbf25b74be46a78, type: 3}
   - m_OriginalClip: {fileID: 7400002, guid: 49c12ceef3648484cb6ab16883e26f6f, type: 3}
-    m_OverrideClip: {fileID: 7400000, guid: c98a40c49362f74499d0d3e1eee86192, type: 3}
+    m_OverrideClip: {fileID: 7400000, guid: 13483029c16299a4782c75292618072b, type: 3}
   - m_OriginalClip: {fileID: 7400002, guid: 648f920f7d67cfa4da2fa170e5697652, type: 3}
-    m_OverrideClip: {fileID: 7400000, guid: e6cc7455e8ed38c4581b43f8d90196d5, type: 3}
+    m_OverrideClip: {fileID: 7400000, guid: cc7ad237db915db4c80f59fe9132d809, type: 3}
   - m_OriginalClip: {fileID: 7400002, guid: be84ce1850a616748b86811d6cf11099, type: 3}
-    m_OverrideClip: {fileID: 7400000, guid: 77c70dd3567cf964c948b94f697572dc, type: 3}
+    m_OverrideClip: {fileID: 7400000, guid: 3442f40d479296848b97388a44160bdd, type: 3}
   - m_OriginalClip: {fileID: 7400000, guid: a138de946036a6b4c836050bc5413468, type: 3}
-    m_OverrideClip: {fileID: 7400000, guid: d416f40d6013a7c4abab578970fbd9ed, type: 3}
+    m_OverrideClip: {fileID: 7400000, guid: 16c6545aec30fd246b412978a9287f65, type: 3}
   - m_OriginalClip: {fileID: 7400000, guid: 884ca423a24fb5541b2c91f9986642a5, type: 3}
-    m_OverrideClip: {fileID: 7400000, guid: 7bea35c8f90bc374b9dbdfd6040f3c4f, type: 3}
+    m_OverrideClip: {fileID: 7400000, guid: a6b0a214acbed6c479b060f18ee594c4, type: 3}

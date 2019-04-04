@@ -10,20 +10,23 @@ public class CityStateAIController : MonoBehaviour
     [SerializeField] CityState cityState;
     [SerializeField] HexCell attackTarget = null;
     [SerializeField] List<BuildConfig> buildConfigs;
-
-    bool areaLeftToExplore = true;
+    List<CombatUnit> units = new List<CombatUnit>();
     public void UpdateUnits()
     {
+        units.Clear();
+        foreach(City city in cityState.GetCities())
+        {
+            foreach (CombatUnit unit in city.GetUnits())
+            {
+                if(unit.Alive)
+                {
+                    units.Add(unit);
+                }
+            }
+        }
         AssignStance();
 
-        List<CombatUnit> unitsAtStart = new List<CombatUnit>();
-
-        foreach (CombatUnit unit in cityState.GetUnits())
-        {
-            unitsAtStart.Add(unit);
-        }
-
-        foreach (CombatUnit unit in unitsAtStart)
+        foreach (CombatUnit unit in units)
         {
             int currentMovement = -1;
             while (unit && unit.Alive && unit.GetMovementLeft() > 0 && currentMovement != unit.GetMovementLeft())
@@ -33,7 +36,7 @@ public class CityStateAIController : MonoBehaviour
                 UpdateUnit(unit);
  
             }
-            if(unit && unit.Alive)
+            if(unit)
             {
                 unit.EndTurn();
             }
@@ -56,7 +59,7 @@ public class CityStateAIController : MonoBehaviour
     private void CheckAttackTarget()
     {
         attackTarget = null;
-        if (cityState.GetUnits().ToList().FindAll(c => c.CurrentStance == CombatUnit.Stance.OFFENCE).Count >= 3)
+        if (units.ToList().FindAll(c => c.CurrentStance == CombatUnit.Stance.OFFENCE).Count >= 3)
         {
             List<City> enemyCities = cityState.GetEnemyCitiesOrderByDistance(cityState.GetCity().GetHexCell().coordinates);
             if (enemyCities.Count > 0)
@@ -68,7 +71,7 @@ public class CityStateAIController : MonoBehaviour
 
     private void AssignStance()
     {
-        List<CombatUnit> unassignedUnits = cityState.GetUnits().ToList().FindAll(c => c.CurrentStance == CombatUnit.Stance.UNASSIGNED);
+        List<CombatUnit> unassignedUnits = units.ToList().FindAll(c => c.CurrentStance == CombatUnit.Stance.UNASSIGNED);
         foreach (CombatUnit unit in unassignedUnits)
         {
             unit.CurrentStance = GetUnitStancePriority(unit);
@@ -88,7 +91,7 @@ public class CityStateAIController : MonoBehaviour
             return CombatUnit.Stance.EXPLORE;
         }
 
-        List<CombatUnit> defenceUnits = cityState.GetUnits().ToList().FindAll(c => c.CurrentStance == CombatUnit.Stance.DEFENCE);
+        List<CombatUnit> defenceUnits = units.ToList().FindAll(c => c.CurrentStance == CombatUnit.Stance.DEFENCE);
         if (defenceUnits.Count < cityState.GetCityCount())
         {
             return CombatUnit.Stance.DEFENCE;

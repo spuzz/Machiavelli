@@ -187,7 +187,7 @@ public class UnitBehaviour : MonoBehaviour
         {
             if (unit.HexUnitType == HexUnit.UnitType.COMBAT)
             {
-                if (unit.GetComponent<Unit>().CityState && unit.GetComponent<Unit>().CityState.CityStateID != ActiveUnit.GetComponent<Unit>().CityState.CityStateID)
+                if (unit.GetComponent<Unit>().GetCityState() && unit.GetComponent<Unit>().GetCityState().CityStateID != ActiveUnit.GetComponent<Unit>().GetCityState().CityStateID)
                 {
                     Attack(unit.unit);
                     return;
@@ -230,7 +230,7 @@ public class UnitBehaviour : MonoBehaviour
         {
             if (unit.HexUnitType == HexUnit.UnitType.COMBAT)
             {
-                if (unit.GetComponent<Unit>().CityState && unit.GetComponent<Unit>().CityState.CityStateID != ActiveUnit.GetComponent<Unit>().CityState.CityStateID)
+                if (unit.GetComponent<Unit>().GetCityState() && unit.GetComponent<Unit>().GetCityState().CityStateID != ActiveUnit.GetComponent<Unit>().GetCityState().CityStateID)
                 {
                     hexGrid.FindPath(ActiveUnit.HexUnit.Location, unit.Location, ActiveUnit.HexUnit, true, false);
                     target = GetFirstCellFromPath();
