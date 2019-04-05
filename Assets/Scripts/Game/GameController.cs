@@ -124,7 +124,30 @@ public class GameController : MonoBehaviour
     {
         return cities.Find(c => c.GetHexCell() == hexCell);
     }
+    public City GetCity(int id)
+    {
+        return cities.Find(c => c.CityID == id);
+    }
 
+    public IEnumerable<City> GetCities()
+    {
+        return cities;
+    }
+
+    public List<string> GetCityNames()
+    {
+        List<string> names = new List<string>();
+        foreach (City city in cities)
+        {
+            names.Add(city.CityID.ToString());
+        }
+        return names;
+    }
+
+    public int GetCityCount()
+    {
+        return cities.Count();
+    }
     public AgentConfig GetAgentConfig(string name)
     {
         if(!agentConfigs.Keys.Contains(name))
@@ -239,6 +262,7 @@ public class GameController : MonoBehaviour
         {
             EndGame();
         }
+        CheckWinner();
         TurnOver = false;
         humanPlayer.StartTurn();
 
@@ -263,7 +287,7 @@ public class GameController : MonoBehaviour
 
     public void CheckWinner()
     {
-        if(HumanPlayer.cityStates.Count == cityStates.Count)
+        if(HumanPlayer.cityStates.Count == cityStates.FindAll(c => c.Alive).Count)
         {
             Debug.Log("Winner");
             EndGame();
@@ -272,7 +296,7 @@ public class GameController : MonoBehaviour
         {
             foreach(Player player in players)
             {
-                if (player.cityStates.Count == cityStates.Count)
+                if (player.cityStates.Count == cityStates.FindAll(c => c.Alive).Count)
                 {
                     Debug.Log("Loser");
                     EndGame();
@@ -788,6 +812,7 @@ public class GameController : MonoBehaviour
         }
         cityStates.Clear();
         CityState.cityStateIDCounter = 1;
+        City.cityIDCounter = 1;
         usedSymbols.Clear();
     }
 
@@ -803,7 +828,7 @@ public class GameController : MonoBehaviour
         {
             player.DestroyPlayer();
         }
-
+        humanPlayer.ClearExploredCells();
         humanPlayer.ClearOperationCentres();
         humanPlayer.ClearMercenaries();
         humanPlayer.ClearAgents();

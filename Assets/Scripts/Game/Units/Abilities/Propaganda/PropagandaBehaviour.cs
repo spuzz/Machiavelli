@@ -25,11 +25,11 @@ public class PropagandaBehaviour : AbilityBehaviour
             PlayAnimation(target);
             if (gameObject.GetComponent<Unit>().GetPlayer().IsHuman)
             {
-                PlayTextEffect((config as PropagandaConfig).GetInfluence().ToString(), target, Color.yellow);
+                target.TextEffectHandler.AddTextEffect((config as PropagandaConfig).GetInfluence().ToString(), target.transform, Color.yellow);
             }
             else
             {
-                PlayTextEffect((config as PropagandaConfig).GetInfluence().ToString(), target, Color.blue);
+                target.TextEffectHandler.AddTextEffect((config as PropagandaConfig).GetInfluence().ToString(), target.transform, Color.blue);
             }
 
         }

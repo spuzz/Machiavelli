@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 00538d5d87873434b907c764de750305, type: 3}
+  m_Name: SaboteurAgent
+  m_EditorClassIdentifier: 
+  baseProductionCost: 4
+  basePurchaseCost: 30
+  prerequisites: []
+  focusType: 6
+  buildingImage: {fileID: 21300000, guid: e23fae36336e58b41be9ec066a2fef7d, type: 3}
+  name: SaboteurAgent
+  displayName: Saboteur
+  toolTipText: Blah
+  agentConfig: {fileID: 11400000, guid: bb62d1e04ee8ac541ae0d7f8d9628260, type: 2}

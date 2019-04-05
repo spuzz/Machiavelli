@@ -1,4 +1,4 @@
-﻿using System;
+using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
@@ -175,7 +175,7 @@ public abstract class Player : MonoBehaviour {
         }
         if (isHuman)
         {
-            StartCoroutine(ShowBonusText(city.PlayerCityBonus, bonusConfig, city.GetHexCell()));
+            ShowBonusText(city.PlayerCityBonus, bonusConfig, city.GetHexCell());
         }
         UpdateResources();
     }
@@ -197,26 +197,23 @@ public abstract class Player : MonoBehaviour {
         }
         if(isHuman)
         {
-            StartCoroutine(ShowBonusText(city.PlayerCityBonus, bonusConfig, city.GetHexCell()));
+            ShowBonusText(city.PlayerCityBonus, bonusConfig, city.GetHexCell());
         }
 
         UpdateResources();
     }
 
-    private IEnumerator ShowBonusText(CityBonus bonus, AgentConfig bonusConfig, HexCell cell)
+    private void ShowBonusText(CityBonus bonus, AgentConfig bonusConfig, HexCell cell)
     {
-        yield return new WaitForSeconds(0.5f);
-        PlayTextEffect("+1 " + bonusConfig.Name, cell, Color.yellow);
-        yield return new WaitForSeconds(0.5f);
-        PlayTextEffect("+" + bonus.GoldBonus + " Gold ", cell, Color.yellow);
+
+        cell.TextEffectHandler.AddTextEffect("+1 " + bonusConfig.Name, cell.transform, Color.yellow);
+        cell.TextEffectHandler.AddTextEffect("+" + bonus.GoldBonus + " Gold ", cell.transform, Color.yellow);
     }
 
-    private IEnumerator ShowRemoveBonusText(CityBonus bonus, AgentConfig bonusConfig, HexCell cell)
+    private void ShowRemoveBonusText(CityBonus bonus, AgentConfig bonusConfig, HexCell cell)
     {
-        yield return new WaitForSeconds(0.5f);
-        PlayTextEffect("-1 " + bonusConfig.Name, cell, Color.yellow);
-        yield return new WaitForSeconds(0.5f);
-        PlayTextEffect("-" + bonus.GoldBonus + " Gold ", cell, Color.yellow);
+        cell.TextEffectHandler.AddTextEffect("-1 " + bonusConfig.Name, cell.transform, Color.yellow);
+        cell.TextEffectHandler.AddTextEffect("-" + bonus.GoldBonus + " Gold ", cell.transform, Color.yellow);
     }
 
     public void RemoveCityState(CityState cityState)
@@ -332,7 +329,7 @@ public abstract class Player : MonoBehaviour {
         }
         opCentres.Clear();
     }
-    protected void ClearExploredCells()
+    public void ClearExploredCells()
     {
         exploredCells.Clear();
     }
@@ -418,6 +415,10 @@ public abstract class Player : MonoBehaviour {
         {
             goldPerTurn += bonus.GoldBonus;
         }
+        foreach(CityState cityState in cityStates)
+        {
+            cityState.GetPlayerIncome();
+        }
         NotifyInfoChange();
     }
 
@@ -501,13 +502,4 @@ public abstract class Player : MonoBehaviour {
         }
     }
 
-    protected void PlayTextEffect(string text, HexCell cell, Color color, int time = 0)
-    {
-        if(cell.IsVisible)
-        {
-            HexCellTextEffect effect = Instantiate(textEffect).GetComponent<HexCellTextEffect>();
-            effect.Show(text, cell.transform, color, time);
-        }
-
-    }
 }

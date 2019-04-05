@@ -15,7 +15,7 @@ public class CityState : MonoBehaviour
     GameController gameController;
     int cityStateID;
     Player player;
-
+    bool alive = true;
     public Dictionary<HexCell, int> visibleCells = new Dictionary<HexCell, int>();
     public List<HexCell> exploredCells = new List<HexCell>();
     List<City> cities = new List<City>();
@@ -141,6 +141,19 @@ public class CityState : MonoBehaviour
         }
     }
 
+    public bool Alive
+    {
+        get
+        {
+            return alive;
+        }
+
+        set
+        {
+            alive = value;
+        }
+    }
+
     public void AddCity(City city)
     {
         if (player && player.IsHuman)
@@ -171,8 +184,11 @@ public class CityState : MonoBehaviour
         city.HexVision.HasVision = false;
         city.onInfoChange -= cityChanged;
         cities.Remove(city);
-        
         NotifyInfoChange();
+        if (cities.Count == 0)
+        {
+            Alive = false;
+        }
     }
 
     private void cityChanged(City city)
@@ -226,9 +242,11 @@ public class CityState : MonoBehaviour
     public int GetPlayerIncome()
     {
         int income = 0;
+        int count = 1;
         foreach (City city in cities)
         {
-            income += city.GetPlayerIncome();
+            income += (5 * count);
+            count++;
         }
 
 

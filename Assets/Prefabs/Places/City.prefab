@@ -410,6 +410,8 @@ MonoBehaviour:
   unitCap: 3
   playerBuildingControl: {fileID: 114906063587015198}
   playerCityBonus: {fileID: 11400000, guid: 0e8386496a6c0384aaee1c405638fae2, type: 2}
+  happiness: 100
+  textEffect: {fileID: 1096156621854288, guid: cbce99c46ef89c94f965d408ea4706c6, type: 2}
   currentStrength: 0
   currentProduction: 0
   currentFood: 0
@@ -649,6 +651,6 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 174.2, y: -0.84000003}
-  m_SizeDelta: {x: 55, y: 55}
+  m_AnchoredPosition: {x: 168.43, y: -0.84000003}
+  m_SizeDelta: {x: 66.54, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}

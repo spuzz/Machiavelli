@@ -9,16 +9,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 990c5bace8aad8a40a4ace8d3140d8a3, type: 3}
-  m_Name: AssassinsGuild
+  m_Name: SaboteurGuild
   m_EditorClassIdentifier: 
   baseProductionCost: 3
   basePurchaseCost: 40
   prerequisites:
   - {fileID: 11400000, guid: 8306bafc481faf845a1de9f1c1d3322a, type: 2}
   focusType: 6
-  buildingImage: {fileID: 21300000, guid: ec2d21917c67b554f8cd504127430590, type: 3}
-  name: AssassinsGuild
-  displayName: Assassins Guild
-  toolTipText: If they won't listen, kill them
-  buildPrefab: {fileID: 1783421317543386, guid: 50f0085b288d12a4b86b5362bc872c2f,
+  buildingImage: {fileID: 21300000, guid: 2f0c2e8461ad9f34994f70be6380f926, type: 3}
+  name: saboteurGuild
+  displayName: Saboteur Guild
+  toolTipText: If they won't be persuaded to join you... blow them up
+  buildPrefab: {fileID: 1783421317543386, guid: cb34d0f042a1c834ebbb944129197cec,
     type: 2}

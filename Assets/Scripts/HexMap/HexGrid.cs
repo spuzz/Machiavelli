@@ -610,7 +610,8 @@ public class HexGrid : MonoBehaviour {
 		}
 
 		range += fromCell.ViewElevation;
-		fromCell.SearchPhase = searchFrontierPhase;
+        int minElevation = fromCell.ViewElevation;
+        fromCell.SearchPhase = searchFrontierPhase;
 		fromCell.Distance = 0;
 		searchFrontier.Enqueue(fromCell);
 		HexCoordinates fromCoordinates = fromCell.coordinates;
@@ -630,7 +631,13 @@ public class HexGrid : MonoBehaviour {
 				}
 
 				int distance = current.Distance + 1;
-				if (distance + neighbor.ViewElevation > range ||
+                int elevation = neighbor.ViewElevation;
+                if(elevation < minElevation)
+                {
+                    elevation = minElevation;
+                }
+
+                if (distance + elevation > range ||
 					distance > fromCoordinates.DistanceTo(neighbor.coordinates)
 				) {
 					continue;

@@ -15,6 +15,9 @@ public class HexCell : MonoBehaviour {
     [SerializeField] int income = 20;
     [SerializeField] PlayerColour playerColour;
     [SerializeField] PlayerColour defaultPlayerColour;
+    [SerializeField] HexCellTextEffectHandler textEffectHandler;
+
+
     public HexCoordinates coordinates;
 
 	public RectTransform uiRect;
@@ -406,6 +409,18 @@ public class HexCell : MonoBehaviour {
         }
     }
 
+    public HexCellTextEffectHandler TextEffectHandler
+    {
+        get
+        {
+            return textEffectHandler;
+        }
+
+        set
+        {
+            textEffectHandler = value;
+        }
+    }
 
     public void UpdateVision()
     {
@@ -857,4 +872,5 @@ public class HexCell : MonoBehaviour {
 	public void SetMapData (float data) {
 		ShaderData.SetMapData(this, data);
 	}
+
 }

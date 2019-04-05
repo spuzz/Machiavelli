@@ -590,8 +590,7 @@ public abstract class Unit : MonoBehaviour {
         color = Color.red;
         if (hexUnit.Location.IsVisible)
         {
-            HexCellTextEffect effect = Instantiate(textEffect).GetComponent<HexCellTextEffect>();
-            effect.Show(change.ToString(), hexUnit.transform, color);
+            hexUnit.Location.TextEffectHandler.AddTextEffect(change.ToString(), hexUnit.transform, color);
         }
     }
 

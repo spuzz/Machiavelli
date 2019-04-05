@@ -16,7 +16,7 @@ public class DamageUnitBehaviour : AbilityBehaviour
             targetUnit.GetComponent<Unit>().HitPoints += damage;
             if (targetUnit.GetComponent<Unit>().HitPoints <= 0)
             {
-                gameObject.GetComponent<Unit>().GameController.KillUnit(gameObject.GetComponent<Unit>());
+                GameController.Instance.KillUnit(targetUnit.unit);
             }
         }
     }

@@ -13,6 +13,21 @@ public class HexCellTextEffect : MonoBehaviour
     Camera cameraToLookAt;
     float scrollDistance = 15;
     Color textColor;
+    bool playing = false;
+
+    public bool Playing
+    {
+        get
+        {
+            return playing;
+        }
+
+        set
+        {
+            playing = value;
+        }
+    }
+
     private void Awake()
     {
         cameraToLookAt = Camera.main;
@@ -37,25 +52,30 @@ public class HexCellTextEffect : MonoBehaviour
         
     }
 
+    public void Play()
+    {
+        playing = true;
+    }
+
     void LateUpdate()
     {
-
-        if (textLocation)
+        if(playing == true)
         {
-            durationLeft -= Time.deltaTime;
-            if (durationLeft <= 0)
+            if (textLocation)
             {
-                Destroy(gameObject);
-                return;
+                durationLeft -= Time.deltaTime;
+                if (durationLeft <= 0)
+                {
+                    Destroy(gameObject);
+                    return;
+                }
+                float yPos = -10 - (scrollDistance * (1 - durationLeft / duration));
+                transform.position = new Vector3(textLocation.position.x, textLocation.position.y + 25, textLocation.position.z);
+                transform.LookAt(cameraToLookAt.transform);
+                transform.rotation = Quaternion.LookRotation(cameraToLookAt.transform.forward);
+                transform.Translate(new Vector3(0, yPos, 7));
             }
-            float yPos = -10 -(scrollDistance * (1 - durationLeft / duration));
-            transform.position = new Vector3(textLocation.position.x, textLocation.position.y + 25, textLocation.position.z);
-            transform.LookAt(cameraToLookAt.transform);
-            transform.rotation = Quaternion.LookRotation(cameraToLookAt.transform.forward);
-            transform.Translate(new Vector3(0, yPos, 7));
         }
-
-
 
     }
 }

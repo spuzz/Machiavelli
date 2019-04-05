@@ -15,6 +15,7 @@ public class HexMapEditor : MonoBehaviour {
     [SerializeField] Dropdown players;
     [SerializeField] Dropdown cityStateUnits;
     [SerializeField] Dropdown cityStates;
+    [SerializeField] Dropdown cities;
 
     public HexGrid hexGrid;
     public GameController gameController;
@@ -31,8 +32,10 @@ public class HexMapEditor : MonoBehaviour {
 
 	bool applyElevation = false;
 	bool applyWaterLevel = false;
-
-	bool applyUrbanLevel, applyFarmLevel, applyPlantLevel, applySpecialIndex, applyExplored;
+    bool applyCityState = false;
+    bool applyCityStatePlayer = false;
+    bool applyCityUnit = false;
+    bool applyUrbanLevel, applyFarmLevel, applyPlantLevel, applySpecialIndex, applyExplored;
 
 	OptionalToggle riverMode, roadMode, walledMode;
 
@@ -93,6 +96,19 @@ public class HexMapEditor : MonoBehaviour {
         applyExplored = toggle;
     }
 
+    public void SetApplyCityState(bool toggle)
+    {
+        applyCityState = toggle;
+    }
+    public void SetApplyCityStatePlayer(bool toggle)
+    {
+        applyCityStatePlayer = toggle;
+    }
+
+    public void SetApplyCityUnit(bool toggle)
+    {
+        applyCityUnit = toggle;
+    }
 
     public void SetSpecialIndex (float index) {
 		activeSpecialIndex = (int)index;
@@ -135,11 +151,26 @@ public class HexMapEditor : MonoBehaviour {
         playerUnits.ClearOptions();
         playerUnits.AddOptions(files);
         playerUnits.value = 0;
+
+        myPath = "Assets/Resources/CombatUnitConfigs";
+        dir = new DirectoryInfo(myPath);
+        info = dir.GetFiles("*.asset");
+        files = new List<string>();
+        foreach (FileInfo f in info)
+        {
+            files.Add(f.Name.Split('.')[0]);
+        }
         cityStateUnits.ClearOptions();
         cityStateUnits.AddOptions(files);
         cityStateUnits.value = 0;
 
         cityStates.ClearOptions();
+
+        cities.ClearOptions();
+        foreach (City city in gameController.GetCities())
+        {
+
+        }
     }
 
 
@@ -166,8 +197,8 @@ public class HexMapEditor : MonoBehaviour {
             if (Input.GetKeyDown(KeyCode.H))
             {
                 CreateCityStateUnit();
-                return;
             }
+
         }
 
         if(cityStates.options.Count != gameController.CityStateCount())
@@ -180,6 +211,12 @@ public class HexMapEditor : MonoBehaviour {
         {
             players.ClearOptions();
             players.AddOptions(gameController.PlayerNames());
+        }
+
+        if (cities.options.Count != gameController.GetCityCount() || gameController.GetCityCount() == 3)
+        {
+            cities.ClearOptions();
+            cities.AddOptions(gameController.GetCityNames());
         }
 
         previousCell = null;
@@ -238,11 +275,16 @@ public class HexMapEditor : MonoBehaviour {
     void CreateCityStateUnit()
     {
         HexCell cell = GetCellUnderCursor();
-        if (cityStates.options.Count > 0 && cell && cell.CanUnitMoveToCell(HexUnit.UnitType.COMBAT))
+        if (cities.options.Count > 0 && cell && cell.CanUnitMoveToCell(HexUnit.UnitType.COMBAT))
         {
-            string name = cityStateUnits.options[cityStateUnits.value].text;
-            int cityStateID = System.Convert.ToInt32(cityStates.options[cityStates.value].text);
-            //gameController.CreateCityStateUnit(name, cell, cityStateID);
+            int cityID = System.Convert.ToInt32(cities.options[players.value].text);
+            City city = gameController.GetCity(cityID);
+            if(city)
+            {
+                string name = cityStateUnits.options[cityStateUnits.value].text;
+                gameController.CreateCityStateUnit(name, cell, city);
+            }
+
         }
     }
 
@@ -292,7 +334,17 @@ public class HexMapEditor : MonoBehaviour {
         {
             if (currentCell.City)
             {
-                SetCityPlayer(currentCell.City);
+                int cityStateID = System.Convert.ToInt32(cityStates.options[cityStates.value].text);
+                CityState cityState = gameController.GetCityState(cityStateID);
+                if (applyCityState && currentCell.City.GetCityState() != cityState)
+                {
+                    currentCell.City.SetCityState(cityState);
+                }
+                if(applyCityStatePlayer)
+                {
+                    SetCityPlayer(currentCell.City);
+                }
+
             }
         }
     }

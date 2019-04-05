@@ -26,11 +26,11 @@ public class BribeBehaviour : AbilityBehaviour
             PlayAnimation(target);
             if (gameObject.GetComponent<Unit>().GetPlayer().IsHuman)
             {
-                PlayTextEffect((config as BribeConfig).GetInfluence().ToString(), target, Color.yellow);
+                target.TextEffectHandler.AddTextEffect((config as BribeConfig).GetInfluence().ToString(), target.transform, Color.yellow);
             }
             else
             {
-                PlayTextEffect((config as BribeConfig).GetInfluence().ToString(), target, Color.blue);
+                target.TextEffectHandler.AddTextEffect((config as BribeConfig).GetInfluence().ToString(), target.transform, Color.blue);
             }
 
         }

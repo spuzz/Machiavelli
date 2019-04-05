@@ -7,6 +7,8 @@ using System.Linq;
 
 public class City : MonoBehaviour {
 
+    public static int cityIDCounter = 1;
+    int cityID;
     [SerializeField] int baseHitPoints = 200;
     [SerializeField] int baseStrength = 25;
     [SerializeField] int baseProduction = 0;
@@ -25,7 +27,8 @@ public class City : MonoBehaviour {
     [SerializeField] int unitCap = 3;
     [SerializeField] PlayerBuildingControl playerBuildingControl;
     [SerializeField] CityBonus playerCityBonus;
-
+    [SerializeField] int happiness = 100;
+    [SerializeField] GameObject textEffect;
     Dictionary<Player, int> influenceDict = new Dictionary<Player, int>();
 
     BuildingManager buildingManager = new BuildingManager();
@@ -44,7 +47,7 @@ public class City : MonoBehaviour {
     HexCell hexCell;
     List<HexCell> ownedCells = new List<HexCell>();
     HexVision hexVision;
-
+    
     List<CombatUnit> cityUnits = new List<CombatUnit>();
     List<CombatUnit> unitsToDestroy = new List<CombatUnit>();
 
@@ -194,10 +197,10 @@ public class City : MonoBehaviour {
                 player.RemoveCity(this);
             }
             player = value;
+            influenceDict.Clear();
             if (player)
             {
                 player.AddCity(this);
-                influenceDict.Clear();
                 influenceDict[Player] = 100;
 
             }
@@ -209,6 +212,7 @@ public class City : MonoBehaviour {
                 unit.UpdateColours();
             }
             UpdateVision();
+            NotifyInfoChange();
 
         }
     }
@@ -378,6 +382,36 @@ public class City : MonoBehaviour {
         }
     }
 
+    public int Happiness
+    {
+        get
+        {
+            return happiness;
+        }
+
+        set
+        {
+            happiness = value;
+            if(happiness <= 0)
+            {
+                Rebel();
+            }
+        }
+    }
+
+    public int CityID
+    {
+        get
+        {
+            return cityID;
+        }
+
+        set
+        {
+            cityID = value;
+        }
+    }
+
     public bool HasUnitSpace()
     {
         return cityUnits.Count < unitCap;
@@ -413,13 +447,22 @@ public class City : MonoBehaviour {
             cityStateOwner.RemoveCity(this);
             UpdateOwnerVisiblity(hexCell, false);
         }
+        if(Player)
+        {
+            Player = null;
+        }
         cityStateOwner = cityState;
         cityStateOwner.AddCity(this);
+        if(cityStateOwner.Player)
+        {
+            Player = cityStateOwner.Player;
+        }
         UpdateOwnerVisiblity(hexCell, true);
         foreach(CombatUnit unit in cityUnits)
         {
             unit.CityOwner = this;
         }
+        UpdateCityBar();
         NotifyInfoChange();
 
     }
@@ -485,7 +528,8 @@ public class City : MonoBehaviour {
         hitPoints = BaseHitPoints;
         CalculateFoodForNextPop();
         gameController.VisionSystem.AddHexVision(hexVision);
-
+        cityID = cityIDCounter;
+        cityIDCounter++;
     }
 
     private void CalculateFoodForNextPop()
@@ -748,6 +792,13 @@ public class City : MonoBehaviour {
     public int GetPlayerIncome()
     {
         return currentPlayerIncome;
+    }
+
+    public void Rebel()
+    {
+        CityState cityState = gameController.CreateCityState();
+        SetCityState(cityState);
+        hexCell.TextEffectHandler.AddTextEffect("REBELLION", GetHexCell().transform, Color.red);
     }
 
     public void Save(BinaryWriter writer)

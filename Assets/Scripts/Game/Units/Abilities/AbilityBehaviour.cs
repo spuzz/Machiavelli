@@ -83,12 +83,6 @@ public abstract class AbilityBehaviour : MonoBehaviour
         animator.SetTrigger("UseAbility");
 
     }
-
-    protected void PlayTextEffect(string text, HexCell cell, Color color, int time = 0)
-    {
-        HexCellTextEffect effect = Instantiate(config.TextEffect).GetComponent<HexCellTextEffect>();
-        effect.Show(text, cell.transform, color, time);
-    }
 }
 
 

@@ -319,6 +319,7 @@ MonoBehaviour:
   food: {x: 0, y: 0}
   defence: {x: 0, y: 0}
   playerGold: {x: 0, y: 0}
+  unitCap: 0
 --- !u!114 &114708981004321290
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -339,6 +340,8 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 4b658f879fe85da4d8a5d2aed8d2045a, type: 2}
   - {fileID: 11400000, guid: 69a509498ce6d124784cd3dec184aac2, type: 2}
   - {fileID: 11400000, guid: b62b5e71c53145a4c81291ce69095c93, type: 2}
+  - {fileID: 11400000, guid: 9bdd25d4e61527842b4bc65d38081d82, type: 2}
+  - {fileID: 11400000, guid: edb08b3e5bd957a449fd3728e4d704af, type: 2}
   visionRange: 2
   opCentreUI: {fileID: 114289524157160936}
   commandCentreBuildConfig: {fileID: 11400000, guid: 8306bafc481faf845a1de9f1c1d3322a,

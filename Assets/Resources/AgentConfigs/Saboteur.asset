@@ -9,14 +9,13 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 9f232f644b5d7264981e60e674f95a5f, type: 3}
-  m_Name: Spy
+  m_Name: Saboteur
   m_EditorClassIdentifier: 
-  name: Spy
+  name: Saboteur
   baseMovement: 3
   baseStrength: 25
-  symbol: {fileID: 2800000, guid: 94ca59b6f172350408117ba1b1ce2161, type: 3}
-  portrait: {fileID: 21300000, guid: 01d666d4b5062374694e3a91d39cc2b3, type: 3}
+  symbol: {fileID: 2800000, guid: 30dc374ffbe937e42b417eaafa293738, type: 3}
+  portrait: {fileID: 21300000, guid: e23fae36336e58b41be9ec066a2fef7d, type: 3}
   meshChild: {fileID: 1004281485604820, guid: 5cb18c48d60b3d846a66259590342625, type: 2}
   abilityConfigs:
-  - {fileID: 11400000, guid: 2bb5d9bc2dd845d47afa99b506e3a856, type: 2}
-  - {fileID: 11400000, guid: 0e0373322e1192a42bc4db50c84040da, type: 2}
+  - {fileID: 11400000, guid: 1811ee3efa29c754691c60f3ff2c0ece, type: 2}

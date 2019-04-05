@@ -9,16 +9,16 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 990c5bace8aad8a40a4ace8d3140d8a3, type: 3}
-  m_Name: AssassinsGuild
+  m_Name: DiplomatGuild
   m_EditorClassIdentifier: 
   baseProductionCost: 3
   basePurchaseCost: 40
   prerequisites:
   - {fileID: 11400000, guid: 8306bafc481faf845a1de9f1c1d3322a, type: 2}
   focusType: 6
-  buildingImage: {fileID: 21300000, guid: ec2d21917c67b554f8cd504127430590, type: 3}
-  name: AssassinsGuild
-  displayName: Assassins Guild
-  toolTipText: If they won't listen, kill them
-  buildPrefab: {fileID: 1783421317543386, guid: 50f0085b288d12a4b86b5362bc872c2f,
+  buildingImage: {fileID: 21300000, guid: e644552ea3a98ca4597febb6b6dc34a2, type: 3}
+  name: DiplomatGuild
+  displayName: Diplomat Guild
+  toolTipText: Diplomats will convince others that everyone else is the problem
+  buildPrefab: {fileID: 1783421317543386, guid: 88e9808d0b4e3ce4a9b64ea79bf92edc,
     type: 2}
