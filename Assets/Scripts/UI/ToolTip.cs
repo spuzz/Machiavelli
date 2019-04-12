@@ -8,8 +8,10 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
 
     public string text;
     public string header;
+    public bool editModeOnly = false;
     public List<KeyValuePair<int,string>> symbolWithText = new List<KeyValuePair<int, string>>();
     private HUD hud;
+
     private void Awake()
     {
         hud = FindObjectOfType<HUD>();
@@ -38,7 +40,11 @@ public class ToolTip : MonoBehaviour, IPointerEnterHandler, IPointerExitHandler
     }
     public void OnPointerEnter(PointerEventData eventData)
     {
-        hud.ShowToolTip(CreateToolTipText());
+        if(editModeOnly == false || hud.IsInEditMode())
+        {
+            hud.ShowToolTip(CreateToolTipText());
+        }
+
     }
 
     public void OnPointerExit(PointerEventData eventData)

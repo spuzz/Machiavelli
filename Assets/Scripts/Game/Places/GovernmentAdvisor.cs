@@ -5,10 +5,9 @@ using UnityEngine;
 public class GovernmentAdvisor : CityPlayerBuilding {
 
     [SerializeField] int influencePerTurn = 2;
-    public override void StartTurn()
+    public override void Init()
     {
-        cityBuildIn.AdjustInfluence(PlayersBuilding, influencePerTurn);
-        cityBuildIn.CheckInfluence();
+        cityBuildIn.AddInfluencePerTurn(PlayersBuilding, influencePerTurn);
     }
 
 }

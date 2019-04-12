@@ -495,6 +495,11 @@ public abstract class Unit : MonoBehaviour {
         actions.Clear();
     }
 
+    public void AddAction(HexAction action)
+    {
+        actions.Add(action);
+    }
+
     public bool CheckPath()
     {
         if (path.Count == 0)
@@ -525,7 +530,7 @@ public abstract class Unit : MonoBehaviour {
             {
                 if (hexUnit.HexUnitType == HexUnit.UnitType.COMBAT && GetComponent<CombatUnit>().Mercenary && !GetComponent<Unit>().GetCityOwner())
                 {
-                    GetComponent<Unit>().GetPlayer().Gold += city.Plunder();
+                    GetComponent<Unit>().GetPlayer().Gold += city.TakeGold(30.0f);
                     city.HitPoints = 1;
                 }
                 else
@@ -694,6 +699,11 @@ public abstract class Unit : MonoBehaviour {
     public List<AbilityConfig> GetAbilities(AbilityConfig.AbilityType abilityType)
     {
         return abilities.AbilitiesList.FindAll(c => c.Type == abilityType);
+    }
+
+    public List<AbilityConfig> GetAbilities(List<AbilityConfig.AbilityType> abilityTypes)
+    {
+        return abilities.AbilitiesList.FindAll(c => abilityTypes.Contains(c.Type));
     }
 
     public int GetNumberOfAbilities()

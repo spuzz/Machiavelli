@@ -20,6 +20,7 @@ MonoBehaviour:
   defaultIcon: {fileID: 21300000, guid: cd68e3a0b7431994799efaa585ac5957, type: 3}
   textEffect: {fileID: 1096156621854288, guid: cbce99c46ef89c94f965d408ea4706c6, type: 2}
   abilityName: InciteRiot
-  abilityType: 2
+  abilityType: 0
   displayName: Incite Riot
   toolTipText: '''Peaceful protest'''
+  happiness: -20

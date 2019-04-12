@@ -82,9 +82,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceBenefit: {fileID: 114411444950648608}
-  allowedBuilds: []
-  allowedAgents:
-  - {fileID: 11400000, guid: 8b221a80e62d3f74e9c3bcc50c236f5e, type: 2}
+  allowedBuilds:
+  - {fileID: 11400000, guid: afdbeaa06bf514c41b551084f52b853c, type: 2}
+  - {fileID: 11400000, guid: ef98ee3ab21c05e4e8ff4b4124529bf9, type: 2}
+  agentBuildMods:
+  - {fileID: 11400000, guid: 0eb1f550baf654c44a5d119bb384f035, type: 2}
   allowedMercs: []
 --- !u!114 &114411444950648608
 MonoBehaviour:

@@ -23,6 +23,8 @@ public abstract class AbilityBehaviour : MonoBehaviour
     public abstract void FinishAbility(HexCell target = null);
     public abstract bool IsValidTarget(HexCell target);
 
+    public virtual bool IsGoodTarget(HexCell target) { return true; }
+
     public void RunAll(HexCell target = null)
     {
         Use(target);

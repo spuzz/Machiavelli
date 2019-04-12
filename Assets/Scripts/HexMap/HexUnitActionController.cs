@@ -64,14 +64,11 @@ public class HexUnitActionController : MonoBehaviour {
         while (moveActions.Count >= 2)
         {
             moveActions[0].AddAction(moveActions[1]);
+            hexActions.Remove(moveActions[1]);
+            Destroy(moveActions[1].gameObject);
             moveActions.Remove(moveActions[1]);
+            
         }
-        if (moveActions.Count > 0)
-        {
-            hexActions.RemoveAll(c => c.HexActionType == HexAction.ActionType.MOVE);
-            hexActions.Insert(0, moveActions[0]);
-        }
-
 
         foreach (HexAction action in hexActions)
         {

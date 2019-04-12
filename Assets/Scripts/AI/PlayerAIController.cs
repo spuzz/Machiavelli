@@ -25,7 +25,7 @@ public class PlayerAIController : MonoBehaviour
             {
                 yield return new WaitForEndOfFrame();
             }
-            if (agent && agent.Alive)
+            if (agent)
             {
                 agent.EndTurn();
             }
@@ -58,11 +58,46 @@ public class PlayerAIController : MonoBehaviour
         foreach (OperationCentre opCentre in player.opCentres)
         {
             List<BuildConfig> opCentreBuilds = new List<BuildConfig>();
-            foreach (HexCell cell in player.exploredCells.FindAll(c => c.City))
+            if (!opCentre.IsTraining())
             {
-                if(!cell.City.PlayerBuildingControl.HasOutpost(player))
+                foreach (HexCell cell in player.exploredCells.FindAll(c => c.City))
                 {
-                    opCentreBuilds.Add(opCentre.GetAgentBuildConfigs("Builder"));
+                    if (!cell.City.PlayerBuildingControl.HasOutpost(player))
+                    {
+                        opCentreBuilds.Add(opCentre.GetAgentBuildConfigs("Builder"));
+                        break;
+                    }
+                }
+
+                if (player.PlayerAgentTracker.CanRecruit(opCentre.GetAgentBuildConfigs("Diplomat").AgentConfig))
+                {
+                    foreach (HexCell cell in player.exploredCells.FindAll(c => c.City))
+                    {
+                        if (!cell.City.Player)
+                        {
+                            opCentreBuilds.Add(opCentre.GetAgentBuildConfigs("Diplomat"));
+                            break;
+                        }
+                    }
+                }
+
+
+                if (opCentre.GetAgentBuildConfigs().Count() > 0)
+                {
+                    IEnumerable<AgentBuildConfig> configs = opCentre.GetAgentBuildConfigs(new List<string>() { "Builder" });
+                    List<AgentBuildConfig> buildableConfigs = new List<AgentBuildConfig>();
+                    foreach(AgentBuildConfig config in configs)
+                    {
+                        if(player.PlayerAgentTracker.CanRecruit(config.AgentConfig))
+                        {
+                            buildableConfigs.Add(config);
+                        }
+                    }
+                    if (buildableConfigs.Count() > 0)
+                    {
+                        opCentreBuilds.Add(IListExtensions.RandomElement(buildableConfigs));
+                    }
+
                 }
             }
 
@@ -74,26 +109,29 @@ public class PlayerAIController : MonoBehaviour
                     opCentreBuilds.Add(opCentre.availableBuilds[UnityEngine.Random.Range(0, opCentre.availableBuilds.Count)]);
                 }
             }
-            if(opCentre.GetAgentBuildConfigs().Count() > 0)
-            {
-                IEnumerable<AgentBuildConfig> configs = opCentre.GetAgentBuildConfigs(new List<string>() { "Builder" });
-                if(configs.Count() > 0)
-                {
-                    opCentreBuilds.Add(IListExtensions.RandomElement(configs));
-                }
-                
-            }
 
-            if (opCentre.GetCombatUnitBuildConfigs().Count() > 0)
-            {
-                opCentreBuilds.Add(IListExtensions.RandomElement(opCentre.GetCombatUnitBuildConfigs()));
-            }
-            if(opCentreBuilds.Count > 0)
+
+            //if (opCentre.GetCombatUnitBuildConfigs().Count() > 0)
+            //{
+            //    opCentreBuilds.Add(IListExtensions.RandomElement(opCentre.GetCombatUnitBuildConfigs()));
+            //}
+            if (opCentreBuilds.Count > 0)
             {
                 buildList.Add(opCentre.Location, opCentreBuilds[UnityEngine.Random.Range(0, opCentreBuilds.Count)]);
             }
+
+        }
+        foreach (City city in player.citiesWithOutposts)
+        {
+            if (!city.PlayerBuildingControl.HasBuilding("GovernmentAdvisor", player) && city.GetInfluencePerTurn(player) < 1)
+            {
+                buildList.Add(city.GetHexCell(), player.GetCityPlayerBuildConfig("GovernmentAdvisor"));
+            }
+            else
+            {
+                buildList.Add(city.GetHexCell(), player.GetRandomCityPlayerBuildConfigs());
+            }
             
         }
-        
     }
 }

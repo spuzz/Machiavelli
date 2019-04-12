@@ -49,21 +49,21 @@ public class PlayerAgentTracker : MonoBehaviour {
         }
     }
 
-    public void IncreaseCap(AgentConfig agentConfig)
+    public void IncreaseCap(AgentConfig agentConfig, int increaseBy = 1)
     {
         PlayerAgentCap cap = playerAgentCaps.Find(c => c.Config == agentConfig);
         if (cap != null)
         {
-            cap.Cap += 1;
+            cap.Cap += increaseBy;
         }
     }
 
-    public void DecreaseCap(AgentConfig agentConfig)
+    public void DecreaseCap(AgentConfig agentConfig, int decreaseBy = 1)
     {
         PlayerAgentCap cap = playerAgentCaps.Find(c => c.Config == agentConfig);
         if (cap != null && cap.Cap > 0)
         {
-            cap.Cap -= 1;
+            cap.Cap -= decreaseBy;
         }
     }
 

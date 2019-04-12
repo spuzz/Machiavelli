@@ -106,6 +106,10 @@ public class HUD : MonoBehaviour {
         }
     }
 
+    public bool IsInEditMode()
+    {
+        return HexGameUI.GetEditMode();
+    }
     public void ClearUI()
     {
         unit = null;
@@ -167,6 +171,7 @@ public class HUD : MonoBehaviour {
     {
         TargetCell = Unit.HexUnit.Location;
         Unit.AttemptAbility(abilityNumber, TargetCell);
+        Unit.DoActions();
     }
 
     public void UseOpCentreAbility(int abilityNumber)

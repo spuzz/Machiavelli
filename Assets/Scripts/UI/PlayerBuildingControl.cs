@@ -96,6 +96,7 @@ public class PlayerBuildingControl : MonoBehaviour {
         playerBuildings[player][id] = gameController.CreateCityPlayerBuilding(cityPlayerBuildConfig);
         playerBuildings[player][id].CityBuildIn = city;
         playerBuildings[player][id].PlayersBuilding = player;
+        playerBuildings[player][id].Init();
         city.RefreshYields();
         city.NotifyInfoChange();
     }
@@ -126,6 +127,36 @@ public class PlayerBuildingControl : MonoBehaviour {
         }
         return null;
     }
+
+    public bool HasBuilding(string name, Player player)
+    {
+        CityPlayerBuilding[] buildings = playerBuildings[player];
+        foreach(CityPlayerBuilding building in buildings)
+        {
+            if(building && building.BuildConfig.Name == name)
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
+    public IEnumerable<CityPlayerBuilding> GetPlayerBuildings(Player player)
+    {
+        if (HasOutpost(player))
+        {
+            return playerBuildings[player];
+        }
+        return null;
+    }
+
+    public IEnumerable<Player> GetPlayersWithOutposts()
+    {
+
+        return outposts.Keys;
+    }
+
+
 
     public bool IsConstructingBuilding(int slotID, Player player)
     {
@@ -180,6 +211,8 @@ public class PlayerBuildingControl : MonoBehaviour {
                 player.AddVisibleCell(cells[i]);
             }
             gameController.VisionSystem.AddHexVision(hexVision);
+            player.AddCityWithOutpost(city);
+            city.NotifyInfoChange();
         }
     }
     public bool HasOutpost(Player player)

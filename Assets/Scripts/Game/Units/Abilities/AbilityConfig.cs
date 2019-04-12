@@ -153,6 +153,11 @@ public abstract class AbilityConfig : ScriptableObject
         return behaviour.IsValidTarget(target);
     }
 
+    public bool IsGoodTarget(HexCell target)
+    {
+        return behaviour.IsGoodTarget(target);
+    }
+
     public List<HexCell> GetValidTargets(HexCell location)
     {
         return behaviour.GetValidTargets(location);

@@ -25,12 +25,13 @@ public class City : MonoBehaviour {
     [SerializeField] int population = 1;
     [SerializeField] int visionRange = 2;
     [SerializeField] int unitCap = 3;
+    [SerializeField] int gold = 100;
     [SerializeField] PlayerBuildingControl playerBuildingControl;
     [SerializeField] CityBonus playerCityBonus;
     [SerializeField] int happiness = 100;
     [SerializeField] GameObject textEffect;
     Dictionary<Player, int> influenceDict = new Dictionary<Player, int>();
-
+    Dictionary<Player, int> playerInfluencePerTurn = new Dictionary<Player, int>();
     BuildingManager buildingManager = new BuildingManager();
     private bool capital = false;
     public int currentStrength = 0;
@@ -249,7 +250,7 @@ public class City : MonoBehaviour {
     {
         if (!Player)
         {
-            if (!influenceDict.Keys.Contains(adjustPlayer) && influence > 0)
+            if (!influenceDict.Keys.Contains(adjustPlayer))
             {
                 influenceDict[adjustPlayer] = influence;
             }
@@ -317,6 +318,23 @@ public class City : MonoBehaviour {
             return influenceDict[player];
         }
     }
+
+    public int GetInfluencePerTurn(Player player)
+    {
+        int infPerTurn = GetNegativeInfluence();
+        if (playerInfluencePerTurn.Keys.Contains(player))
+        {
+            infPerTurn += playerInfluencePerTurn[player];
+        }
+        return infPerTurn;
+
+    }
+
+    public int GetNegativeInfluence()
+    {
+        return -((int)Math.Pow(2 * 1, cityStateOwner.GetCityCount() - 1));
+    }
+
     public void AdjustInfluenceForAll(int influence)
     {
         List<Player> keys = influenceDict.Keys.ToList();
@@ -349,8 +367,25 @@ public class City : MonoBehaviour {
 
     private void UpdateInfluence()
     {
-        int negativeInfluence = -((int)Math.Pow(2 * 1, cityStateOwner.GetCityCount() - 1));
-        AdjustInfluenceForAll(negativeInfluence);
+        int negativeInfluence = GetNegativeInfluence();
+        List<Player> players;
+        if(influenceDict.Keys.Count == 0)
+        {
+            players = gameController.GetPlayers();
+        }
+        else
+        {
+            players = influenceDict.Keys.ToList();
+        }
+        foreach(Player player in players)
+        {
+            int inf = negativeInfluence;
+            if(playerInfluencePerTurn.ContainsKey(player))
+            {
+                inf += playerInfluencePerTurn[player];
+            }
+            AdjustInfluence(player, inf);
+        }
         CheckInfluence();
         NotifyInfoChange();
     }
@@ -409,6 +444,19 @@ public class City : MonoBehaviour {
         set
         {
             cityID = value;
+        }
+    }
+
+    public int Gold
+    {
+        get
+        {
+            return gold;
+        }
+
+        set
+        {
+            gold = value;
         }
     }
 
@@ -565,7 +613,7 @@ public class City : MonoBehaviour {
         {
             unit.StartTurn();
         }
-
+        Gold += GetIncome();
         PlayerBuildingControl.StartTurn();
         UpdateInfluence();
         RefreshYields();
@@ -614,6 +662,25 @@ public class City : MonoBehaviour {
 
     }
 
+    public void AddInfluencePerTurn(Player player, int influence)
+    {
+        if(playerInfluencePerTurn.ContainsKey(player))
+        {
+            playerInfluencePerTurn[player] += influence;
+        }
+        else
+        {
+            playerInfluencePerTurn[player] = influence;
+        }
+    }
+
+    public void RemoveInfluencePerTurn(Player player, int influence)
+    {
+        if (playerInfluencePerTurn.ContainsKey(player))
+        {
+            playerInfluencePerTurn[player] -= influence;
+        }
+    }
 
     private void AddCellYield(HexCell hexCell)
     {
@@ -656,12 +723,11 @@ public class City : MonoBehaviour {
         
     }
 
-    public int Plunder()
+    public int TakeGold(float perc)
     {
-        int gold = GetCityState().Gold;
-        gold = gold / 10;
-        GetCityState().Gold -= gold;
-        return gold;
+        float goldToTake = ((float)gold / 100.0f) * perc;
+        Gold -= (int)goldToTake;
+        return (int)goldToTake;
     }
     public bool CreateUnit(CombatUnitConfig combatUnitConfig)
     {

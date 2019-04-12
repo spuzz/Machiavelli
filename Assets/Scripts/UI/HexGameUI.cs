@@ -1,4 +1,5 @@
-﻿using System.Collections.Generic;
+﻿using System;
+using System.Collections.Generic;
 using UnityEngine;
 using UnityEngine.EventSystems;
 
@@ -14,16 +15,18 @@ public class HexGameUI : MonoBehaviour {
     [SerializeField] HUD HUD;
 
     private bool editMode;
-
+    [SerializeField] HexMapEditor hexMapEditor;
     private bool abilitySelection = false;
     private int abilityIndex;
     private List<HexCell> abilityTargetOptions;
     public void SetEditMode(bool toggle) {
+        
         editMode = toggle;
         enabled = !toggle;
 		grid.ShowUI(!toggle);
 		grid.ClearPath();
         grid.EditMode = toggle;
+        hexMapEditor.SetEditMode(toggle);
 
         if (toggle) {
 			Shader.EnableKeyword("HEX_MAP_EDIT_MODE");
@@ -33,6 +36,10 @@ public class HexGameUI : MonoBehaviour {
 		}
 	}
 
+    public bool GetEditMode()
+    {
+        return editMode;
+    }
 	void Update () {
         if (abilitySelection == true)
         {
@@ -74,6 +81,7 @@ public class HexGameUI : MonoBehaviour {
             }
         }
     }
+
 
     private void DoAbilityInput()
     {

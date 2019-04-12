@@ -32,6 +32,7 @@ public class OperationCentre : MonoBehaviour
     OpCentreBuilding[] buildings = new OpCentreBuilding[5];
 
     public List<OpCentreBuildConfig> availableBuilds = new List<OpCentreBuildConfig>();
+    List<OpCentreAgentBuildMod> buildMods = new List<OpCentreAgentBuildMod>();
     public OpCentreBuilding GetBuilding(int id)
     {
         if (id > 4 || id < 0)
@@ -43,6 +44,12 @@ public class OperationCentre : MonoBehaviour
             return buildings[id];
         }
     }
+
+    public IEnumerable<OpCentreBuilding> GetBuildings()
+    {
+        return buildings;
+    }
+
 
     public bool buildingSpaceAvailable()
     {
@@ -172,6 +179,19 @@ public class OperationCentre : MonoBehaviour
         }
     }
 
+    public BuildingManager BuildingManagerForBuildings
+    {
+        get
+        {
+            return buildingManagerForBuildings;
+        }
+
+        set
+        {
+            buildingManagerForBuildings = value;
+        }
+    }
+
     public void UpdateLocation(HexCell loc)
     {
         location = loc;
@@ -228,10 +248,27 @@ public class OperationCentre : MonoBehaviour
         if (!opCentreBuildConfigs.Contains(opCentreBuildConfig))
         {
             opCentreBuildConfigs.Add(opCentreBuildConfig);
+            availableBuilds.Add(opCentreBuildConfig);
         }
         NotifyInfoChange();
     }
 
+    public void AddBuildMod(OpCentreAgentBuildModConfig buildModConfig)
+    {
+        OpCentreAgentBuildMod currentMod = buildMods.Find(c => c.AgentBuildConfig == buildModConfig.AgentBuildConfig);
+        if (currentMod != null)
+        {
+            currentMod.AddMod(buildModConfig);
+        }
+        else
+        {
+            buildMods.Add(new OpCentreAgentBuildMod(buildModConfig));
+        }
+        if(buildModConfig.CapIncrease > 0)
+        {
+            player.PlayerAgentTracker.IncreaseCap(buildModConfig.AgentBuildConfig.AgentConfig,buildModConfig.CapIncrease);
+        }
+    }
     private void Awake()
     {
         hexGrid = FindObjectOfType<HexGrid>();
@@ -247,15 +284,15 @@ public class OperationCentre : MonoBehaviour
 
     public void StartTurn()
     {
-        buildingManagerForBuildings.DayPassed(1);
-        BuildConfig buildConfig = buildingManagerForBuildings.GetCompletedBuild();
+        BuildingManagerForBuildings.DayPassed(1);
+        BuildConfig buildConfig = BuildingManagerForBuildings.GetCompletedBuild();
         while (buildConfig)
         {
             if (buildConfig.GetBuildType() == BuildConfig.BUILDTYPE.OPCENTRE_BUILDING)
             {
-                AddBuilding(buildConfig as OpCentreBuildConfig,buildingManagerForBuildings.GetIDofLastCompletedBuild());
+                AddBuilding(buildConfig as OpCentreBuildConfig,BuildingManagerForBuildings.GetIDofLastCompletedBuild());
             }
-            buildConfig = buildingManagerForBuildings.GetCompletedBuild();
+            buildConfig = BuildingManagerForBuildings.GetCompletedBuild();
         }
         BuildingManagerForAgents.DayPassed(1);
         buildConfig = BuildingManagerForAgents.GetCompletedBuild();
@@ -280,9 +317,10 @@ public class OperationCentre : MonoBehaviour
 
     public bool HireAgent(AgentBuildConfig agentBuildConfig)
     {
-        if(agentBuildConfig.BasePurchaseCost <= player.Gold && player.CanHireAgent(agentBuildConfig.AgentConfig))
+        int cost = GetAgentCost(agentBuildConfig);
+        if (cost <= player.Gold && player.CanHireAgent(agentBuildConfig.AgentConfig))
         {
-            player.Gold -= agentBuildConfig.BasePurchaseCost;
+            player.Gold -= cost;
             BuildingManagerForAgents.AddBuild(agentBuildConfig);
             player.UseAgentSpace(agentBuildConfig.AgentConfig);
             NotifyInfoChange();
@@ -291,7 +329,18 @@ public class OperationCentre : MonoBehaviour
         return false;
     }
 
-
+    public int GetAgentCost(AgentBuildConfig agentBuildConfig)
+    {
+        OpCentreAgentBuildMod mod = buildMods.Find(c => c.AgentBuildConfig == agentBuildConfig);
+        if(mod != null)
+        {
+            return agentBuildConfig.BasePurchaseCost - (int)((float)agentBuildConfig.BasePurchaseCost / 100.0f * (float)mod.CostPerc);
+        }
+        else
+        {
+            return agentBuildConfig.BasePurchaseCost;
+        }
+    }
     public bool CreateAgent(AgentConfig agentConfig)
     {
         List<HexCell> cells = PathFindingUtilities.GetCellsInRange(Location, 2);
@@ -340,7 +389,7 @@ public class OperationCentre : MonoBehaviour
         if(Player.Gold >= availableBuilds[listID].BasePurchaseCost)
         {
             Player.Gold -= availableBuilds[listID].BasePurchaseCost;
-            buildingManagerForBuildings.AddBuild(availableBuilds[listID],slotID);
+            BuildingManagerForBuildings.AddBuild(availableBuilds[listID],slotID);
             availableBuilds.Remove(availableBuilds[listID]);
             NotifyInfoChange();
         }
@@ -358,7 +407,7 @@ public class OperationCentre : MonoBehaviour
                 if(slot != -1)
                 {
                     Player.Gold -= buildConfig.BasePurchaseCost;
-                    buildingManagerForBuildings.AddBuild(buildConfig, slot);
+                    BuildingManagerForBuildings.AddBuild(buildConfig, slot);
                     result = true;
                 }
 
@@ -387,7 +436,7 @@ public class OperationCentre : MonoBehaviour
 
     public bool IsConstructingBuilding(int slot)
     {
-        if (buildingManagerForBuildings.GetConfigInQueueByID(slot))
+        if (BuildingManagerForBuildings.GetConfigInQueueByID(slot))
         {
             return true;
         }
@@ -396,22 +445,32 @@ public class OperationCentre : MonoBehaviour
 
     public bool IsConstructingBuilding()
     {
-        if (buildingManagerForBuildings.buildsInQueue() != 0)
+        if (BuildingManagerForBuildings.buildsInQueue() != 0)
         {
             return true;
         }
         return false;
     }
 
+    public bool IsTraining()
+    {
+        if (BuildingManagerForAgents.buildsInQueue() != 0)
+        {
+            return true;
+        }
+        return false;
+    }
+
+
     public int TimeLeftOnConstruction(int slot)
     {
-        if (buildingManagerForBuildings.IDInConstruction() == slot)
+        if (BuildingManagerForBuildings.IDInConstruction() == slot)
         {
-            return buildingManagerForBuildings.TimeLeftOnBuild(1);
+            return BuildingManagerForBuildings.TimeLeftOnBuild(1);
         }
-        if (buildingManagerForBuildings.IsIDInQueue(slot))
+        if (BuildingManagerForBuildings.IsIDInQueue(slot))
         {
-            return buildingManagerForBuildings.GetConfigInQueueByID(slot).BaseBuildTime;
+            return BuildingManagerForBuildings.GetConfigInQueueByID(slot).BaseBuildTime;
         }
         return -1;
     }
@@ -451,7 +510,7 @@ public class OperationCentre : MonoBehaviour
             }
 
         }
-        buildingManagerForBuildings.Save(writer);
+        BuildingManagerForBuildings.Save(writer);
         BuildingManagerForAgents.Save(writer);
     }
 
@@ -470,7 +529,7 @@ public class OperationCentre : MonoBehaviour
             
         }
 
-        opCentre.buildingManagerForBuildings.Load(reader,gameController,header);
+        opCentre.BuildingManagerForBuildings.Load(reader,gameController,header);
         opCentre.BuildingManagerForAgents.Load(reader, gameController, header);
 
     }

@@ -104,14 +104,14 @@ public class Abilities : MonoBehaviour
         }
         else
         {
-            CityState state = unit.GetCityState();
-            if(!state || state.Gold < AbilitiesList[index].GetCost())
+            City city = unit.GetCityOwner();
+            if(!city || city.Gold < AbilitiesList[index].GetCost())
             {
                 return false;
             }
             else
             {
-                state.Gold -= AbilitiesList[index].GetCost();
+                city.Gold -= AbilitiesList[index].GetCost();
             }
         }
         
@@ -137,7 +137,7 @@ public class Abilities : MonoBehaviour
             HexAction action = hexUnitActionController.CreateAction();
             action.ActionsUnit = unit.HexUnit;
             action.AddAction(hexCell, AbilitiesList[index]);
-            hexUnitActionController.AddAction(action, unit.HexUnit);
+            unit.AddAction(action);
         }
     }
     public int GetNumberOfAbilities()

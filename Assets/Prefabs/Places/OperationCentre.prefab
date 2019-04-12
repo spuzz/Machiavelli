@@ -121,6 +121,7 @@ GameObject:
   - component: {fileID: 114663300267080480}
   - component: {fileID: 114238341442040398}
   - component: {fileID: 114289524157160936}
+  - component: {fileID: 114788239116090156}
   m_Layer: 0
   m_Name: OpCentre Canvas
   m_TagString: Untagged
@@ -249,7 +250,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   resourceBenefit: {fileID: 114665422705494964}
   allowedBuilds: []
-  allowedAgents: []
+  agentBuildMods: []
   allowedMercs: []
 --- !u!114 &114238341442040398
 MonoBehaviour:
@@ -281,6 +282,7 @@ MonoBehaviour:
   canvas: {fileID: 223297231337629018}
   background: {fileID: 114918852141527052}
   opCentre: {fileID: 114708981004321290}
+  toolTip: {fileID: 114788239116090156}
 --- !u!114 &114663300267080480
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -335,6 +337,11 @@ MonoBehaviour:
   agentBuildConfigs:
   - {fileID: 11400000, guid: 7b54e16d211fb2e4a95bc9d1d768d831, type: 2}
   - {fileID: 11400000, guid: eaa339952c98a0a43a194ae7accfb3ea, type: 2}
+  - {fileID: 11400000, guid: 8b221a80e62d3f74e9c3bcc50c236f5e, type: 2}
+  - {fileID: 11400000, guid: 7df3e88014b1f60479efab0d5f0a6abe, type: 2}
+  - {fileID: 11400000, guid: b8b6514f482146d49b85151135dcf50f, type: 2}
+  - {fileID: 11400000, guid: 872c28abfd5f6514fb91755596b81594, type: 2}
+  - {fileID: 11400000, guid: 237967ea37bab6646a3a19459130a1b1, type: 2}
   mercBuildConfigs: []
   opCentreBuildConfigs:
   - {fileID: 11400000, guid: 4b658f879fe85da4d8a5d2aed8d2045a, type: 2}
@@ -342,11 +349,26 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b62b5e71c53145a4c81291ce69095c93, type: 2}
   - {fileID: 11400000, guid: 9bdd25d4e61527842b4bc65d38081d82, type: 2}
   - {fileID: 11400000, guid: edb08b3e5bd957a449fd3728e4d704af, type: 2}
+  - {fileID: 11400000, guid: 53224756de44a0347acc6202efbb6bf0, type: 2}
   visionRange: 2
   opCentreUI: {fileID: 114289524157160936}
   commandCentreBuildConfig: {fileID: 11400000, guid: 8306bafc481faf845a1de9f1c1d3322a,
     type: 2}
   availableBuilds: []
+--- !u!114 &114788239116090156
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1758270067051074}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a33ddaa51232d14bb023e40668baa2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: OpCentre Test
+  header: OpCentre Test
+  editModeOnly: 1
 --- !u!114 &114865687983564698
 MonoBehaviour:
   m_ObjectHideFlags: 1

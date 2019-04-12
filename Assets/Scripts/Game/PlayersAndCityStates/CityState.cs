@@ -9,7 +9,7 @@ public class CityState : MonoBehaviour
 {
     public static int cityStateIDCounter = 1;
     [SerializeField] CityStateAIController cityStateAIController;
-    [SerializeField] int gold = 100;
+
     [SerializeField] string cityStateName = "City State";
     [SerializeField] int symbolID;
     GameController gameController;
@@ -71,20 +71,6 @@ public class CityState : MonoBehaviour
             }
         }
 
-    }
-
-    public int Gold
-    {
-        get
-        {
-            return gold;
-        }
-
-        set
-        {
-            gold = value;
-            NotifyInfoChange();
-        }
     }
 
     public Player Player
@@ -223,7 +209,7 @@ public class CityState : MonoBehaviour
         foreach (City city in cities)
         {
             city.StartTurn();
-            Gold += city.GetIncome();
+
         }
 
         NotifyInfoChange();

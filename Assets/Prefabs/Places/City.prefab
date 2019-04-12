@@ -111,6 +111,7 @@ GameObject:
   - component: {fileID: 114122590616505298}
   - component: {fileID: 114330631517215492}
   - component: {fileID: 114176040660542350}
+  - component: {fileID: 114003633487691406}
   m_Layer: 0
   m_Name: City Canvas
   m_TagString: Untagged
@@ -149,6 +150,20 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114003633487691406
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1871145339103686}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a33ddaa51232d14bb023e40668baa2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: City Test
+  header: City Test
+  editModeOnly: 1
 --- !u!114 &114105987027955466
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -243,6 +258,7 @@ MonoBehaviour:
   influence: {fileID: 114474624663275106}
   city: {fileID: 114574744724499650}
   backGround: {fileID: 114132559925525118}
+  toolTip: {fileID: 114003633487691406}
 --- !u!114 &114211817612771742
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -408,6 +424,7 @@ MonoBehaviour:
   population: 1
   visionRange: 2
   unitCap: 3
+  gold: 100
   playerBuildingControl: {fileID: 114906063587015198}
   playerCityBonus: {fileID: 11400000, guid: 0e8386496a6c0384aaee1c405638fae2, type: 2}
   happiness: 100

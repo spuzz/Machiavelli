@@ -41,6 +41,7 @@ GameObject:
   - component: {fileID: 114352185840439852}
   - component: {fileID: 114299979998413088}
   - component: {fileID: 114099243368096262}
+  - component: {fileID: 114914879190658976}
   m_Layer: 0
   m_Name: OpCentre Canvas
   m_TagString: Untagged
@@ -95,10 +96,11 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   canvas: {fileID: 0}
   cityHealthBar: {fileID: 0}
-  playerColor: {fileID: 0}
+  cityStateSymbol: {fileID: 0}
   cityName: {fileID: 0}
-  population: {fileID: 0}
+  influence: {fileID: 0}
   city: {fileID: 0}
+  backGround: {fileID: 0}
 --- !u!114 &114104854182366690
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -225,6 +227,19 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
+--- !u!114 &114914879190658976
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1311539807392560}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5a33ddaa51232d14bb023e40668baa2f, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  text: Test
+  header: Test
 --- !u!222 &222537198397340058
 CanvasRenderer:
   m_ObjectHideFlags: 1

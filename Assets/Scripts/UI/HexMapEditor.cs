@@ -16,7 +16,7 @@ public class HexMapEditor : MonoBehaviour {
     [SerializeField] Dropdown cityStateUnits;
     [SerializeField] Dropdown cityStates;
     [SerializeField] Dropdown cities;
-
+    [SerializeField] Toggle editModeToggle;
     public HexGrid hexGrid;
     public GameController gameController;
 	public Material terrainMaterial;
@@ -37,7 +37,7 @@ public class HexMapEditor : MonoBehaviour {
     bool applyCityUnit = false;
     bool applyUrbanLevel, applyFarmLevel, applyPlantLevel, applySpecialIndex, applyExplored;
 
-	OptionalToggle riverMode, roadMode, walledMode;
+	OptionalToggle riverMode, roadMode, walledMode, exploredMode;
 
 	bool isDrag;
 	HexDirection dragDirection;
@@ -130,8 +130,15 @@ public class HexMapEditor : MonoBehaviour {
 		walledMode = (OptionalToggle)mode;
 	}
 
-	public void SetEditMode (bool toggle) {
+    public void SetExploredMode(int mode)
+    {
+        exploredMode = (OptionalToggle)mode;
+    }
+
+
+    public void SetEditMode (bool toggle) {
 		enabled = toggle;
+        editModeToggle.isOn = toggle;
 	}
 
     void Awake()
@@ -167,10 +174,6 @@ public class HexMapEditor : MonoBehaviour {
         cityStates.ClearOptions();
 
         cities.ClearOptions();
-        foreach (City city in gameController.GetCities())
-        {
-
-        }
     }
 
 
@@ -443,14 +446,14 @@ public class HexMapEditor : MonoBehaviour {
 			if (walledMode != OptionalToggle.Ignore) {
 				cell.Walled = walledMode == OptionalToggle.Yes;
 			}
-            if(applyExplored)
+            if (exploredMode != OptionalToggle.Ignore)
             {
-                cell.IsExplored = true;
+                bool originalImmediateMode = cell.ShaderData.ImmediateMode;
+                cell.ShaderData.ImmediateMode = true;
+                cell.IsExplored = exploredMode == OptionalToggle.Yes;
+                cell.ShaderData.ImmediateMode = originalImmediateMode;
             }
-            else
-            {
-                cell.IsExplored = false;
-            }
+
 			if (isDrag) {
 				HexCell otherCell = cell.GetNeighbor(dragDirection.Opposite());
 				if (otherCell) {

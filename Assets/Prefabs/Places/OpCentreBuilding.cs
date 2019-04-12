@@ -9,7 +9,7 @@ public class OpCentreBuilding : MonoBehaviour {
     OpCentreBuildConfig buildConfig;
 
     [SerializeField] List<OpCentreBuildConfig> allowedBuilds;
-    [SerializeField] List<AgentBuildConfig> allowedAgents;
+    [SerializeField] List<OpCentreAgentBuildModConfig> agentBuildMods;
     [SerializeField] List<CombatUnitBuildConfig> allowedMercs;
     public OperationCentre OpCentreBuiltIn
     {
@@ -21,11 +21,6 @@ public class OpCentreBuilding : MonoBehaviour {
         set
         {
             opCentreBuiltIn = value;
-            if(opCentreBuiltIn)
-            {
-                AddConfigs();
-            }
-            
         }
     }
 
@@ -35,9 +30,9 @@ public class OpCentreBuilding : MonoBehaviour {
         {
             opCentreBuiltIn.AddOpCentreBuildConfigs(config);
         }
-        foreach (AgentBuildConfig config in allowedAgents)
+        foreach (OpCentreAgentBuildModConfig config in agentBuildMods)
         {
-            opCentreBuiltIn.AddAgentBuildConfigs(config);
+            opCentreBuiltIn.AddBuildMod(config);
         }
         foreach (CombatUnitBuildConfig config in allowedMercs)
         {

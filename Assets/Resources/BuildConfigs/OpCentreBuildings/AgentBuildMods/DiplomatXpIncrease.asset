@@ -1,0 +1,17 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 5dc6ce8a03b311d41ae962222d404c86, type: 3}
+  m_Name: DiplomatXpIncrease
+  m_EditorClassIdentifier: 
+  costReductionPerc: 0
+  capIncrease: 0
+  xpIncreasePerc: 30
+  agentBuildConfig: {fileID: 11400000, guid: 8b221a80e62d3f74e9c3bcc50c236f5e, type: 2}

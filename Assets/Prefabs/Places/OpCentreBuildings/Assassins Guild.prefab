@@ -82,9 +82,11 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceBenefit: {fileID: 114411444950648608}
-  allowedBuilds: []
-  allowedAgents:
-  - {fileID: 11400000, guid: 237967ea37bab6646a3a19459130a1b1, type: 2}
+  allowedBuilds:
+  - {fileID: 11400000, guid: acc40fc746dda0c48a602eca0aeef504, type: 2}
+  - {fileID: 11400000, guid: 8a91fbcef3e8887469c01d67ecfa26b0, type: 2}
+  agentBuildMods:
+  - {fileID: 11400000, guid: 0fbc1bd3d10ceb74485d043af35edbe7, type: 2}
   allowedMercs: []
 --- !u!114 &114411444950648608
 MonoBehaviour:
@@ -103,3 +105,4 @@ MonoBehaviour:
   food: {x: 0, y: 0}
   defence: {x: 0, y: 0}
   playerGold: {x: 0, y: 0}
+  unitCap: 0

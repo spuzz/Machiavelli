@@ -666,6 +666,17 @@ public class GameController : MonoBehaviour
         }
         return player;
     }
+    public List<Player> GetPlayers()
+    {
+        List<Player> playerList = new List<Player>();
+        playerList.Add(humanPlayer);
+        foreach(Player player in players)
+        {
+            playerList.Add(player);
+        }
+        return playerList;
+    }
+
 
     public int GetNewPlayerColor()
     {
@@ -832,6 +843,7 @@ public class GameController : MonoBehaviour
         humanPlayer.ClearOperationCentres();
         humanPlayer.ClearMercenaries();
         humanPlayer.ClearAgents();
+        humanPlayer.Gold = GameConsts.StartingGold;
         players.Clear();
         Player.nextPlayerNumber = 1;
         usedColors.Clear();

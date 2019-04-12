@@ -34,6 +34,17 @@ public class AgentBehaviourTree : MonoBehaviour {
                                 new HasMovementLeft("Test"),
                                     new Selector(
                                         new Sequence(
+                                            new HasAbility("ability", "BuildOutpost"),
+                                            new FindCellToBuildOutpost(""),
+                                            new Selector(
+                                                new Sequence(
+                                                    new ReachedTarget("ReachedTarget"),
+                                                    new UseAbility("", "BuildOutpost")
+                                                ),
+                                                new MoveToTarget("")
+                                            )
+                                        ),
+                                        new Sequence(
                                             new HasAbility("ability", "BuildOperationCentre"),
                                             new FindCellToBuildOperationCentre(""),
                                             new Selector(
@@ -57,7 +68,7 @@ public class AgentBehaviourTree : MonoBehaviour {
                                         ),
                                         new Sequence(
                                             new FindNearbyEnemyCity("FindNearbyEnemyCity"),
-                                            new PickAbility("PickEnemyCityAbility",AbilityConfig.AbilityType.EnemyCity),
+                                            new PickAbility("PickEnemyCityAbility",new List<AbilityConfig.AbilityType>() { AbilityConfig.AbilityType.EnemyCity, AbilityConfig.AbilityType.City }),
                                             new Selector(
                                                 new Sequence(
                                                     new ReachedTarget("ReachedTarget"),
@@ -68,7 +79,7 @@ public class AgentBehaviourTree : MonoBehaviour {
                                         ),
                                         new Sequence(
                                             new FindNearbyNeutralCity("FindNearbyNeutralCity"),
-                                            new PickAbility("PickEnemyCityAbility", AbilityConfig.AbilityType.NeutralCity),
+                                            new PickAbility("PickEnemyCityAbility", new List<AbilityConfig.AbilityType>() { AbilityConfig.AbilityType.NeutralCity, AbilityConfig.AbilityType.City }),
                                             new Selector(
                                                 new Sequence(
                                                     new ReachedTarget("ReachedTarget"),
@@ -370,6 +381,45 @@ public class AgentBehaviourTree : MonoBehaviour {
         }
     }
 
+    public class FindCellToBuildOutpost : Task
+    {
+        public FindCellToBuildOutpost(string name) : base(name)
+        {
+
+        }
+
+        protected override void DoStart()
+        {
+            Agent agent = (Blackboard["agent"] as Agent);
+            AbilityConfig config = agent.GetAbility("BuildOutpost");
+            List<City> cities = PathFindingUtilities.FindAllSeenCities(agent.GetPlayer().exploredCells);
+            cities = cities.FindAll(c => !c.PlayerBuildingControl.HasOutpost(agent.GetPlayer()));
+            if (cities.Count > 0)
+            {
+                cities = cities.OrderBy(c => c.GetHexCell().coordinates.DistanceTo(agent.HexUnit.Location.coordinates)).ToList();
+                foreach (City cityToBuildOutpost in cities)
+                {
+
+                    if (config.IsValidTarget(cityToBuildOutpost.GetHexCell()))
+                    {
+                        Blackboard["targetCell"] = cityToBuildOutpost.GetHexCell();
+                        Blackboard["range"] = config.Range;
+                        Stopped(true);
+                        return;
+                    }
+
+                }
+
+            }
+
+            Stopped(false);
+        }
+
+        protected override void DoStop()
+        {
+            Stopped(true);
+        }
+    }
 
     public class FindCellToBuildOperationCentre : Task
     {
@@ -621,25 +671,40 @@ public class AgentBehaviourTree : MonoBehaviour {
 
     public class PickAbility : Task
     {
-        AbilityConfig.AbilityType abilityType;
+        List<AbilityConfig.AbilityType> abilityTypes;
         public PickAbility(string name, AbilityConfig.AbilityType ability) : base(name)
         {
-            abilityType = ability;
+            abilityTypes = new List<AbilityConfig.AbilityType>();
+            abilityTypes.Add(ability);
         }
+        public PickAbility(string name, List<AbilityConfig.AbilityType> abilities) : base(name)
+        {
+            abilityTypes = new List<AbilityConfig.AbilityType>();
+            foreach(AbilityConfig.AbilityType ability in abilities)
+            {
+                abilityTypes.Add(ability);
+            }
+            
+        }
+
         protected override void DoStart()
         {
             Agent agent = (Blackboard["agent"] as Agent);
             HexCell targetCell = (Blackboard["targetCell"] as HexCell);
-            List<AbilityConfig> configs = agent.GetAbilities(abilityType);
+            List<AbilityConfig> configs = agent.GetAbilities(abilityTypes);
             IListExtensions.Shuffle(configs);
             foreach (AbilityConfig config in configs)
             {
                 if(config.IsValidTarget(targetCell))
                 {
-                    Blackboard["ability"] = config.AbilityName;
-                    Blackboard["range"] = config.Range;
-                    Stopped(true);
-                    return;
+                    if(config.IsGoodTarget(targetCell))
+                    {
+                        Blackboard["ability"] = config.AbilityName;
+                        Blackboard["range"] = config.Range;
+                        Stopped(true);
+                        return;
+                    }
+
                 }
             }
             Stopped(false);

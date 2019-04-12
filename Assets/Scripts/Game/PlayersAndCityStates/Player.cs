@@ -20,6 +20,7 @@ public abstract class Player : MonoBehaviour {
     public List<CombatUnit> mercenaries = new List<CombatUnit>();
     public List<CityState> cityStates = new List<CityState>();
     public List<City> cities = new List<City>();
+    public List<City> citiesWithOutposts = new List<City>();
     public List<OperationCentre> opCentres = new List<OperationCentre>();
     public Dictionary<HexCell, int> visibleCells = new Dictionary<HexCell, int>();
     public List<HexCell> exploredCells = new List<HexCell>();
@@ -157,6 +158,10 @@ public abstract class Player : MonoBehaviour {
         UpdateResources();
     }
 
+    public void AddCityWithOutpost(City city)
+    {
+        citiesWithOutposts.Add(city);
+    }
     public void AddCity(City city)
     {
         cities.Add(city);
@@ -338,10 +343,19 @@ public abstract class Player : MonoBehaviour {
     {
         return cityPlayerBuildConfigs;
     }
+    public CityPlayerBuildConfig GetRandomCityPlayerBuildConfigs()
+    {
+        return cityPlayerBuildConfigs[UnityEngine.Random.Range(0, cityPlayerBuildConfigs.Count)];
+    }
 
     public CityPlayerBuildConfig GetCityPlayerBuildConfig(int id)
     {
         return cityPlayerBuildConfigs[id];
+    }
+
+    public CityPlayerBuildConfig GetCityPlayerBuildConfig(string name)
+    {
+        return cityPlayerBuildConfigs.Find(c => c.Name.CompareTo(name) ==0);
     }
     private void Awake()
     {
@@ -387,6 +401,7 @@ public abstract class Player : MonoBehaviour {
             if(agent.CheckPath())
             {
                 agent.MoveUnit();
+                agent.DoActions();
             }
             
         }
@@ -472,7 +487,7 @@ public abstract class Player : MonoBehaviour {
                 OperationCentre.Load(reader,gameController,hexGrid,this,header);
             }
 
-            gold = reader.ReadInt32();
+            Gold = reader.ReadInt32();
 
         }
 
