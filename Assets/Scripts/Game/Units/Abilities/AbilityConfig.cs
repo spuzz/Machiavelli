@@ -6,18 +6,20 @@ public abstract class AbilityConfig : ScriptableObject
     public enum AbilityType
     {
         EnemyCity,
-        NeutralCity,
+        EnemyPlayerCity,
+        FriendlyCity,
         City,
         EnemyAgent,
         AllyAgent,
         EnemyUnit,
-        NeutralUnit,
+        FriendlyUnit,
+        EnemyAndFriendlyUnit,
         EnemyOperationCentre,
         NeutralOperationCentre,
         Misc
     }
     [Header("Special Ability General")]
-    [SerializeField] int cost = 10;
+    [SerializeField] int energyCost = 10;
     [SerializeField] int range = 1;
     [SerializeField] GameObject particlePrefab = null;
     [SerializeField] AnimationClip abilityAnimation;
@@ -28,6 +30,8 @@ public abstract class AbilityConfig : ScriptableObject
     [SerializeField] AbilityType abilityType = AbilityType.Misc;
     [SerializeField] string displayName;
     [SerializeField] string toolTipText;
+
+
     protected AbilityBehaviour behaviour;
 
     public int Range
@@ -134,9 +138,9 @@ public abstract class AbilityConfig : ScriptableObject
         behaviour.Use(target);
     }
 
-    public void Show(HexCell target = null)
+    public void Show(int energyCost, HexCell target = null)
     {
-        behaviour.ShowAbility(target);
+        behaviour.ShowAbility(energyCost, target);
     }
 
     public void Finish(HexCell target = null)
@@ -144,9 +148,9 @@ public abstract class AbilityConfig : ScriptableObject
         behaviour.FinishAbility(target);
     }
 
-    public void RunAll(HexCell target = null)
+    public void RunAll(int energyCost, HexCell target = null)
     {
-        behaviour.RunAll(target);
+        behaviour.RunAll(energyCost, target);
     }
     public bool IsValidTarget(HexCell target)
     {
@@ -163,9 +167,9 @@ public abstract class AbilityConfig : ScriptableObject
         return behaviour.GetValidTargets(location);
     }
 
-    public int GetCost()
+    public int GetEnergyCost()
     {
-        return cost;
+        return energyCost;
     }
 
     public GameObject GetParticlePrefab()
@@ -181,6 +185,11 @@ public abstract class AbilityConfig : ScriptableObject
     public AnimationClip GetAbilityAnimation()
     {
         return abilityAnimation;
+    }
+
+    public bool Merge()
+    {
+        return behaviour.Merge();
     }
 
 }

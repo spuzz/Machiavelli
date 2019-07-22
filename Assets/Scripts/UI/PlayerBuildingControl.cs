@@ -64,6 +64,23 @@ public class PlayerBuildingControl : MonoBehaviour {
         }
         city.NotifyInfoChange();
     }
+
+    public bool BuildBuilding(BuildConfig config, Player player, int slotID)
+    {
+        if (outposts.ContainsKey(player))
+        {
+            if (player.Gold >= config.BasePurchaseCost)
+            {
+                player.Gold -= config.BasePurchaseCost;
+                playerBuildingManagers[player].AddBuild(config, slotID);
+                return true;
+            }
+
+        }
+        return false;
+        city.NotifyInfoChange();
+    }
+
     private void PlayerBuildingManagerStartTurn(Player player)
     {
         BuildingManager buildingManager = playerBuildingManagers[player];
@@ -100,6 +117,15 @@ public class PlayerBuildingControl : MonoBehaviour {
         city.RefreshYields();
         city.NotifyInfoChange();
     }
+    private void RemoveBuilding(Player player, int id)
+    {
+        playerBuildings[player][id].Destroy();
+        Destroy(playerBuildings[player][id].gameObject);
+        playerBuildings[player][id] = null;
+        city.RefreshYields();
+        city.NotifyInfoChange();
+    }
+
 
     public ResourceBenefit GetTotalEffects()
     {
@@ -141,6 +167,53 @@ public class PlayerBuildingControl : MonoBehaviour {
         return false;
     }
 
+    public bool HasEnemyBuildings(Player currentPlayer)
+    {
+        foreach(Player player in playerBuildings.Keys)
+        {
+            if(player != currentPlayer)
+            {
+                foreach(CityPlayerBuilding building in playerBuildings[player])
+                {
+                    if(building)
+                    {
+                        return true;
+                    }
+                }
+            }
+        }
+        return false;
+    }
+
+    public Dictionary<CityPlayerBuilding, Player> GetAllBuildings(Player excludingPlayer = null)
+    {
+        Dictionary<CityPlayerBuilding, Player> buildings = new Dictionary<CityPlayerBuilding, Player>();
+        foreach (Player player in playerBuildings.Keys)
+        {
+            if (excludingPlayer == null || player != excludingPlayer)
+            {
+                foreach (CityPlayerBuilding building in playerBuildings[player])
+                {
+                    if (building)
+                    {
+                        buildings.Add(building, player);
+                    }
+                }
+            }
+        }
+        return buildings;
+    }
+
+    public void DestroyBuilding(Player player, CityPlayerBuilding buildingToDestroy)
+    {
+        foreach (CityPlayerBuilding playerBuilding in playerBuildings[player])
+        {
+            if (playerBuilding == buildingToDestroy)
+            {
+                
+            }
+        }
+    }
     public IEnumerable<CityPlayerBuilding> GetPlayerBuildings(Player player)
     {
         if (HasOutpost(player))
@@ -223,6 +296,19 @@ public class PlayerBuildingControl : MonoBehaviour {
         }
         return false;
     }
+    public int GetFreeBuildSlot(Player player)
+    {
+        int count = 0;
+        foreach (CityPlayerBuilding building in playerBuildings[player])
+        {
+            if (!building)
+            {
+                return count;
+            }
+            count++;
+        }
+        return -1;
+    }
 
     public void Save(BinaryWriter writer)
     {
@@ -271,4 +357,5 @@ public class PlayerBuildingControl : MonoBehaviour {
             }
         }
     }
+
 }

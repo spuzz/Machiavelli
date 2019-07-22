@@ -293,14 +293,21 @@ public class HexUnit : MonoBehaviour {
 
     public IEnumerator FightCity(City city, bool killTarget, CityState cityState, HexUnit targetUnit)
     {
-        LookAt(city.GetHexCell().Position);
+
         float attackTime = 0;
-        Animator.SetBool("Attacking", true);
-        for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
+        if ((Location.IsVisible || city.GetHexCell().IsVisible) && GameConsts.playAnimations)
         {
-            yield return null;
+            LookAt(city.GetHexCell().Position);
+            Location.IncreaseVisibility(false);
+            Animator.SetBool("Attacking", true);
+            for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
+            {
+                yield return null;
+            }
+            Animator.SetBool("Attacking", false);
+            Location.DecreaseVisibility();
         }
-        Animator.SetBool("Attacking", false);
+
 
         if (killTarget)
         {
@@ -322,12 +329,13 @@ public class HexUnit : MonoBehaviour {
 
     public IEnumerator FightUnit(HexUnit targetUnit, int damageDone, bool killTarget)
     {
-        yield return targetUnit.LookAt(location.Position);
+
         if (targetUnit)
         {
             Unit unitToFightUnitComp = targetUnit.GetComponent<Unit>();
-            if (Location.IsVisible || targetUnit.Location.IsVisible)
+            if ((Location.IsVisible || targetUnit.Location.IsVisible) && GameConsts.playAnimations)
             {
+                yield return targetUnit.LookAt(location.Position);
                 Location.IncreaseVisibility(false);
                 float attackTime = 0;
                 Animator.SetBool("Attacking", true);

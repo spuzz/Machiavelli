@@ -70,4 +70,9 @@ public class CityPlayerBuilding : MonoBehaviour {
 
     }
 
+    public virtual void Destroy()
+    {
+
+    }
+
 }

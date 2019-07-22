@@ -10,4 +10,9 @@ public class GovernmentAdvisor : CityPlayerBuilding {
         cityBuildIn.AddInfluencePerTurn(PlayersBuilding, influencePerTurn);
     }
 
+    public override void Destroy()
+    {
+        cityBuildIn.RemoveInfluencePerTurn(PlayersBuilding, influencePerTurn);
+    }
+
 }

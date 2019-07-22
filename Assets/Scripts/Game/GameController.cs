@@ -211,6 +211,10 @@ public class GameController : MonoBehaviour
 
     IEnumerator NewTurn()
     {
+        foreach (AIPlayer aiPlayer in players)
+        {
+            aiPlayer.StartTurn();
+        }
         playersTakingturns.Clear();
         foreach (AIPlayer aiPlayer in players)
         {
@@ -252,10 +256,6 @@ public class GameController : MonoBehaviour
         foreach (CityState cityState in cityStates)
         {
             cityState.StartTurn();
-        }
-        foreach (AIPlayer aiPlayer in players)
-        {
-            aiPlayer.StartTurn();
         }
 
         if (humanPlayer.Alive == false)
@@ -843,7 +843,7 @@ public class GameController : MonoBehaviour
         humanPlayer.ClearOperationCentres();
         humanPlayer.ClearMercenaries();
         humanPlayer.ClearAgents();
-        humanPlayer.Gold = GameConsts.StartingGold;
+        humanPlayer.Gold = GameConsts.startingGold;
         players.Clear();
         Player.nextPlayerNumber = 1;
         usedColors.Clear();

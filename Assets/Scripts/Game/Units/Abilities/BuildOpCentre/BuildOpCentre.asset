@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 838d540c66d680b408f65232616274ec, type: 3}
   m_Name: BuildOpCentre
   m_EditorClassIdentifier: 
-  cost: 0
+  energyCost: 0
   range: 0
   particlePrefab: {fileID: 0}
   abilityAnimation: {fileID: 7400000, guid: f94c62a8b96f5a7469ce0da8ccac09b3, type: 3}
@@ -20,6 +20,6 @@ MonoBehaviour:
   defaultIcon: {fileID: 21300000, guid: 9a5f8b0d91db95c4f8b91bf7cd276145, type: 3}
   textEffect: {fileID: 1096156621854288, guid: cbce99c46ef89c94f965d408ea4706c6, type: 2}
   abilityName: BuildOperationCentre
-  abilityType: 9
+  abilityType: 11
   displayName: Build Operation Centre
   toolTipText: Use up this builder to create a new operation centre

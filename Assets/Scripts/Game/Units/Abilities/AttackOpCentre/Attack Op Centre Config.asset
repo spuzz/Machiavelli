@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: c0f26a63870feff4ea89e127b546658b, type: 3}
   m_Name: Attack Op Centre Config
   m_EditorClassIdentifier: 
-  cost: 0
+  energyCost: 10
   range: 1
   particlePrefab: {fileID: 0}
   abilityAnimation: {fileID: 7400000, guid: f94c62a8b96f5a7469ce0da8ccac09b3, type: 3}
@@ -20,7 +20,7 @@ MonoBehaviour:
   defaultIcon: {fileID: 21300000, guid: 5eb2dabf1a4a4474cb7e7ff996cfc246, type: 3}
   textEffect: {fileID: 1096156621854288, guid: cbce99c46ef89c94f965d408ea4706c6, type: 2}
   abilityName: AttackOpCentre
-  abilityType: 7
+  abilityType: 11
   displayName: Destroy Operation Centre
   toolTipText: Destroy the enemy Operation centre
   damage: 20

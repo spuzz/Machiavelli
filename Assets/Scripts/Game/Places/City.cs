@@ -32,6 +32,7 @@ public class City : MonoBehaviour {
     [SerializeField] GameObject textEffect;
     Dictionary<Player, int> influenceDict = new Dictionary<Player, int>();
     Dictionary<Player, int> playerInfluencePerTurn = new Dictionary<Player, int>();
+    Dictionary<Effect, int> currentEffects = new Dictionary<Effect, int>();
     BuildingManager buildingManager = new BuildingManager();
     private bool capital = false;
     public int currentStrength = 0;
@@ -258,22 +259,10 @@ public class City : MonoBehaviour {
             {
                 influenceDict[adjustPlayer] += influence;
             }
-            if (influenceDict[adjustPlayer] < 0)
-            {
-                influenceDict[adjustPlayer] = 0;
-            }
-            else if (influenceDict[adjustPlayer] > 100)
-            {
-                influenceDict[adjustPlayer] = 100;
-            }
         }
         else if (Player && adjustPlayer == Player)
         {
             influenceDict[adjustPlayer] += influence;
-            if (influenceDict[adjustPlayer] < 0)
-            {
-                influenceDict[adjustPlayer] = 0;
-            }
         }
         NotifyInfoChange();
     }
@@ -301,6 +290,23 @@ public class City : MonoBehaviour {
                 Player = null;
             }
             else if (influenceDict[player] > 100)
+            {
+                influenceDict[player] = 100;
+            }
+        }
+        TidyInfluenceDict();
+    }
+
+    private void TidyInfluenceDict()
+    {
+        List<Player> keys = new List<Player>(influenceDict.Keys);
+        foreach (Player player in keys)
+        {
+            if(influenceDict[player] < 0)
+            {
+                influenceDict[player] = 0;
+            }
+            else if(influenceDict[player] > 100)
             {
                 influenceDict[player] = 100;
             }
@@ -341,13 +347,10 @@ public class City : MonoBehaviour {
         foreach (Player player in keys)
         {
             influenceDict[player] += influence;
-            if (influenceDict[player] < 0)
-            {
-                influenceDict[player] = 0;
-            }
         }
         NotifyInfoChange();
     }
+
     public void AdjustInfluenceForAllExcluding(Player excludedPlayer, int influence)
     {
         List<Player> players = influenceDict.Keys.ToList();
@@ -356,10 +359,6 @@ public class City : MonoBehaviour {
             if (player != excludedPlayer)
             {
                 influenceDict[player] += influence;
-                if (influenceDict[player] < 0)
-                {
-                    influenceDict[player] = 0;
-                }
             }
         }
         NotifyInfoChange();
@@ -615,6 +614,14 @@ public class City : MonoBehaviour {
         }
         Gold += GetIncome();
         PlayerBuildingControl.StartTurn();
+        foreach(Effect effect in currentEffects.Keys)
+        {
+            effect.UseEffect(this);
+        }
+        foreach (var i in currentEffects.Where(d => d.Value <= 0).ToList())
+        {
+            currentEffects.Remove(i.Key);
+        }
         UpdateInfluence();
         RefreshYields();
     }
@@ -637,12 +644,31 @@ public class City : MonoBehaviour {
             buildConfig = BuildingManager.GetCompletedBuild();
         }
     }
+
+    public void AddEffect(Effect effect, int duration)
+    {
+        Effect existingEffect = currentEffects.Keys.ToList().Find(c => c.Compare(effect));
+
+        if (existingEffect != null)
+        {
+            currentEffects.Remove(existingEffect);
+        }
+        currentEffects[effect] = duration;
+        
+    }
+
+    public bool HasEffect(Player player, string effectName)
+    {
+        if(currentEffects.Keys.ToList().Find(c => c.Name.CompareTo(effectName) == 0 && c.Player == player) != null)
+        {
+            return true;
+        }
+        return false;
+    }
     public void UpdateHealthBar()
     {
 
         CityUI.UpdateHealthBar();
-
-
     }
 
     public void UpdateCityBar()

@@ -396,6 +396,14 @@ public class OperationCentre : MonoBehaviour
 
     }
 
+    public bool IsAvailableToBuild(BuildConfig buildConfig)
+    {
+        if (agentBuildConfigs.FindAll(c => c.Name == buildConfig.Name).Count > 0)
+        {
+            return !IsTraining();
+        }
+        return true;
+    }
     public bool BuildUsingBuildConfig(BuildConfig buildConfig)
     {
         bool result = false;

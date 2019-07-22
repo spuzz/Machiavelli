@@ -171,7 +171,6 @@ public class HUD : MonoBehaviour {
     {
         TargetCell = Unit.HexUnit.Location;
         Unit.AttemptAbility(abilityNumber, TargetCell);
-        Unit.DoActions();
     }
 
     public void UseOpCentreAbility(int abilityNumber)
@@ -189,7 +188,11 @@ public class HUD : MonoBehaviour {
 
     public void HideToolTip()
     {
-        toolTip.SetActive(false);
+        if(toolTip)
+        {
+            toolTip.SetActive(false);
+        }
+
 
     }
 }

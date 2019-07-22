@@ -19,3 +19,4 @@ MonoBehaviour:
   meshChild: {fileID: 1004281485604820, guid: 5cb18c48d60b3d846a66259590342625, type: 2}
   abilityConfigs:
   - {fileID: 11400000, guid: 77712cbb53b7e8146a58981ccc9bfbb3, type: 2}
+  - {fileID: 11400000, guid: 0e0373322e1192a42bc4db50c84040da, type: 2}

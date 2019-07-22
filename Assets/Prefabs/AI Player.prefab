@@ -98,14 +98,14 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 99ab66049cd47a84088ae9268102266a, type: 2}
   - {fileID: 11400000, guid: 2a94a43b06eb48441b927c2b1619501d, type: 2}
   - {fileID: 11400000, guid: 59cfbdc7eb6e2de4da3a9796e44b144b, type: 2}
-  - {fileID: 11400000, guid: bb62d1e04ee8ac541ae0d7f8d9628260, type: 2}
+  - {fileID: 11400000, guid: 25b134a4ca8e10342a4a49c0b9e4a413, type: 2}
   allConfigs:
   - {fileID: 11400000, guid: 616e871ae5862d54ca3171f9088d16df, type: 2}
   - {fileID: 11400000, guid: 1e390ffe2591f214387e9a416e86b464, type: 2}
   - {fileID: 11400000, guid: 99ab66049cd47a84088ae9268102266a, type: 2}
   - {fileID: 11400000, guid: 2a94a43b06eb48441b927c2b1619501d, type: 2}
   - {fileID: 11400000, guid: 59cfbdc7eb6e2de4da3a9796e44b144b, type: 2}
-  - {fileID: 11400000, guid: bb62d1e04ee8ac541ae0d7f8d9628260, type: 2}
+  - {fileID: 11400000, guid: 25b134a4ca8e10342a4a49c0b9e4a413, type: 2}
 --- !u!114 &114520537494477776
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -130,6 +130,7 @@ MonoBehaviour:
   mercenaries: []
   cityStates: []
   cities: []
+  citiesWithOutposts: []
   opCentres: []
   exploredCells: []
   playerAIController: {fileID: 114119021097983002}

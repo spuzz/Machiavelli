@@ -10,7 +10,7 @@ public class Abilities : MonoBehaviour
     [SerializeField] List<AbilityConfig> abilities;
 
     AudioSource audioSource;
-    Unit unit;
+    Agent unit;
     HexGameUI hexGameUI;
     HexUnitActionController hexUnitActionController;
     public List<AbilityConfig> AbilitiesList
@@ -34,7 +34,7 @@ public class Abilities : MonoBehaviour
     void Start()
     {
         audioSource = GetComponent<AudioSource>();
-        unit = GetComponent<Unit>();
+        unit = GetComponent<Agent>();
         AttachInitialAbilities();
 
     }
@@ -65,8 +65,6 @@ public class Abilities : MonoBehaviour
 
     public void AttemptAbility(int index, HexCell hexCell)
     {
-
-        int goldCost = AbilitiesList[index].GetCost();
         if(unit.GetMovementLeft() <= 0)
         {
             if (!audioSource.isPlaying)
@@ -78,7 +76,7 @@ public class Abilities : MonoBehaviour
         List<HexCell> targets = ValidTargets(index, hexCell);
         if(targets.Count == 1 && AbilitiesList[index].Range == 0)
         {
-            RunAbility(index, targets[0]);
+            RunAbility(index, targets[0], true);
         }
         else
         {
@@ -89,40 +87,24 @@ public class Abilities : MonoBehaviour
 
     private bool UseAbility(int index, HexCell hexCell)
     {
-        Player player = unit.GetPlayer();
-        if (player)
+
+        if (unit.Energy < AbilitiesList[index].GetEnergyCost())
         {
-            if(player.Gold < AbilitiesList[index].GetCost())
-            {
-                return false;
-            }
-            else
-            {
-                player.Gold -= AbilitiesList[index].GetCost();
-            }
-            
+            return false;
         }
         else
         {
-            City city = unit.GetCityOwner();
-            if(!city || city.Gold < AbilitiesList[index].GetCost())
-            {
-                return false;
-            }
-            else
-            {
-                city.Gold -= AbilitiesList[index].GetCost();
-            }
+            unit.Energy -= AbilitiesList[index].GetEnergyCost();
         }
-        
-        unit.SetMovementLeft(0);
+
+        //unit.SetMovementLeft(0);
         AbilitiesList[index].Use(hexCell);
         return true;
     }
 
     private void ShowAbility(int index, HexCell hexCell)
     {
-        AbilitiesList[index].Show(hexCell);
+        AbilitiesList[index].Show(AbilitiesList[index].GetEnergyCost(), hexCell);
     }
 
     private void FinishAbility(int index, HexCell hexCell)
@@ -130,15 +112,22 @@ public class Abilities : MonoBehaviour
         AbilitiesList[index].Finish(hexCell);
     }
 
-    public void RunAbility(int index, HexCell hexCell)
+    public bool RunAbility(int index, HexCell hexCell, bool immediateMode = false)
     {
         if(UseAbility(index, hexCell))
         {
             HexAction action = hexUnitActionController.CreateAction();
             action.ActionsUnit = unit.HexUnit;
             action.AddAction(hexCell, AbilitiesList[index]);
+            action.EnergyCost = AbilitiesList[index].GetEnergyCost();
             unit.AddAction(action);
+            if(immediateMode)
+            {
+                unit.DoActions();
+            }
+            return true;
         }
+        return false;
     }
     public int GetNumberOfAbilities()
     {

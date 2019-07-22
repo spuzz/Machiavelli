@@ -11,6 +11,7 @@ public class UnitUI : MonoBehaviour {
     [SerializeField] Canvas canvas;
     [SerializeField] RawImage unitBackground;
     [SerializeField] UnitHealthBar unitHealthBar;
+    [SerializeField] UnitEnergyBar unitEnergyBar;
     [SerializeField] RawImage unitSymbol;
     [SerializeField] Image cityStateSymbol;
 
@@ -33,6 +34,10 @@ public class UnitUI : MonoBehaviour {
         {
             unit = value;
             unitHealthBar.Unit = unit;
+            if(unitEnergyBar)
+            {
+                unitEnergyBar.Agent = unit.GetComponent<Agent>();
+            }
             if (unit.BackGround)
             {
                 SetBackground(unit.BackGround);
@@ -125,4 +130,22 @@ public class UnitUI : MonoBehaviour {
         }
         
     }
+
+    public void UpdateEnergyBar(int energyChange)
+    {
+        if (unitEnergyBar)
+        {
+            unitEnergyBar.UpdateEnergy(energyChange);
+        }
+
+    }
+
+    public void SetEnergy(int energy)
+    {
+        if (unitEnergyBar)
+        {
+            unitEnergyBar.SetEnergy(energy);
+        }
+    }
+
 }

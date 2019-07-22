@@ -172,7 +172,17 @@ public class HexGameUI : MonoBehaviour {
 
 	void DoMove () {
 		if (grid.HasPath) {
-			selectedUnit.GetComponent<Unit>().SetPath(grid.GetPath());
+            List<HexCell> path = grid.GetPath();
+            if (path[path.Count - 1].GetFightableUnit(selectedUnit))
+            {
+                selectedUnit.GetComponent<Unit>().SetPath(path.GetRange(0,path.Count - 1));
+                selectedUnit.GetComponent<Unit>().AttackCell(path[path.Count -1]);
+            }
+            else
+            {
+                selectedUnit.GetComponent<Unit>().SetPath(grid.GetPath());
+            }
+			
             selectedUnit.GetComponent<Unit>().DoActions();
             grid.ClearPath();
             HUD.UpdateUI();
@@ -193,7 +203,7 @@ public class HexGameUI : MonoBehaviour {
         HexCell target = grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
         if (selectedUnit && target && abilityTargetOptions.Contains(target))
         {
-            selectedUnit.GetComponent<Unit>().RunAbility(abilityIndex, target);
+            selectedUnit.GetComponent<Unit>().RunAbility(abilityIndex, target,true);
         }
         grid.ClearHighlightedCells(abilityTargetOptions);
         abilitySelection = false;

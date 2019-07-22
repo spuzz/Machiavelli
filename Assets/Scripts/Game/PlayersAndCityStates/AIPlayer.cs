@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using UnityEngine;
@@ -6,10 +7,43 @@ using UnityEngine;
 public class AIPlayer : Player
 {
     [SerializeField] PlayerAIController playerAIController;
+    protected List<CityState> friendlyCityStates = new List<CityState>();
+    protected List<CityState> enemyCityStates = new List<CityState>();
     public override void AddAgent(Agent agent)
     {
         base.AddAgent(agent);
         agent.GetComponent<AgentBehaviourTree>().StartTree();
+    }
+
+    public override void AddVisibleCell(HexCell cell)
+    {
+        base.AddVisibleCell(cell);
+        UpdateFriendlyCityStates();
+    }
+
+    private void UpdateFriendlyCityStates()
+    {
+        foreach(CityState state in cityStatesMet)
+        {
+            if (!friendlyCityStates.Contains(state) && !enemyCityStates.Contains(state))
+            {
+                if (friendlyCityStates.Count == 0)
+                {
+                    friendlyCityStates.Add(state);
+                }
+                else
+                {
+                    if (UnityEngine.Random.value < .2)
+                    {
+                        friendlyCityStates.Add(state);
+                    }
+                    else
+                    {
+                        enemyCityStates.Add(state);
+                    }
+                }
+            }
+        }
     }
 
     public IEnumerator TakeTurn()
@@ -21,6 +55,18 @@ public class AIPlayer : Player
     public override void PlayerDefeated()
     {
         Alive = false;
+    }
+
+    public override bool IsCityStateFriendly(CityState state)
+    {
+        if(friendlyCityStates.Contains(state))
+        {
+            return true;
+        }
+        else
+        {
+            return false;
+        }
     }
 
     public override void Save(BinaryWriter writer)

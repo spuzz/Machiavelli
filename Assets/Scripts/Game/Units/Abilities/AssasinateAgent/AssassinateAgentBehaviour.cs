@@ -1,25 +1,28 @@
 ﻿
 using System.Collections;
 using System.Collections.Generic;
+using System.Linq;
 using UnityEngine;
 
 
 public class AssassinateAgentBehaviour : AbilityBehaviour
 {
-    protected HexUnit targetAgent;
+
     public override void Use(HexCell target = null)
     {
         if(!IsValidTarget(target))
         {
             return;
         }
-        targetAgent = target.hexUnits.Find(C => C.HexUnitType == HexUnit.UnitType.AGENT);
-        targetAgent.GetComponent<Unit>().GameController.KillUnit(targetAgent.unit);
+        Dictionary<CityPlayerBuilding,Player> buildings = target.City.PlayerBuildingControl.GetAllBuildings();
+        IEnumerable<CityPlayerBuilding> building = IListExtensions.RandomKeys(buildings);
+        target.City.PlayerBuildingControl.DestroyBuilding(buildings[building.First()], building.First());
+        abilityText = "Assasinate - " + building.First().BuildConfig.DisplayName + " (" + buildings[building.First()].PlayerNumber + ")";
     }
 
     public override bool IsValidTarget(HexCell target)
     {
-        if(target.hexUnits.FindAll(d => d.HexUnitType == HexUnit.UnitType.AGENT && d.GetComponent<Agent>().GetPlayer() != gameObject.GetComponent<Unit>().GetPlayer()).Count != 0)
+        if (target.City && target.City.PlayerBuildingControl.HasEnemyBuildings(GetComponent<Unit>().GetPlayer()))
         {
             return true;
         }
@@ -28,14 +31,6 @@ public class AssassinateAgentBehaviour : AbilityBehaviour
 
     public override void FinishAbility(HexCell target = null)
     {
-        if(target.IsVisible && targetAgent)
-        {
-            targetAgent.GetComponent<Unit>().GameController.AnimateAndDestroyUnit(targetAgent.GetComponent<Unit>());
-        }
-        else
-        {
-            targetAgent.GetComponent<Unit>().GameController.DestroyUnit(targetAgent.GetComponent<Unit>());
-        }
     }
 }
 

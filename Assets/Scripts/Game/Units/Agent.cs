@@ -16,6 +16,9 @@ public class Agent : Unit {
 
     AgentConfig agentConfig;
     Player player;
+
+    int energy = 100;
+    [SerializeField] int energyRegen = 5;
     public Stance CurrentStance
     {
         get
@@ -29,6 +32,29 @@ public class Agent : Unit {
         }
     }
 
+    public int Energy
+    {
+        get
+        {
+            return energy;
+        }
+
+        set
+        {
+            energy = value;
+        }
+    }
+
+    public override void StartTurn()
+    {
+        base.StartTurn();
+        energy += energyRegen;
+        if(energy > 100)
+        {
+            energy = 100;
+        }
+        unitUI.SetEnergy(energy);
+    }
     public void SetAgentConfig(AgentConfig config)
     {
         agentConfig = config;
@@ -43,7 +69,6 @@ public class Agent : Unit {
         }
         
     }
-
 
     public AgentConfig GetAgentConfig()
     {
@@ -114,6 +139,10 @@ public class Agent : Unit {
 
     }
 
+    public void UpdateEnergy(int energyChange)
+    {
+        unitUI.UpdateEnergyBar(energyChange);
+    }
 
     public void Save(BinaryWriter writer)
     {
@@ -122,7 +151,6 @@ public class Agent : Unit {
         writer.Write(GetMovementLeft());
         writer.Write(agentConfig.Name);
     }
-
 
     public static Agent Load(BinaryReader reader, GameController gameController, HexGrid grid, int header, Player player)
     {

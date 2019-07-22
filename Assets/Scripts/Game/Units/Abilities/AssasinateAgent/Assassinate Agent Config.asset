@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 0316af05a048c6e4f824bf2f5bae367a, type: 3}
   m_Name: Assassinate Agent Config
   m_EditorClassIdentifier: 
-  cost: 10
+  energyCost: 50
   range: 1
   particlePrefab: {fileID: 0}
   abilityAnimation: {fileID: 7400000, guid: f94c62a8b96f5a7469ce0da8ccac09b3, type: 3}

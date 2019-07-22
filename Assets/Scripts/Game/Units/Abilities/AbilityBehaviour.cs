@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
@@ -6,29 +7,44 @@ public abstract class AbilityBehaviour : MonoBehaviour
 {
     const string DEFAULT_ATTACK = "Default Attack";
     protected AbilityConfig config;
-
+    protected string abilityText;
     const float PARTICLE_CLEAN_UP_DELAY = 20;
+    List<int> energyCosts = new List<int>();
     public abstract void Use(HexCell target = null);
 
-    public virtual void ShowAbility(HexCell target = null)
+    public virtual void ShowAbility(int energyCost, HexCell target = null)
     {
-        if (target.IsVisible)
-        {
-            PlayParticleEffect();
-            PlayAbilitySound();
-            PlayAnimation(target);
-        }
+
+        PlayParticleEffect();
+        PlayAbilitySound();
+        PlayAnimation(target);
+        UpdateEnergy(-energyCost);
+        target.TextEffectHandler.AddTextEffect(abilityText, target.transform, Color.red);
+    }
+
+    protected void UpdateEnergy(int energy)
+    {
+        GetComponent<Agent>().UpdateEnergy(energy);
     }
 
     public abstract void FinishAbility(HexCell target = null);
+
     public abstract bool IsValidTarget(HexCell target);
 
+    public bool HasEnoughEnergy()
+    {
+        if(GetComponent<Agent>().Energy < config.GetEnergyCost())
+        {
+            return false;
+        }
+        return true;
+    }
     public virtual bool IsGoodTarget(HexCell target) { return true; }
 
-    public void RunAll(HexCell target = null)
+    public void RunAll(int energyCost, HexCell target = null)
     {
         Use(target);
-        ShowAbility(target);
+        ShowAbility(energyCost, target);
         FinishAbility(target);
     }
     public List<HexCell> GetValidTargets(HexCell location)
@@ -85,6 +101,8 @@ public abstract class AbilityBehaviour : MonoBehaviour
         animator.SetTrigger("UseAbility");
 
     }
+
+    public virtual bool Merge() { return false; }
 }
 
 

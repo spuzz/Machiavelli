@@ -2,6 +2,7 @@ using System;
 using System.Collections;
 using System.Collections.Generic;
 using System.IO;
+using System.Linq;
 using UnityEngine;
 
 public abstract class Player : MonoBehaviour {
@@ -24,7 +25,8 @@ public abstract class Player : MonoBehaviour {
     public List<OperationCentre> opCentres = new List<OperationCentre>();
     public Dictionary<HexCell, int> visibleCells = new Dictionary<HexCell, int>();
     public List<HexCell> exploredCells = new List<HexCell>();
-
+    List<City> visibleCities = new List<City>();
+    protected List<CityState> cityStatesMet = new List<CityState>();
     protected GameController gameController;
     private int goldPerTurn = 5;
 
@@ -116,11 +118,20 @@ public abstract class Player : MonoBehaviour {
         }
     }
 
-    public void AddVisibleCell(HexCell cell)
+
+    public virtual void AddVisibleCell(HexCell cell)
     {
         if(!exploredCells.Contains(cell))
         {
             exploredCells.Add(cell);
+            if (cell.City)
+            {
+                visibleCities.Add(cell.City);
+                if(!cityStatesMet.Contains(cell.City.GetCityState()))
+                {
+                    cityStatesMet.Add(cell.City.GetCityState());
+                }
+            }
         }
 
         if (!visibleCells.ContainsKey(cell))
@@ -131,6 +142,19 @@ public abstract class Player : MonoBehaviour {
         {
             visibleCells[cell] += 1;
         }
+    }
+    public IEnumerable<City> GetEnemyCities()
+    {
+        return visibleCities.FindAll(c => c.GetCityState() != this);
+    }
+    public List<City> GetEnemyCitiesOrderByDistance(HexCoordinates unitCoordinates)
+    {
+        return visibleCities.FindAll(c => !IsCityStateFriendly(c.GetCityState())).OrderBy(c => c.GetHexCell().coordinates.DistanceTo(unitCoordinates)).ToList();
+    }
+
+    public List<City> GetFriendlyCitiesOrderByDistance(HexCoordinates unitCoordinates)
+    {
+        return visibleCities.FindAll(c => IsCityStateFriendly(c.GetCityState())).OrderBy(c => c.GetHexCell().coordinates.DistanceTo(unitCoordinates)).ToList();
     }
 
     public void RemoveVisibleCell(HexCell cell)
@@ -208,6 +232,10 @@ public abstract class Player : MonoBehaviour {
         UpdateResources();
     }
 
+    public virtual bool IsFriend(CityState city)
+    {
+        return false;
+    }
     private void ShowBonusText(CityBonus bonus, AgentConfig bonusConfig, HexCell cell)
     {
 
@@ -445,6 +473,11 @@ public abstract class Player : MonoBehaviour {
     public IEnumerable<AgentConfig> GetCappedAgents()
     {
         return PlayerAgentTracker.GetCappedAgents();
+    }
+
+    public virtual bool IsCityStateFriendly(CityState state)
+    {
+        return true;
     }
 
     public void SavePlayer(BinaryWriter writer)

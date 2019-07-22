@@ -338,7 +338,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 7b54e16d211fb2e4a95bc9d1d768d831, type: 2}
   - {fileID: 11400000, guid: eaa339952c98a0a43a194ae7accfb3ea, type: 2}
   - {fileID: 11400000, guid: 8b221a80e62d3f74e9c3bcc50c236f5e, type: 2}
-  - {fileID: 11400000, guid: 7df3e88014b1f60479efab0d5f0a6abe, type: 2}
   - {fileID: 11400000, guid: b8b6514f482146d49b85151135dcf50f, type: 2}
   - {fileID: 11400000, guid: 872c28abfd5f6514fb91755596b81594, type: 2}
   - {fileID: 11400000, guid: 237967ea37bab6646a3a19459130a1b1, type: 2}
@@ -348,7 +347,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: 69a509498ce6d124784cd3dec184aac2, type: 2}
   - {fileID: 11400000, guid: b62b5e71c53145a4c81291ce69095c93, type: 2}
   - {fileID: 11400000, guid: 9bdd25d4e61527842b4bc65d38081d82, type: 2}
-  - {fileID: 11400000, guid: edb08b3e5bd957a449fd3728e4d704af, type: 2}
   - {fileID: 11400000, guid: 53224756de44a0347acc6202efbb6bf0, type: 2}
   visionRange: 2
   opCentreUI: {fileID: 114289524157160936}

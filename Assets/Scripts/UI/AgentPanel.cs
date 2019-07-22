@@ -73,7 +73,7 @@ public class AgentPanel : MonoBehaviour {
                             tooltip.AddText(Unit.GetAbility(count).ToolTipText);
                             tooltip.AddText("");
                             tooltip.AddText("Cost");
-                            tooltip.AddSymbolWithText(1, Unit.GetAbility(count).GetCost().ToString());
+                            tooltip.AddSymbolWithText(1, Unit.GetAbility(count).GetEnergyCost().ToString());
                         }
 
                     }

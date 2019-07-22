@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: d43c7d845816bfa4196a66075bf25906, type: 3}
   m_Name: Incite Riot
   m_EditorClassIdentifier: 
-  cost: 0
+  energyCost: 5
   range: 1
   particlePrefab: {fileID: 0}
   abilityAnimation: {fileID: 7400000, guid: fead126fb4b0f7f4ca22cabc0881c342, type: 3}
@@ -23,4 +23,4 @@ MonoBehaviour:
   abilityType: 0
   displayName: Incite Riot
   toolTipText: '''Peaceful protest'''
-  happiness: -20
+  happiness: -1

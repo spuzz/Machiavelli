@@ -477,7 +477,7 @@ public abstract class Unit : MonoBehaviour {
 
     }
 
-    public void StartTurn()
+    public virtual void StartTurn()
     {
         movementLeft = BaseMovement * BaseMovementFactor;
         NotifyInfoChange();
@@ -497,7 +497,19 @@ public abstract class Unit : MonoBehaviour {
 
     public void AddAction(HexAction action)
     {
+        if(actions.Count > 0)
+        {
+            if (actions[actions.Count - 1].Compare(action))
+            {
+                if (actions[actions.Count - 1].AddAction(action))
+                {
+                    Destroy(action.gameObject);
+                    return;
+                }
+            }
+        }
         actions.Add(action);
+
     }
 
     public bool CheckPath()
@@ -660,16 +672,17 @@ public abstract class Unit : MonoBehaviour {
         NotifyInfoChange();
     }
 
-    public void RunAbility(int abilityNumber, HexCell hexCell)
+    public void RunAbility(int abilityNumber, HexCell hexCell, bool immediateMode = false)
     {
-        abilities.RunAbility(abilityNumber, hexCell);
+        abilities.RunAbility(abilityNumber, hexCell, immediateMode);
         NotifyInfoChange();
 
     }
-    public void RunAbility(string abilityName, HexCell hexCell)
+    public bool RunAbility(string abilityName, HexCell hexCell, bool immediateMode = false)
     {
-        abilities.RunAbility(abilities.AbilitiesList.IndexOf(abilities.AbilitiesList.Find(c => c.AbilityName == abilityName)), hexCell);
+        bool result = abilities.RunAbility(abilities.AbilitiesList.IndexOf(abilities.AbilitiesList.Find(c => c.AbilityName == abilityName)), hexCell, immediateMode);
         NotifyInfoChange();
+        return result;
 
     }
 

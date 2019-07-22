@@ -55,13 +55,23 @@ public class AgentBehaviourTree : MonoBehaviour {
                                                 new MoveToTarget("")
                                             )
                                         ),
+                                                                                            //new Sequence(
+                                                                                            //    new FindNearbyEnemyAgent("FindNearbyEnemyAgent"),
+                                                                                            //    new Selector(
+                                                                                            //        new Sequence(
+                                                                                            //            new ReachedTarget("ReachedTarget"),
+                                                                                            //            new AttackAgent(""),
+                                                                                            //        ),
+                                                                                            //        new MoveToTarget("")
+                                                                                            //    )
+                                                                                            //),
                                         new Sequence(
-                                            new HasAbility("ability", "AssassinateAgent"),
-                                            new FindCellToAssassinate(""),
+                                            new FindNearbyEnemyPlayerCity("FindNearbyEnemyPlayerCity"),
+                                            new PickAbility("PickEnemyCityAbility", new List<AbilityConfig.AbilityType>() { AbilityConfig.AbilityType.EnemyPlayerCity}),
                                             new Selector(
                                                 new Sequence(
                                                     new ReachedTarget("ReachedTarget"),
-                                                    new UseAbility("", "AssassinateAgent")
+                                                    new UseAbility("")
                                                 ),
                                                 new MoveToTarget("")
                                             )
@@ -77,9 +87,10 @@ public class AgentBehaviourTree : MonoBehaviour {
                                                 new MoveToTarget("")
                                             )
                                         ),
+            
                                         new Sequence(
-                                            new FindNearbyNeutralCity("FindNearbyNeutralCity"),
-                                            new PickAbility("PickEnemyCityAbility", new List<AbilityConfig.AbilityType>() { AbilityConfig.AbilityType.NeutralCity, AbilityConfig.AbilityType.City }),
+                                            new FindNearbyFriendlyCityTarget("FindNearbyFriendlyCity"),
+                                            //new PickAbility("PickEnemyCityAbility", new List<AbilityConfig.AbilityType>() { AbilityConfig.AbilityType.FriendlyCity, AbilityConfig.AbilityType.City }),
                                             new Selector(
                                                 new Sequence(
                                                     new ReachedTarget("ReachedTarget"),
@@ -90,7 +101,7 @@ public class AgentBehaviourTree : MonoBehaviour {
                                         ),
                                         new Sequence(
                                             new FindNearbyEnemyUnit("FindNearbyEnemyUnit"),
-                                            new PickAbility("PickEnemyCityAbility", AbilityConfig.AbilityType.EnemyUnit),
+                                            new PickAbility("PickEnemyCityAbility", new List<AbilityConfig.AbilityType>() { AbilityConfig.AbilityType.EnemyUnit, AbilityConfig.AbilityType.EnemyAndFriendlyUnit } ),
                                             new Selector(
                                                 new Sequence(
                                                     new ReachedTarget("ReachedTarget"),
@@ -100,8 +111,8 @@ public class AgentBehaviourTree : MonoBehaviour {
                                             )
                                         ),
                                         new Sequence(
-                                            new FindNearbyNeutralUnit("FindNearbyNeutralUnit"),
-                                            new PickAbility("PickEnemyCityAbility", AbilityConfig.AbilityType.NeutralUnit),
+                                            new FindNearbyFriendlyUnit("FindNearbyFriendlyUnit"),
+                                            new PickAbility("PickEnemyCityAbility", new List<AbilityConfig.AbilityType>() { AbilityConfig.AbilityType.FriendlyUnit, AbilityConfig.AbilityType.EnemyAndFriendlyUnit }),
                                             new Selector(
                                                 new Sequence(
                                                     new ReachedTarget("ReachedTarget"),
@@ -188,7 +199,7 @@ public class AgentBehaviourTree : MonoBehaviour {
         protected override void DoStart()
         {
             Agent agent = (Blackboard["agent"] as Agent);
-            if (agent.GetMovementLeft() <= 0 || (bool)Blackboard["ignoreExtraMovement"] == true)
+            if (!agent.Alive || agent.GetMovementLeft() <= 0 || (bool)Blackboard["ignoreExtraMovement"] == true)
             {
                 Stopped(false);
                 return;
@@ -366,14 +377,21 @@ public class AgentBehaviourTree : MonoBehaviour {
         }
         protected override void DoStart()
         {
-            if(string.IsNullOrEmpty(abilityName))
+            string abilityToUse = abilityName;
+            if(string.IsNullOrEmpty(abilityToUse))
             {
-                abilityName = (Blackboard["ability"] as string);
+                abilityToUse = (Blackboard["ability"] as string);
             }
             Agent agent = (Blackboard["agent"] as Agent);
             HexCell targetCell = (Blackboard["targetCell"] as HexCell);
-            agent.RunAbility(abilityName, targetCell);
-            Stopped(true);
+            if(agent.RunAbility(abilityToUse, targetCell))
+            {
+                Stopped(true);
+            }
+            else
+            {
+                Stopped(false);
+            }
         }
         protected override void DoStop()
         {
@@ -393,7 +411,7 @@ public class AgentBehaviourTree : MonoBehaviour {
             Agent agent = (Blackboard["agent"] as Agent);
             AbilityConfig config = agent.GetAbility("BuildOutpost");
             List<City> cities = PathFindingUtilities.FindAllSeenCities(agent.GetPlayer().exploredCells);
-            cities = cities.FindAll(c => !c.PlayerBuildingControl.HasOutpost(agent.GetPlayer()));
+            cities = cities.FindAll(c => !c.PlayerBuildingControl.HasOutpost(agent.GetPlayer()) && agent.GetPlayer().IsCityStateFriendly(c.GetCityState()));
             if (cities.Count > 0)
             {
                 cities = cities.OrderBy(c => c.GetHexCell().coordinates.DistanceTo(agent.HexUnit.Location.coordinates)).ToList();
@@ -506,9 +524,9 @@ public class AgentBehaviourTree : MonoBehaviour {
         }
     }
 
-    public class FindNearbyEnemyCity : Task
+    public class FindNearbyEnemyPlayerCity : Task
     {
-        public FindNearbyEnemyCity(string name) : base(name)
+        public FindNearbyEnemyPlayerCity(string name) : base(name)
         {
 
         }
@@ -543,10 +561,9 @@ public class AgentBehaviourTree : MonoBehaviour {
         }
     }
 
-
-    public class FindNearbyNeutralCity : Task
+    public class FindNearbyEnemyCity : Task
     {
-        public FindNearbyNeutralCity(string name) : base(name)
+        public FindNearbyEnemyCity(string name) : base(name)
         {
 
         }
@@ -559,7 +576,7 @@ public class AgentBehaviourTree : MonoBehaviour {
             List<City> targets = new List<City>();
             foreach (HexCell cell in cells)
             {
-                if (cell.City && !cell.City.Player && agent.GetPlayer().exploredCells.Contains(cell))
+                if (cell.City && !agent.GetPlayer().IsCityStateFriendly(cell.City.GetCityState()) && agent.GetPlayer().exploredCells.Contains(cell))
                 {
                     targets.Add(cell.City);
                 }
@@ -571,6 +588,40 @@ public class AgentBehaviourTree : MonoBehaviour {
                 Blackboard["targetCell"] = targets[0].GetHexCell();
                 Stopped(true);
                 return;
+            }
+            Stopped(false);
+        }
+
+        protected override void DoStop()
+        {
+            Stopped(true);
+        }
+    }
+
+    public class FindNearbyFriendlyCityTarget : Task
+    {
+        public FindNearbyFriendlyCityTarget(string name) : base(name)
+        {
+
+        }
+
+        protected override void DoStart()
+        {
+            Agent agent = (Blackboard["agent"] as Agent);
+            HexGrid grid = (Blackboard["hexgrid"] as HexGrid);
+            List<HexCell> cells = grid.GetVisibleCells(agent.HexUnit.Location, 5);
+            List<City> targets = agent.GetPlayer().GetFriendlyCitiesOrderByDistance(agent.HexUnit.Location.coordinates);
+            foreach(City city in targets)
+            {
+                AbilityConfig config = FindAbility(new List<AbilityConfig.AbilityType>() { AbilityConfig.AbilityType.FriendlyCity }, city.GetHexCell(), agent);
+                if(config)
+                {
+                    Blackboard["ability"] = config.AbilityName;
+                    Blackboard["range"] = config.Range;
+                    Blackboard["targetCell"] = city.GetHexCell();
+                    Stopped(true);
+                    return;
+                }
             }
             Stopped(false);
         }
@@ -599,7 +650,7 @@ public class AgentBehaviourTree : MonoBehaviour {
                 {
                     foreach (HexUnit unit in cell.hexUnits)
                     {
-                        if (unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.unit.GetCityOwner() && unit.unit.GetCityOwner().Player && unit.unit.GetCityOwner().Player != agent.GetPlayer())
+                        if (unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.unit.GetCityOwner() && !agent.GetPlayer().IsCityStateFriendly(unit.unit.GetCityOwner().GetCityState()))
                         {
                             targets.Add(cell);
                         }
@@ -624,9 +675,55 @@ public class AgentBehaviourTree : MonoBehaviour {
         }
     }
 
-    public class FindNearbyNeutralUnit : Task
+    public class FindNearbyEnemyAgent : Task
     {
-        public FindNearbyNeutralUnit(string name) : base(name)
+        public FindNearbyEnemyAgent(string name) : base(name)
+        {
+
+        }
+
+        protected override void DoStart()
+        {
+            Agent agent = (Blackboard["agent"] as Agent);
+            HexGrid grid = (Blackboard["hexgrid"] as HexGrid);
+            List<HexCell> cells = grid.GetVisibleCells(agent.HexUnit.Location, agent.HexUnit.VisionRange);
+            List<HexCell> targets = new List<HexCell>();
+            foreach (HexCell cell in cells)
+            {
+                if (cell.hexUnits.Count > 0 && agent.GetPlayer().exploredCells.Contains(cell))
+                {
+                    foreach (HexUnit unit in cell.hexUnits)
+                    {
+                        if (unit.HexUnitType == HexUnit.UnitType.AGENT && unit.unit.GetPlayer() && unit.unit.GetPlayer() != agent.GetPlayer())
+                        {
+                            targets.Add(cell);
+                        }
+                    }
+                    ;
+                }
+            }
+
+            if (targets.Count > 0)
+            {
+                targets = targets.OrderBy(c => c.coordinates.DistanceTo(agent.HexUnit.Location.coordinates)).ToList();
+                Blackboard["targetCell"] = targets[0];
+                Blackboard["range"] = 1;
+                Stopped(true);
+                return;
+            }
+            Stopped(false);
+        }
+
+        protected override void DoStop()
+        {
+            Stopped(true);
+        }
+    }
+
+
+    public class FindNearbyFriendlyUnit : Task
+    {
+        public FindNearbyFriendlyUnit(string name) : base(name)
         {
 
         }
@@ -643,7 +740,7 @@ public class AgentBehaviourTree : MonoBehaviour {
                 {
                     foreach (HexUnit unit in cell.hexUnits)
                     {
-                        if (unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.unit.GetCityOwner() && !unit.unit.GetCityOwner().Player)
+                        if (unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.unit.GetCityOwner() && agent.GetPlayer().IsCityStateFriendly(unit.unit.GetCityOwner().GetCityState()))
                         {
                             targets.Add(cell);
                         }
@@ -691,21 +788,13 @@ public class AgentBehaviourTree : MonoBehaviour {
         {
             Agent agent = (Blackboard["agent"] as Agent);
             HexCell targetCell = (Blackboard["targetCell"] as HexCell);
-            List<AbilityConfig> configs = agent.GetAbilities(abilityTypes);
-            IListExtensions.Shuffle(configs);
-            foreach (AbilityConfig config in configs)
+            AbilityConfig config = FindAbility(abilityTypes, targetCell, agent);
+            if(config)
             {
-                if(config.IsValidTarget(targetCell))
-                {
-                    if(config.IsGoodTarget(targetCell))
-                    {
-                        Blackboard["ability"] = config.AbilityName;
-                        Blackboard["range"] = config.Range;
-                        Stopped(true);
-                        return;
-                    }
-
-                }
+                Blackboard["ability"] = config.AbilityName;
+                Blackboard["range"] = config.Range;
+                Stopped(true);
+                return;
             }
             Stopped(false);
         }
@@ -714,5 +803,23 @@ public class AgentBehaviourTree : MonoBehaviour {
         {
             Stopped(true);
         }
+    }
+
+    public static AbilityConfig FindAbility(List<AbilityConfig.AbilityType> abilityTypes, HexCell targetCell, Agent agent)
+    {
+        List<AbilityConfig> configs = agent.GetAbilities(abilityTypes);
+        IListExtensions.Shuffle(configs);
+        foreach (AbilityConfig config in configs)
+        {
+            if (config.IsValidTarget(targetCell))
+            {
+                if (config.IsGoodTarget(targetCell))
+                {
+                    return config;
+                }
+
+            }
+        }
+        return null;
     }
 }

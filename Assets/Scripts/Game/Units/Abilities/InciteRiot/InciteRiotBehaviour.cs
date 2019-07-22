@@ -11,19 +11,14 @@ public class InciteRiotBehaviour : AbilityBehaviour
     {
         if (target.City)
         {
-            target.City.Happiness += (config as InciteRiotConfig).GetHappinessChange();
+            InciteRiotEffect inciteRiotEffect = new InciteRiotEffect();
+            target.City.AddEffect(inciteRiotEffect, 5);
         }
     }
-    public override void ShowAbility(HexCell target = null)
+    public override void ShowAbility(int energyCost, HexCell target = null)
     {
-        if (target.IsVisible)
-        {
-            PlayParticleEffect();
-            PlayAbilitySound();
-            PlayAnimation(target);
-            target.TextEffectHandler.AddTextEffect((config as InciteRiotConfig).GetHappinessChange().ToString() + " Happiness", target.transform, Color.magenta);
-
-        }
+        abilityText = "Incite Riots(5) - 5 Turns";
+        base.ShowAbility(energyCost, target);
     }
 
     public override bool IsValidTarget(HexCell target)

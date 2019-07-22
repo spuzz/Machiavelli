@@ -34,6 +34,7 @@ static class GameConsts
     public static int capitalUnitCap = 2;
     public static int baseUnitCap = 3;
 
-    public static int StartingGold = 300;
+    public static int startingGold = 300;
+    public static bool playAnimations = true;
 }
 

@@ -17,6 +17,7 @@ public class HexMapEditor : MonoBehaviour {
     [SerializeField] Dropdown cityStates;
     [SerializeField] Dropdown cities;
     [SerializeField] Toggle editModeToggle;
+    [SerializeField] Toggle animationsToggle;
     public HexGrid hexGrid;
     public GameController gameController;
 	public Material terrainMaterial;
@@ -135,12 +136,15 @@ public class HexMapEditor : MonoBehaviour {
         exploredMode = (OptionalToggle)mode;
     }
 
-
     public void SetEditMode (bool toggle) {
 		enabled = toggle;
         editModeToggle.isOn = toggle;
 	}
 
+    public void SetAnimations(bool toggle)
+    {
+        GameConsts.playAnimations = toggle;
+    }
     void Awake()
     {
         terrainMaterial.DisableKeyword("GRID_ON");
@@ -174,6 +178,8 @@ public class HexMapEditor : MonoBehaviour {
         cityStates.ClearOptions();
 
         cities.ClearOptions();
+
+        GameConsts.playAnimations = false;
     }
 
 
