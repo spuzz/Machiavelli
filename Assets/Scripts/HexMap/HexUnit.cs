@@ -6,35 +6,36 @@ using System;
 
 public class HexUnit : MonoBehaviour {
 
-    public enum UnitType
-    {
-        COMBAT,
-        AGENT
-    }
 
+    // External Components
+    public HexGrid Grid { get; set; }
+    HexUnitActionController hexUnitActionController;
 
+    // Internal Components
+    [SerializeField] Transform meshChild;
+    public Unit unit;
+    HexVision hexVision;
+    MaterialColourChanger materialColourChanger;
+    Animator animator;
+    [SerializeField] AnimatorOverrideController animatorOverrideController;
+
+    // Attributes
+    [SerializeField] Projectile projectilePreFab;
     const float rotationSpeed = 540f;
 	const float travelSpeed = 3f;
     const float fightSpeed = 1f;
-
-    [SerializeField] Transform meshChild;
-
-    HexCell location, currentTravelLocation;
-    Animator animator;
     bool controllable = false;
     float orientation;
-    private string unitPrefabName = "";
     private int speed = 0;
-    UnitType hexUnitType = UnitType.COMBAT;
+
+    HexCell location, currentTravelLocation;
+
+
+
     public List<HexCell> pathToTravel = null;
-    public HexGrid Grid { get; set; }
+    List<HexAction> actions = new List<HexAction>();
 
-    public Unit unit;
 
-    HexVision hexVision;
-
-    HexUnitActionController hexUnitActionController;
-    MaterialColourChanger materialColourChanger;
     public HexCell Location
     {
         get
@@ -71,15 +72,16 @@ public class HexUnit : MonoBehaviour {
         }
     }
 
-    public string UnitPrefabName
+    public Projectile ProjectilePreFab
     {
         get
         {
-            return unitPrefabName;
+            return projectilePreFab;
         }
+
         set
         {
-            unitPrefabName = value;
+            projectilePreFab = value;
         }
     }
 
@@ -127,19 +129,6 @@ public class HexUnit : MonoBehaviour {
         set
         {
             controllable = value;
-        }
-    }
-
-    public UnitType HexUnitType
-    {
-        get
-        {
-            return hexUnitType;
-        }
-
-        set
-        {
-            hexUnitType = value;
         }
     }
 
@@ -214,48 +203,7 @@ public class HexUnit : MonoBehaviour {
         Animator = GetComponentInChildren<Animator>();
         MaterialColourChanger = GetComponentInChildren<MaterialColourChanger>();
     }
-    public void ValidateLocation () {
-		transform.localPosition = location.Position;
-	}
 
-	public bool IsValidDestination (HexCell cell, bool allowUnxplored = false) {
-		return (cell.IsExplored || allowUnxplored) && !cell.IsUnderwater && cell.CanUnitMoveToCell(this);
-	}
-
-
-    public bool IsValidAttackDestination(HexCell cell)
-    {
-        if(cell.City && hexUnitType == UnitType.COMBAT && cell.City.GetCityState() != GetComponent<Unit>().GetCityState())
-        {
-            return true;
-        }
-        if(cell.GetFightableUnit(this))
-        {
-            return true;
-        }
-        return false;
-    }
-
-    public void SetLocationOnly(HexCell cell)
-    {
-        location = cell;
-    }
-
-    public void AddUnitToLocation(HexCell cell)
-    {
-        location.AddUnit(this);
-    }
-
-    public void UpdateUnit(int healthChange, bool killUnit)
-    {
-        Unit unitComp = GetComponent<Unit>();
-        unitComp.ShowHealthChange(healthChange);
-        unitComp.UpdateUI(-healthChange);
-        if (unitComp.HitPoints <= 0 && killUnit)
-        {
-            DieAnimationAndRemove();
-        }
-    }
 
     public IEnumerator LookAt (Vector3 point) {
 		if (HexMetrics.Wrapping) {
@@ -291,13 +239,13 @@ public class HexUnit : MonoBehaviour {
 		Orientation = transform.localRotation.eulerAngles.y;
 	}
 
-    public IEnumerator FightCity(City city, bool killTarget, CityState cityState, HexUnit targetUnit)
+    public IEnumerator Fight(HexCell target)
     {
 
         float attackTime = 0;
-        if ((Location.IsVisible || city.GetHexCell().IsVisible) && GameConsts.playAnimations)
+        if ((Location.IsVisible || target.IsVisible) && GameConsts.playAnimations)
         {
-            LookAt(city.GetHexCell().Position);
+            LookAt(target.Position);
             Location.IncreaseVisibility(false);
             Animator.SetBool("Attacking", true);
             for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
@@ -307,82 +255,12 @@ public class HexUnit : MonoBehaviour {
             Animator.SetBool("Attacking", false);
             Location.DecreaseVisibility();
         }
-
-
-        if (killTarget)
-        {
-            if(cityState.GetCityCount() == 0)
-            {
-                unit.GameController.DestroyCityState(cityState);
-            }
-
-            city.DestroyCityUnits();
-            if(targetUnit)
-            {
-                targetUnit.DestroyHexUnit();
-            }
-
-            city.UpdateCityBar();
-        }
-        city.UpdateHealthBar();
     }
 
-    public IEnumerator FightUnit(HexUnit targetUnit, int damageDone, bool killTarget)
-    {
-
-        if (targetUnit)
-        {
-            Unit unitToFightUnitComp = targetUnit.GetComponent<Unit>();
-            if ((Location.IsVisible || targetUnit.Location.IsVisible) && GameConsts.playAnimations)
-            {
-                yield return targetUnit.LookAt(location.Position);
-                Location.IncreaseVisibility(false);
-                float attackTime = 0;
-                Animator.SetBool("Attacking", true);
-                if (unit.Range > 0)
-                {
-                    Projectile projectile = Instantiate(unit.ProjectilePreFab, gameObject.transform);
-                    projectile.StartLocation = gameObject;
-                    projectile.Target = targetUnit.gameObject;
-                    yield return StartCoroutine(projectile.FlyProjectile());
-                    targetUnit.Animator.SetTrigger("GetHit");
-                }
-                else
-                {
-                    targetUnit.Animator.SetBool("Attacking", true);
-                    for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
-                    {
-                        yield return null;
-                    }
-                    targetUnit.Animator.SetBool("Attacking", false);
-                }
-
-                Animator.SetBool("Attacking", false);
-                unitToFightUnitComp.ShowHealthChange(damageDone);
-                Location.DecreaseVisibility();
-            }
-
-            unitToFightUnitComp.UpdateUI(-damageDone);
-            if (unitToFightUnitComp.HitPoints <= 0 && killTarget)
-            {
-                if(unitToFightUnitComp.HexUnit.Location.IsVisible)
-                {
-                    targetUnit.DieAnimationAndRemove();
-                }
-                else
-                {
-                    targetUnit.DestroyHexUnit();
-                }
-
-            }
-
-
-        }
-    }
 	public int GetMoveCost (
 		HexCell fromCell, HexCell toCell, HexDirection direction, bool allowUnexplored = false)
 	{
-		if (!IsValidDestination(toCell, allowUnexplored) && !IsValidAttackDestination(toCell)) {
+		if (!IsValidDestination(toCell, allowUnexplored)) {
 			return -1;
 		}
 		HexEdgeType edgeType = fromCell.GetEdgeType(toCell);
@@ -404,6 +282,51 @@ public class HexUnit : MonoBehaviour {
 		return moveCost;
 	}
 
+    public AnimatorOverrideController AnimatorOverrideController
+    {
+        get
+        {
+            return animatorOverrideController;
+        }
+
+        set
+        {
+            animatorOverrideController = value;
+        }
+    }
+
+    public void ValidateLocation()
+    {
+        transform.localPosition = location.Position;
+    }
+
+    public void DoActions()
+    {
+
+        hexUnitActionController.AddActions(actions, this);
+        actions.Clear();
+    }
+
+    public void AddAction(HexAction action)
+    {
+        if (actions.Count > 0)
+        {
+            if (actions[actions.Count - 1].Compare(action))
+            {
+                if (actions[actions.Count - 1].AddAction(action))
+                {
+                    Destroy(action.gameObject);
+                    return;
+                }
+            }
+        }
+        actions.Add(action);
+
+    }
+    public bool IsValidDestination(HexCell cell, bool allowUnxplored = false)
+    {
+        return (cell.IsExplored || allowUnxplored) && !cell.IsUnderwater && cell.CanUnitMoveToCell(this);
+    }
 
     public void KillUnit()
     {
@@ -425,7 +348,6 @@ public class HexUnit : MonoBehaviour {
 
     public void DestroyHexUnit()
     {
-        
         Location = null;
         Destroy(gameObject);
     }
@@ -445,8 +367,8 @@ public class HexUnit : MonoBehaviour {
     {
         location.coordinates.Save(writer);
         writer.Write(orientation);
-        writer.Write(UnitPrefabName);
     }
+
 
     public static void Load(BinaryReader reader, GameController gameController, HexGrid grid, int header)
     {

@@ -112,13 +112,14 @@ public class HexUnitActionController : MonoBehaviour {
                 return false;
             }
         }
-        if(action.CityTarget && action.KillTarget && action.CityStateTarget.GetCityCount() == 0)
-        {
-            if (actionQueue.GetRange(0, actionQueue.IndexOf(action)).FindAll(c => c.UnitTarget && c.UnitTarget.unit.GetCityOwner() == action.CityStateTarget).Count != 0)
-            {
-                return false;
-            }
-        }
+        // TODO
+        //if(action.CityTarget && action.KillTarget && action.CityStateTarget.GetCityCount() == 0)
+        //{
+        //    if (actionQueue.GetRange(0, actionQueue.IndexOf(action)).FindAll(c => c.UnitTarget && c.UnitTarget.unit.GetCityOwner() == action.CityStateTarget).Count != 0)
+        //    {
+        //        return false;
+        //    }
+        //}
         return true;
     }
 

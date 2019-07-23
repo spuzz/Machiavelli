@@ -11,13 +11,12 @@ public class UnitUI : MonoBehaviour {
     [SerializeField] Canvas canvas;
     [SerializeField] RawImage unitBackground;
     [SerializeField] UnitHealthBar unitHealthBar;
-    [SerializeField] UnitEnergyBar unitEnergyBar;
     [SerializeField] RawImage unitSymbol;
     [SerializeField] Image cityStateSymbol;
 
-    [SerializeField] Sprite defaultCityStateSymbol;
-    [SerializeField] Texture defaultSymbol;
-    [SerializeField] Texture defaultBackGround;
+    [SerializeField] Texture Symbol;
+    [SerializeField] Texture BackGround;
+    [SerializeField] HexCellTextEffect textEffect;
 
     Unit unit;
     Camera cameraToLookAt;
@@ -34,20 +33,6 @@ public class UnitUI : MonoBehaviour {
         {
             unit = value;
             unitHealthBar.Unit = unit;
-            if(unitEnergyBar)
-            {
-                unitEnergyBar.Agent = unit.GetComponent<Agent>();
-            }
-            if (unit.BackGround)
-            {
-                SetBackground(unit.BackGround);
-            }
-
-            if (unit.Symbol)
-            {
-                SetUnitSymbol(unit.Symbol);
-            }
-            //unit.onInfoChange += UpdateUnit;
         }
     }
 
@@ -70,10 +55,6 @@ public class UnitUI : MonoBehaviour {
         unitBackground.color = new Color(color.r, color.g, color.b, 0.6f);
     }
 
-    public void SetUnitSymbol(Texture symbol)
-    {
-        unitSymbol.texture = symbol;
-    }
 
     public void SetCityStateSymbol(Sprite symbol)
     {
@@ -84,15 +65,6 @@ public class UnitUI : MonoBehaviour {
         
     }
 
-    public void SetCityStateSymbolToDefault()
-    {
-        if (cityStateSymbol)
-        {
-            cityStateSymbol.sprite = defaultCityStateSymbol;
-        }
-    }
-
-
     public void SetBackground(Texture background)
     {
         unitBackground.texture = background;
@@ -101,12 +73,7 @@ public class UnitUI : MonoBehaviour {
     private void Awake()
     {
         cameraToLookAt = Camera.main;
-        SetBackground(defaultBackGround);
-        SetUnitSymbol(defaultSymbol);
-        SetCityStateSymbolToDefault();
     }
-
-
 
     // Update is called once per frame 
     void LateUpdate()
@@ -129,23 +96,6 @@ public class UnitUI : MonoBehaviour {
             unitHealthBar.UpdateHealth(healthChange);
         }
         
-    }
-
-    public void UpdateEnergyBar(int energyChange)
-    {
-        if (unitEnergyBar)
-        {
-            unitEnergyBar.UpdateEnergy(energyChange);
-        }
-
-    }
-
-    public void SetEnergy(int energy)
-    {
-        if (unitEnergyBar)
-        {
-            unitEnergyBar.SetEnergy(energy);
-        }
     }
 
 }

@@ -48,12 +48,6 @@ public class Agent : Unit {
     public override void StartTurn()
     {
         base.StartTurn();
-        energy += energyRegen;
-        if(energy > 100)
-        {
-            energy = 100;
-        }
-        unitUI.SetEnergy(energy);
     }
     public void SetAgentConfig(AgentConfig config)
     {
@@ -62,11 +56,12 @@ public class Agent : Unit {
         HexVision.AddVisibleObject(HexUnit.GetMesh());
         BaseMovement = config.BaseMovement;
         BaseStrength = config.BaseStrength;
-        Symbol = config.Symbol;
-        foreach(AbilityConfig abilityConfig in config.GetAbilityConfigs())
-        {
-            abilities.AbilitiesList.Add(abilityConfig);
-        }
+        // TODO
+        //Symbol = config.Symbol;
+        //foreach(AbilityConfig abilityConfig in config.GetAbilityConfigs())
+        //{
+        //    abilities.AbilitiesList.Add(abilityConfig);
+        //}
         
     }
 
@@ -130,18 +125,13 @@ public class Agent : Unit {
 
     public override bool CanAttack(Unit unit)
     {
-        if (unit.HexUnit.HexUnitType == HexUnit.UnitType.AGENT && unit.GetComponent<Agent>().GetPlayer() != GetPlayer())
+        if (unit.HexUnitType == Unit.UnitType.AGENT && unit.GetComponent<Agent>().GetPlayer() != GetPlayer())
         {
             return true;
         }
 
         return false;
 
-    }
-
-    public void UpdateEnergy(int energyChange)
-    {
-        unitUI.UpdateEnergyBar(energyChange);
     }
 
     public void Save(BinaryWriter writer)

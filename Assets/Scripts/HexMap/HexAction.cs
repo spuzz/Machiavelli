@@ -295,7 +295,7 @@ public class HexAction : MonoBehaviour
         this.damageToSelf = damageToSelf;
         this.damageToTarget = damageToTarget;
         this.FinalMove = finalMove;
-        this.UnitTarget = cityTarget.GetHexCell().hexUnits.Find(c => c.HexUnitType == HexUnit.UnitType.COMBAT);
+        this.UnitTarget = cityTarget.GetHexCell().hexUnits.Find(c => c.unit.HexUnitType == Unit.UnitType.COMBAT);
     }
 
     public void AddAction(HexCell actionCell, HexCell finalMove, HexUnit unitTarget, int damageToSelf, int damageToTarget)
@@ -370,15 +370,10 @@ public class HexAction : MonoBehaviour
         }
 
 
-        if (CityTarget)
-        {
-            yield return StartCoroutine(actionsUnit.FightCity(ActionCell.City, KillTarget, CityStateTarget, UnitTarget));
-        }
-        else if (UnitTarget)
-        {
-            yield return StartCoroutine(actionsUnit.FightUnit(UnitTarget, damageToTarget, KillTarget));
-        }
-        actionsUnit.UpdateUnit(damageToSelf, KillSelf);
+
+        yield return StartCoroutine(actionsUnit.Fight(ActionCell));
+        // TODO
+        //actionsUnit.UpdateUnit(damageToSelf, KillSelf);
 
         if (meleeAction && KillSelf == false)
         {
@@ -392,7 +387,7 @@ public class HexAction : MonoBehaviour
         if ((cell.IsVisible || actionCell.IsVisible) && GameConsts.playAnimations)
         {
             cell.IncreaseVisibility(false);
-            abilityConfigToShow.Show(energyCost, actionCell);
+            abilityConfigToShow.Show(actionCell);
             t = Time.deltaTime * HexUnit.TravelSpeed;
             for (; t < 1f; t += Time.deltaTime * 1)
             {

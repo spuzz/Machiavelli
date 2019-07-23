@@ -22,6 +22,7 @@ GameObject:
   - component: {fileID: 114701888605048992}
   - component: {fileID: 114202423551481496}
   - component: {fileID: 114628642190381158}
+  - component: {fileID: 114011852087544948}
   m_Layer: 9
   m_Name: Unit
   m_TagString: Untagged
@@ -42,6 +43,26 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!114 &114011852087544948
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1716964107277084}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b1946e1c1bae1c34ba2666ebb3463952, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  canvas: {fileID: 0}
+  unitBackground: {fileID: 0}
+  unitHealthBar: {fileID: 0}
+  unitEnergyBar: {fileID: 0}
+  unitSymbol: {fileID: 0}
+  cityStateSymbol: {fileID: 0}
+  defaultCityStateSymbol: {fileID: 0}
+  defaultSymbol: {fileID: 0}
+  defaultBackGround: {fileID: 0}
 --- !u!114 &114202423551481496
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -70,8 +91,8 @@ MonoBehaviour:
   animatorOverrideController: {fileID: 0}
   projectilePreFab: {fileID: 114422966237196876, guid: c012d8d9dcf72b94983b6b43f45b55eb,
     type: 2}
-  mercBackground: {fileID: 2800000, guid: d970acfae50454242b24f529d8dd21e2, type: 3}
   defaultUnitMaterial: {fileID: 2100000, guid: 9d77ff106ac12c84c9bc1728c0590226, type: 2}
+  mercBackground: {fileID: 2800000, guid: d970acfae50454242b24f529d8dd21e2, type: 3}
 --- !u!114 &114628642190381158
 MonoBehaviour:
   m_ObjectHideFlags: 1

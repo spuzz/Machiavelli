@@ -27,54 +27,6 @@ public class CombatUnit : Unit
         set { currentStance = value; }
     }
 
-    public bool Mercenary
-    {
-        get
-        {
-            return mercenary;
-        }
-
-        set
-        {
-            mercenary = value;
-            if(mercenary == true)
-            {
-                BackGround = mercBackground;
-            }
-        }
-    }
-
-    public City CityOwner
-    {
-        get
-        {
-            return cityOwner;
-        }
-
-        set
-        {
-            if (cityOwner)
-            {
-                UpdateOwnerVisiblity(HexUnit.Location, false);
-            }
-
-            cityOwner = value;
-            UpdateOwnerVisiblity(HexUnit.Location, true);
-            if (unitUI)
-            {
-                if (GetCityState())
-                {
-                    unitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(GetCityState().SymbolID));
-
-                }
-                else
-                {
-                    unitUI.SetCityStateSymbolToDefault();
-                }
-            }
-            UpdateColours();
-        }
-    }
 
     public void SetPlayer(Player player)
     {
@@ -85,7 +37,8 @@ public class CombatUnit : Unit
         this.player = player;
 
         UpdateOwnerVisiblity(HexUnit.Location, true);
-        UpdateColours();
+        // TODO
+        //UpdateColours();
 
     }
     public override Player GetPlayer()
@@ -93,10 +46,6 @@ public class CombatUnit : Unit
         return player;
     }
 
-    public override City GetCityOwner()
-    {
-        return cityOwner;
-    }
 
     public void SetCombatUnitConfig(CombatUnitConfig config)
     {
@@ -107,24 +56,12 @@ public class CombatUnit : Unit
         BaseStrength = config.BaseStrength;
         BaseRangeStrength = config.BaseRangeStrength;
         Range = config.Range;
-        Symbol = config.Symbol;
-        foreach (AbilityConfig abilityConfig in config.GetAbilityConfigs())
-        {
-            abilities.AbilitiesList.Add(abilityConfig);
-        }
+        // TODO
+        //Symbol = config.Symbol;
+
 
     }
 
-    public override void Setup()
-    {
-        if (CityOwner)
-        {
-            
-            unitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(GetCityState().SymbolID));
-            UpdateColours();
-        }
-
-    }
     public CombatUnitConfig GetCombatUnitConfig()
     {
         return combatUnitConfig;
@@ -132,7 +69,7 @@ public class CombatUnit : Unit
 
     public override bool CanAttack(Unit unit)
     {
-        if(unit.GetCityState() && unit.GetCityState() != GetCityState())
+        if(unit.CityStateOwner && unit.CityStateOwner != CityStateOwner)
         {
             return true;
         }

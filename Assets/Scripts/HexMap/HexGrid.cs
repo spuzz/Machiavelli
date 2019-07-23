@@ -40,7 +40,6 @@ public class HexGrid : MonoBehaviour {
 
     List<HexUnit> units = new List<HexUnit>();
     List<City> cities = new List<City>();
-    List<OperationCentre> opCentres = new List<OperationCentre>();
 
     HexCellShaderData cellShaderData;
     public MapSetup mapSetup;
@@ -102,8 +101,7 @@ public class HexGrid : MonoBehaviour {
     {
         if(!cell.City)
         {
-            CityState cityState = gameController.CreateCityState();
-            gameController.CreateCity(cell, cityState);
+            gameController.CreateCity(cell, true);
         }
 
     }
@@ -114,7 +112,8 @@ public class HexGrid : MonoBehaviour {
 
     public void DestroyCity(City city)
     {
-        gameController.DestroyCity(city);
+        // TODO
+        //gameController.DestroyCity(city);
     }
 
     public void RemoveCity(City city)
@@ -123,34 +122,6 @@ public class HexGrid : MonoBehaviour {
         {
             cities.Remove(city);
         }
-    }
-
-    public void CreateOperationCentre(HexCell cell, Player player)
-    {
-        if(!cell.OpCentre)
-        {
-            gameController.CreateOperationCentre(cell, player);
-        }
-
-    }
-
-    public void AddOperationCentre(OperationCentre opCentre)
-    {
-        opCentres.Add(opCentre);
-    }
-
-    public void DestroyOperationCentre(HexCell cell)
-    {
-        if (cell.OpCentre)
-        {
-            gameController.KillAndDestroyOperationCentre(cell.OpCentre);
-        }
-        
-    }
-
-    public void RemoveOperationCentre(OperationCentre opCentre)
-    {
-        opCentres.Remove(opCentre);
     }
 
 	public void RemoveUnit (HexUnit unit) {
@@ -244,10 +215,8 @@ public class HexGrid : MonoBehaviour {
     private void ClearPlayers()
     {
         gameController.ClearPlayers();
-        opCentres.Clear();
         
     }
-
 
     void OnEnable () {
 		if (!HexMetrics.noiseSource) {
@@ -413,11 +382,6 @@ public class HexGrid : MonoBehaviour {
 		}
 
         gameController.Load(reader, header, this);
-        int cityCount = reader.ReadInt32();
-        for (int i = 0; i < cityCount; i++)
-        {
-            City.Load(reader, gameController, this, header);
-        }
         cellShaderData.ImmediateMode = originalImmediateMode;
         gameController.CentreMap();
 	}
@@ -536,7 +500,8 @@ public class HexGrid : MonoBehaviour {
 					continue;
 				}
 				if (!unit.IsValidDestination(neighbor, allowUnexplored)) {
-                    if(neighbor != toCell || !unit.IsValidAttackDestination(neighbor))
+                    // TODO
+                    if(neighbor != toCell) // || !unit.IsValidAttackDestination(neighbor))
                     {
                         continue;
                     }

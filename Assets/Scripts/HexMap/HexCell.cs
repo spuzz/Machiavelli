@@ -352,24 +352,6 @@ public class HexCell : MonoBehaviour {
         }
     }
 
-    OperationCentre opCentre;
-    public OperationCentre OpCentre
-    {
-        get
-        {
-            return opCentre;
-        }
-
-        set
-        {
-            opCentre = value;
-            if (IsVisible)
-            {
-                opCentre.HexVision.Visible = true;
-            }
-        }
-    }
-
     public int Production
     {
         get
@@ -430,10 +412,6 @@ public class HexCell : MonoBehaviour {
             {
                 City.HexVision.Visible = true;
             }
-            if(opCentre)
-            {
-                opCentre.HexVision.Visible = true;
-            }
             bool lastVisibleUnit = false;
             for (int a = hexUnits.Count - 1; a >= 0; a--)
             {
@@ -462,10 +440,6 @@ public class HexCell : MonoBehaviour {
             if (City)
             {
                 City.HexVision.Visible = false;
-            }
-            if (OpCentre)
-            {
-                OpCentre.HexVision.Visible = false;
             }
             foreach (HexUnit unit in hexUnits)
             {
@@ -657,9 +631,9 @@ public class HexCell : MonoBehaviour {
 		RefreshSelfOnly();
 	}
 
-    public bool CanUnitMoveToCell(HexUnit.UnitType unitType)
+    public bool CanUnitMoveToCell(Unit.UnitType unitType)
     {
-        HexUnit hexUnit = hexUnits.Find(c => c.HexUnitType == unitType);
+        HexUnit hexUnit = hexUnits.Find(c => c.unit.HexUnitType == unitType);
         if (hexUnit)
         {
             return false;
@@ -670,12 +644,8 @@ public class HexCell : MonoBehaviour {
 
     public bool CanUnitMoveToCell(HexUnit unit)
     {
-        HexUnit hexUnit = hexUnits.Find(c => c.HexUnitType == unit.HexUnitType);
+        HexUnit hexUnit = hexUnits.Find(c => c.unit.HexUnitType == unit.unit.HexUnitType);
         if (hexUnit)
-        {
-            return false;
-        }
-        if(City && unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.GetComponent<Unit>().GetCityState() != City.GetCityState())
         {
             return false;
         }
@@ -698,7 +668,7 @@ public class HexCell : MonoBehaviour {
     {
         foreach (HexUnit hexUnit in hexUnits)
         {
-            if (hexUnit.HexUnitType == HexUnit.UnitType.AGENT)
+            if (hexUnit.unit.HexUnitType == Unit.UnitType.AGENT)
             {
                 return hexUnit.GetComponent<Agent>();
             }
@@ -709,14 +679,14 @@ public class HexCell : MonoBehaviour {
     public void AddUnit(HexUnit hexUnit)
     {
         hexUnits.Add(hexUnit);
-        hexUnits = hexUnits.OrderBy(u => u.HexUnitType).ToList();
+        hexUnits = hexUnits.OrderBy(u => u.unit.HexUnitType).ToList();
         UpdateVision();
     }
 
     public void RemoveUnit(HexUnit hexUnit)
     {
         hexUnits.Remove(hexUnit);
-        hexUnits = hexUnits.OrderBy(u => u.HexUnitType).ToList();
+        hexUnits = hexUnits.OrderBy(u => u.unit.HexUnitType).ToList();
         UpdateVision();
     }
 
@@ -847,7 +817,6 @@ public class HexCell : MonoBehaviour {
 		}
 
         IsExplored = reader.ReadBoolean();
-        opCentre = null;
         city = null;
         ShaderData.RefreshVisibility(this);
 

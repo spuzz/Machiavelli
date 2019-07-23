@@ -13,14 +13,12 @@ public class HUD : MonoBehaviour {
     [SerializeField] Button endTurnButton;
     [SerializeField] AgentPanel agentPanel;
     [SerializeField] CityPanel cityPanel;
-    [SerializeField] OperationCentrePanel opCentrePanel;
     [SerializeField] TextFadeOut newTurnText;
     [SerializeField] GameObject toolTip;
     [SerializeField] TextMeshProUGUI toolTipText;
     Unit unit;
     City city;
     HexCell targetCell;
-    OperationCentre opCentre;
     public Unit Unit
     {
         get
@@ -34,7 +32,6 @@ public class HUD : MonoBehaviour {
             if (unit != null)
             {
                 city = null;
-                opCentre = null;
                 TargetCell = unit.HexUnit.Location;
                 
             }
@@ -54,30 +51,8 @@ public class HUD : MonoBehaviour {
             city = value;
             if (city != null)
             {
-                opCentre = null;
                 unit = null;
                 TargetCell = city.GetHexCell();
-                
-            }
-            UpdateUI();
-        }
-    }
-
-    public OperationCentre OpCentre
-    {
-        get
-        {
-            return opCentre;
-        }
-
-        set
-        {
-            opCentre = value;
-            if(opCentre != null)
-            {
-                city = null;
-                unit = null;
-                TargetCell = opCentre.Location;
                 
             }
             UpdateUI();
@@ -114,7 +89,6 @@ public class HUD : MonoBehaviour {
     {
         unit = null;
         city = null;
-        opCentre = null;
         UpdateUI();
     }
 
@@ -133,14 +107,7 @@ public class HUD : MonoBehaviour {
 
     public void UpdateUI()
     {
-        if (opCentre)
-        {
-            opCentrePanel.SetActive(opCentre);
-        }
-        else
-        {
-            opCentrePanel.SetInactive();
-        }
+
         if (city)
         {
             cityPanel.SetActive(city);
@@ -151,7 +118,7 @@ public class HUD : MonoBehaviour {
         }
         if (unit)
         {
-            if(unit.HexUnit.HexUnitType == HexUnit.UnitType.AGENT)
+            if(unit.HexUnitType == Unit.UnitType.AGENT)
             {
                 agentPanel.SetActive(unit);
             }
@@ -170,13 +137,10 @@ public class HUD : MonoBehaviour {
     public void UseAbility(int abilityNumber)
     {
         TargetCell = Unit.HexUnit.Location;
-        Unit.AttemptAbility(abilityNumber, TargetCell);
+        // TODO
+        //Unit.AttemptAbility(abilityNumber, TargetCell);
     }
 
-    public void UseOpCentreAbility(int abilityNumber)
-    {
-        TargetCell = OpCentre.Location;
-    }
 
     public void ShowToolTip(string text)
     {

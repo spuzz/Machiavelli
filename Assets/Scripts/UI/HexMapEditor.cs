@@ -249,7 +249,7 @@ public class HexMapEditor : MonoBehaviour {
 
 	void CreateUnit () {
 		HexCell cell = GetCellUnderCursor();
-		if (players.options.Count > 0 && cell && cell.CanUnitMoveToCell(HexUnit.UnitType.AGENT)) {
+		if (players.options.Count > 0 && cell && cell.CanUnitMoveToCell(Unit.UnitType.AGENT)) {
             string name = playerUnits.options[playerUnits.value].text;
             string playerName = players.options[players.value].text;
             Player player;
@@ -284,7 +284,7 @@ public class HexMapEditor : MonoBehaviour {
     void CreateCityStateUnit()
     {
         HexCell cell = GetCellUnderCursor();
-        if (cities.options.Count > 0 && cell && cell.CanUnitMoveToCell(HexUnit.UnitType.COMBAT))
+        if (cities.options.Count > 0 && cell && cell.CanUnitMoveToCell(Unit.UnitType.COMBAT))
         {
             int cityID = System.Convert.ToInt32(cities.options[players.value].text);
             City city = gameController.GetCity(cityID);
@@ -343,12 +343,6 @@ public class HexMapEditor : MonoBehaviour {
         {
             if (currentCell.City)
             {
-                int cityStateID = System.Convert.ToInt32(cityStates.options[cityStates.value].text);
-                CityState cityState = gameController.GetCityState(cityStateID);
-                if (applyCityState && currentCell.City.GetCityState() != cityState)
-                {
-                    currentCell.City.SetCityState(cityState);
-                }
                 if(applyCityStatePlayer)
                 {
                     SetCityPlayer(currentCell.City);
@@ -411,25 +405,6 @@ public class HexMapEditor : MonoBehaviour {
                         hexGrid.DestroyCity(cell.City);
                     }
                     
-                }
-                if (activeSpecialIndex == 3)
-                {
-                    string playerName = players.options[players.value].text;
-                    Player player;
-                    if (playerName == "Human Player")
-                    {
-                        player = gameController.HumanPlayer;
-                    }
-                    else
-                    {
-                        int playerID = System.Convert.ToInt32(players.options[players.value].text);
-                        player = gameController.GetPlayer(playerID);
-                    }
-                    hexGrid.CreateOperationCentre(cell, player);
-                }
-                else
-                {
-                    hexGrid.DestroyOperationCentre(cell);
                 }
 
                 cell.SpecialIndex = activeSpecialIndex;

@@ -28,7 +28,8 @@ public static class PathFindingUtilities
                     HexCellNode neighbourNode = openList.Find(c => c.HexCell == neighbour);
 
                     int cost = nextNode.Cost;
-                    if (!unit.HexUnit.IsValidDestination(neighbour, allowUnexplored) && !unit.HexUnit.IsValidAttackDestination(neighbour))
+                    // TODO
+                    if (!unit.HexUnit.IsValidDestination(neighbour, allowUnexplored)) // && !unit.HexUnit.IsValidAttackDestination(neighbour))
                     {
                         continue;
                     }

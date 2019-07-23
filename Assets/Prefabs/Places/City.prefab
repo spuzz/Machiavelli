@@ -56,8 +56,8 @@ GameObject:
   m_Component:
   - component: {fileID: 4363802538032816}
   - component: {fileID: 114574744724499650}
-  - component: {fileID: 114906063587015198}
-  - component: {fileID: 114169445554865684}
+  - component: {fileID: 114456317341596724}
+  - component: {fileID: 114315490007427326}
   m_Layer: 0
   m_Name: City
   m_TagString: Untagged
@@ -222,24 +222,6 @@ MonoBehaviour:
     y: 0
     width: 1
     height: 1
---- !u!114 &114169445554865684
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1778271005254408}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3c7c3fa92606d4469810bc4885e0ad9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  production: {x: 0, y: 0}
-  gold: {x: 0, y: 0}
-  science: {x: 0, y: 0}
-  food: {x: 0, y: 0}
-  defence: {x: 0, y: 0}
-  playerGold: {x: 0, y: 0}
-  unitCap: 0
 --- !u!114 &114176040660542350
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -318,6 +300,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: City Name
+--- !u!114 &114315490007427326
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1778271005254408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcaf0983ce1ec5d4ba5408739439e6b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cityState: {fileID: 114456317341596724}
+  buildConfigs: []
 --- !u!114 &114330631517215492
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -361,6 +356,20 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114456317341596724
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1778271005254408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e17c86a771d18a84ab6604944183ce45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cityStateAIController: {fileID: 114315490007427326}
+  cityStateName: City State
+  symbolID: 0
 --- !u!114 &114474624663275106
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -405,14 +414,16 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c6389f49267e934a97afbf983b8e38b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hexGrid: {fileID: 0}
+  cityUI: {fileID: 114176040660542350}
   baseHitPoints: 100
   baseStrength: 25
   baseProduction: 0
   baseFood: 0
   baseScience: 0
   baseIncome: 0
-  cityUI: {fileID: 114176040660542350}
-  hexGrid: {fileID: 0}
+  visionRange: 2
+  gold: 100
   buildings: []
   availableBuildings: []
   availableUnits:
@@ -420,23 +431,6 @@ MonoBehaviour:
   - {fileID: 11400000, guid: b9fa9b4ce7313e24eabd7a40c6b71f37, type: 2}
   - {fileID: 11400000, guid: 5d79ae666f4c039469c9033d500d14be, type: 2}
   - {fileID: 11400000, guid: 6dc6daf6916e4f04eade2fae6d730d34, type: 2}
-  food: 0
-  population: 1
-  visionRange: 2
-  unitCap: 3
-  gold: 100
-  playerBuildingControl: {fileID: 114906063587015198}
-  playerCityBonus: {fileID: 11400000, guid: 0e8386496a6c0384aaee1c405638fae2, type: 2}
-  happiness: 100
-  textEffect: {fileID: 1096156621854288, guid: cbce99c46ef89c94f965d408ea4706c6, type: 2}
-  currentStrength: 0
-  currentProduction: 0
-  currentFood: 0
-  currentScience: 0
-  currentIncome: 0
-  currentPlayerIncome: 0
-  foodConsumption: 0
-  foodForNextPop: 0
 --- !u!114 &114592943687886820
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -489,20 +483,6 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
---- !u!114 &114906063587015198
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1778271005254408}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd0a438ef1b760e428e0f0fd31250d90, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  outpostConfig: {fileID: 11400000, guid: 108a1a4beb8b044498d7f95ea06b1130, type: 2}
-  city: {fileID: 114574744724499650}
-  benefit: {fileID: 114169445554865684}
 --- !u!222 &222038326183577680
 CanvasRenderer:
   m_ObjectHideFlags: 1

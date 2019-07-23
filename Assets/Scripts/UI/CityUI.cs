@@ -136,43 +136,9 @@ public class CityUI : MonoBehaviour
 
     public void UpdateInfo(City city)
     {
-        if(city.Player)
-        {
-            influence.text = city.GetInfluence(city.Player).ToString();
-        }
-        else
-        {
-            influence.text = city.GetInfluence(GameController.Instance.HumanPlayer).ToString();
-        }
         toolTip.Clear();
         toolTip.SetHeader("City Info");
         toolTip.AddText("");
-
-        if(city.BuildingManager.currentBuilding())
-        {
-            toolTip.AddText("Training: " + city.BuildingManager.currentBuilding().DisplayName + "(" + city.BuildingManager.TimeLeftOnBuild(city.currentProduction) + ")");
-        }
-        toolTip.AddText("");
-        toolTip.AddText("Player Buildings");
-        foreach (Player player in city.PlayerBuildingControl.GetPlayersWithOutposts())
-        {
-            toolTip.AddText("");
-            toolTip.AddText("Player " + player.PlayerNumber);
-            toolTip.AddText("Outpost");
-            BuildConfig config = city.PlayerBuildingControl.GetPlayerBuildingManager(player).currentBuilding();
-            if(config)
-            {
-                toolTip.AddText("In Construction: " + config.DisplayName + "(" + city.PlayerBuildingControl.GetPlayerBuildingManager(player).TimeLeftOnBuild(1) + ")");
-            }
-
-            foreach (CityPlayerBuilding building in city.PlayerBuildingControl.GetPlayerBuildings(player))
-            {
-                if(building)
-                {
-                    toolTip.AddText(building.BuildConfig.DisplayName);
-                }
-            }
-        }
 
     }
 }

@@ -53,31 +53,32 @@ public class AgentPanel : MonoBehaviour {
             
             if(Unit)
             {
-                for (int count = 0; count < abilityButtons.Count; count++)
-                {
-                    if(count >= unit.GetNumberOfAbilities())
-                    {
-                        abilityButtons[count].gameObject.SetActive(false);
-                    }
-                    else
-                    {
-                        abilityButtons[count].gameObject.SetActive(true);
-                        abilityButtons[count].interactable = Unit.IsAbilityUsable(count);
-                        abilityButtons[count].image.sprite = Unit.GetAbility(count).DefaultIcon;
+                // TODO
+                //for (int count = 0; count < abilityButtons.Count; count++)
+                //{
+                //    if(count >= unit.GetNumberOfAbilities())
+                //    {
+                //        abilityButtons[count].gameObject.SetActive(false);
+                //    }
+                //    else
+                //    {
+                //        abilityButtons[count].gameObject.SetActive(true);
+                //        abilityButtons[count].interactable = Unit.IsAbilityUsable(count);
+                //        abilityButtons[count].image.sprite = Unit.GetAbility(count).DefaultIcon;
 
-                        ToolTip tooltip = abilityButtons[count].GetComponent<ToolTip>();
-                        if (tooltip)
-                        {
-                            tooltip.Clear();
-                            tooltip.SetHeader(Unit.GetAbility(count).DisplayName);
-                            tooltip.AddText(Unit.GetAbility(count).ToolTipText);
-                            tooltip.AddText("");
-                            tooltip.AddText("Cost");
-                            tooltip.AddSymbolWithText(1, Unit.GetAbility(count).GetEnergyCost().ToString());
-                        }
+                //        ToolTip tooltip = abilityButtons[count].GetComponent<ToolTip>();
+                //        if (tooltip)
+                //        {
+                //            tooltip.Clear();
+                //            tooltip.SetHeader(Unit.GetAbility(count).DisplayName);
+                //            tooltip.AddText(Unit.GetAbility(count).ToolTipText);
+                //            tooltip.AddText("");
+                //            tooltip.AddText("Cost");
+                //            tooltip.AddSymbolWithText(1, Unit.GetAbility(count).GetEnergyCost().ToString());
+                //        }
 
-                    }
-                }
+                //    }
+                //}
 
                 Agent agent = Unit.GetComponent<Agent>();
                 portrait.sprite = agent.GetAgentConfig().Portrait;

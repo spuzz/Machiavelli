@@ -138,9 +138,9 @@ public abstract class AbilityConfig : ScriptableObject
         behaviour.Use(target);
     }
 
-    public void Show(int energyCost, HexCell target = null)
+    public void Show(HexCell target = null)
     {
-        behaviour.ShowAbility(energyCost, target);
+        behaviour.ShowAbility(target);
     }
 
     public void Finish(HexCell target = null)
@@ -148,9 +148,9 @@ public abstract class AbilityConfig : ScriptableObject
         behaviour.FinishAbility(target);
     }
 
-    public void RunAll(int energyCost, HexCell target = null)
+    public void RunAll(HexCell target = null)
     {
-        behaviour.RunAll(energyCost, target);
+        behaviour.RunAll(target);
     }
     public bool IsValidTarget(HexCell target)
     {

@@ -51,7 +51,6 @@ public class HumanPlayer : Player {
             Agent agent = Agent.Load(reader, gameController, hexGrid, header, this);
         }
         ClearExploredCells();
-        ClearOperationCentres();
         LoadPlayer(reader, gameController, hexGrid, header);
     }
 
