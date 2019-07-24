@@ -16,7 +16,7 @@ public abstract class Unit : MonoBehaviour {
     protected HexGrid hexGrid;
 
     // Internal Components
-    protected UnitUI unitUI;
+    [SerializeField] UnitUI unitUI;
     HexVision hexVision;
 
     // Unit attributes
@@ -224,6 +224,19 @@ public abstract class Unit : MonoBehaviour {
         }
     }
 
+    public UnitUI UnitUI
+    {
+        get
+        {
+            return unitUI;
+        }
+
+        set
+        {
+            unitUI = value;
+        }
+    }
+
     public int GetMovementLeft()
     {
         return movementLeft;
@@ -244,6 +257,7 @@ public abstract class Unit : MonoBehaviour {
     public bool SetPath(List<HexCell> newPath)
     {
         path = newPath;
+        MoveUnit();
         return true;
     }
 
@@ -251,6 +265,7 @@ public abstract class Unit : MonoBehaviour {
     {
         path.Clear();
         path.Add(newPath);
+        MoveUnit();
         return true;
     }
     private void Awake()
@@ -259,8 +274,8 @@ public abstract class Unit : MonoBehaviour {
         hexGrid = FindObjectOfType<HexGrid>();
         GameController = FindObjectOfType<GameController>();
         hexVision = gameObject.AddComponent<HexVision>();
-        unitUI.Unit = this;
-        hexVision.AddVisibleObject(unitUI.gameObject);
+
+        hexVision.AddVisibleObject(UnitUI.gameObject);
         if(hexUnit.GetMesh())
         {
             hexVision.AddVisibleObject(hexUnit.GetMesh());
@@ -278,7 +293,7 @@ public abstract class Unit : MonoBehaviour {
 
     void Start()
     {
-
+        UnitUI.Unit = this;
         StartTurn();
     }
 
@@ -361,6 +376,8 @@ public abstract class Unit : MonoBehaviour {
             return false;
         }
 
+        hexUnit.Move(move);
+
         for (int a = 1; a < move.Count; a++)
         {
             UpdateOwnerVisiblity(move[a - 1], false);
@@ -419,7 +436,7 @@ public abstract class Unit : MonoBehaviour {
     {
         if(healthChange != 0)
         {
-            unitUI.UpdateHealthBar(healthChange);
+            UnitUI.UpdateHealthBar(healthChange);
         }
 
     }

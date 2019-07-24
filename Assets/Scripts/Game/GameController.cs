@@ -237,22 +237,22 @@ public class GameController : MonoBehaviour
 
     public void CheckWinner()
     {
-        if(HumanPlayer.cities.Count == cities.FindAll(c => c.Alive).Count)
-        {
-            Debug.Log("Winner");
-            EndGame();
-        }
-        else
-        {
-            foreach(Player player in players)
-            {
-                if (player.cities.Count == cities.FindAll(c => c.Alive).Count)
-                {
-                    Debug.Log("Loser");
-                    EndGame();
-                }
-            }
-        }
+        //if(HumanPlayer.cities.Count == cities.FindAll(c => c.Alive).Count)
+        //{
+        //    Debug.Log("Winner");
+        //    EndGame();
+        //}
+        //else
+        //{
+        //    foreach(Player player in players)
+        //    {
+        //        if (player.cities.Count == cities.FindAll(c => c.Alive).Count)
+        //        {
+        //            Debug.Log("Loser");
+        //            EndGame();
+        //        }
+        //    }
+        //}
 
     }
 
@@ -343,6 +343,10 @@ public class GameController : MonoBehaviour
         combatUnit.HexUnitType = Unit.UnitType.COMBAT;
         hexGrid.AddUnit(hexUnit);
         city.AddUnit(hexUnit.GetComponent<CombatUnit>());
+        if(city.Player && city.Player.IsHuman)
+        {
+            hexUnit.Controllable = true;
+        }
         return hexUnit;
     }
     public HexUnit CreateCityStateUnit(string combatUnitConfig, HexCell cell, City city)
@@ -361,11 +365,11 @@ public class GameController : MonoBehaviour
     }
 
 
-    public CityPlayerBuilding CreateCityPlayerBuilding(CityPlayerBuildConfig cityPlayerBuildConfig)
+    public CityBuilding CreateCityPlayerBuilding(CityPlayerBuildConfig cityPlayerBuildConfig)
     {
-        CityPlayerBuilding cityPlayerBuilding = Instantiate(cityPlayerBuildConfig.BuildPrefab, transform).GetComponent<CityPlayerBuilding>();
-        cityPlayerBuilding.BuildConfig = cityPlayerBuildConfig;
-        return cityPlayerBuilding;
+        CityBuilding cityBuilding = Instantiate(cityPlayerBuildConfig.BuildPrefab, transform).GetComponent<CityBuilding>();
+        cityBuilding.BuildConfig = cityPlayerBuildConfig;
+        return cityBuilding;
     }
 
 

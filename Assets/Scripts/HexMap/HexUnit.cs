@@ -256,8 +256,33 @@ public class HexUnit : MonoBehaviour {
             Location.DecreaseVisibility();
         }
     }
+    public void Move(List<HexCell> moves)
+    {
 
-	public int GetMoveCost (
+        HexAction action = hexUnitActionController.CreateAction();
+        action.ActionsUnit = this;
+        action.AddAction(moves);
+
+        Location.RemoveUnit(this);
+        SetLocationOnly(moves[moves.Count - 1]);
+        if (unit.Alive == true)
+        {
+            AddUnitToLocation(moves[moves.Count - 1]);
+        }
+
+        actions.Add(action);
+    }
+    public void SetLocationOnly(HexCell cell)
+    {
+        location = cell;
+    }
+
+    public void AddUnitToLocation(HexCell cell)
+    {
+        location.AddUnit(this);
+    }
+
+    public int GetMoveCost (
 		HexCell fromCell, HexCell toCell, HexDirection direction, bool allowUnexplored = false)
 	{
 		if (!IsValidDestination(toCell, allowUnexplored)) {

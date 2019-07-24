@@ -9,9 +9,7 @@ public abstract class BuildConfig : ScriptableObject {
     {
         AGENT,
         COMBAT_UNIT,
-        CITY_STATE_BUILDING,
-        CITY_PLAYER_BUILDING,
-        OPCENTRE_BUILDING,
+        BUILDING,
         MISC
     }
     [Header("Build Config General")]

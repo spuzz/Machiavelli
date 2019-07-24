@@ -166,11 +166,11 @@ public class HexGameUI : MonoBehaviour {
             //}
             //else
             //{
-            //    selectedUnit.GetComponent<Unit>().SetPath(grid.GetPath());
+            selectedUnit.GetComponent<Unit>().SetPath(grid.GetPath());
             //}
 			
-            //selectedUnit.GetComponent<Unit>().DoActions();
-            //grid.ClearPath();
+            selectedUnit.DoActions();
+            grid.ClearPath();
             HUD.UpdateUI();
 		}
 	}

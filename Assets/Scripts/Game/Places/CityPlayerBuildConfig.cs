@@ -26,7 +26,7 @@ public class CityPlayerBuildConfig : BuildConfig
 
     public override BUILDTYPE GetBuildType()
     {
-        return BUILDTYPE.CITY_PLAYER_BUILDING;
+        return BUILDTYPE.BUILDING;
     }
 }
 

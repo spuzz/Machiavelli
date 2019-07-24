@@ -28,9 +28,9 @@ public class City : MonoBehaviour {
     [SerializeField] int visionRange = 2;
     [SerializeField] int gold = 100;
 
-    [SerializeField] List<CityPlayerBuilding> buildings;
-    [SerializeField] List<BuildConfig> availableBuildings;
-    [SerializeField] List<BuildConfig> availableUnits;
+    [SerializeField] List<CityBuilding> buildings;
+    [SerializeField] List<BuildConfig> buildingOptions;
+    [SerializeField] List<BuildConfig> trainingOptions;
 
     bool alive;
 
@@ -227,6 +227,15 @@ public class City : MonoBehaviour {
         }
     }
 
+    public IEnumerable<BuildConfig> GetBuildingOptions()
+    {
+        return buildingOptions;
+    }
+    public IEnumerable<BuildConfig> GetTrainingOptions()
+    {
+        return trainingOptions;
+    }
+
     public void RemoveUnit(CombatUnit unit)
     {
         cityUnits.Remove(unit);
@@ -303,13 +312,7 @@ public class City : MonoBehaviour {
 
     public void StartTurn()
     {
-
-    }
-
-
-    public void TakeTurn()
-    {
-        BuildingManager.DayPassed(baseProduction);
+        BuildingManager.DayPassed(1);
         BuildConfig buildConfig = BuildingManager.GetCompletedBuild();
         while (buildConfig)
         {
@@ -317,8 +320,26 @@ public class City : MonoBehaviour {
             {
                 CreateUnit((buildConfig as CombatUnitBuildConfig).CombatUnitConfig);
             }
+            else if (buildConfig.GetBuildType() == BuildConfig.BUILDTYPE.BUILDING)
+            {
+                CreateBuilding(buildConfig as CityPlayerBuildConfig);
+            }
+            else if(buildConfig.GetBuildType() == BuildConfig.BUILDTYPE.AGENT)
+            {
+                CreateAgent((buildConfig as AgentBuildConfig).AgentConfig);
+            }
             buildConfig = BuildingManager.GetCompletedBuild();
         }
+        foreach(Unit unit in cityUnits)
+        {
+            unit.StartTurn();
+        }
+    }
+
+
+    public void TakeTurn()
+    {
+
     }
 
     public void UpdateHealthBar()
@@ -378,13 +399,21 @@ public class City : MonoBehaviour {
         
     }
 
-    public void BuildUnit()
-    {
 
-        BuildConfig config = availableUnits[UnityEngine.Random.Range(0, availableUnits.Count)];
+    public void AddBuild(BuildConfig config)
+    {
         buildingManager.AddBuild(config);
+        if(buildingOptions.Contains(config))
+        {
+            buildingOptions.Remove(config);
+        }
+        NotifyInfoChange();
     }
 
+    public IEnumerable<CityBuilding> GetCityBuildings()
+    {
+        return buildings;
+    }
 
     public bool CreateUnit(CombatUnitConfig combatUnitConfig)
     {
@@ -396,16 +425,43 @@ public class City : MonoBehaviour {
                 HexUnit hexUnit = gameController.CreateCityStateUnit(combatUnitConfig, cell, this);
                 hexUnit.Location.UpdateVision();
                 UpdateVision();
+                NotifyInfoChange();
                 return true;
             }
         }
         return false;
     }
 
+    public bool CreateAgent(AgentConfig agentConfig)
+    {
+        List<HexCell> cells = PathFindingUtilities.GetCellsInRange(hexCell, 2);
+        foreach (HexCell cell in cells)
+        {
+            if (cell.CanUnitMoveToCell(Unit.UnitType.AGENT))
+            {
+                gameController.CreateAgent(agentConfig, cell, Player);
+                NotifyInfoChange();
+                return true;
+            }
+        }
+        NotifyInfoChange();
+        return false;
+    }
+
+
+    public bool CreateBuilding(CityPlayerBuildConfig config)
+    {
+
+        CityBuilding building = gameController.CreateCityPlayerBuilding(config);
+        buildings.Add(building);
+        NotifyInfoChange();
+        return true;
+    }
+
+
     public void Save(BinaryWriter writer)
     {
         GetHexCell().coordinates.Save(writer);
-        cityStateOwner.Save(writer);
         if(player)
         {
             writer.Write(player.PlayerNumber);
@@ -420,18 +476,19 @@ public class City : MonoBehaviour {
         {
             unit.Save(writer);
         }
+        cityStateOwner.Save(writer);
     }
 
     public static void Load(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
     {
         HexCoordinates coordinates = HexCoordinates.Load(reader);
+        
         int playerNumber = reader.ReadInt32();
         HexCell cell = hexGrid.GetCell(coordinates);
         City city = gameController.CreateCity(cell);
-        city.GetComponent<CityState>().Load(reader ,gameController, hexGrid, header);
         if (playerNumber != -1)
         {
-            city.Player = gameController.GetPlayer(playerNumber);
+            gameController.GetPlayer(playerNumber).AddCity(city);
         }
         city.buildingManager.Load(reader,gameController,header);
         int unitCount = reader.ReadInt32();
@@ -439,6 +496,7 @@ public class City : MonoBehaviour {
         {
             CombatUnit combatUnit = CombatUnit.Load(reader, gameController, hexGrid, header, city);
         }
+        city.GetComponent<CityState>().Load(reader, gameController, hexGrid, header);
 
     }
     public void NotifyInfoChange()

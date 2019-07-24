@@ -28,10 +28,6 @@ public class CityPanel : MonoBehaviour {
             {
                 infoPanels[a].SetActive(city);
             }
-            else
-            {
-                infoPanels[a].SetInactive();
-            }
         }
     }
 }

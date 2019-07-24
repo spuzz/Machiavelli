@@ -2,10 +2,9 @@
 using System.Collections.Generic;
 using UnityEngine;
 
-public class CityPlayerBuilding : MonoBehaviour {
+public class CityBuilding : MonoBehaviour {
 
     protected City cityBuildIn;
-    private Player playersBuilding;
     CityPlayerBuildConfig buildConfig;
 
     public City CityBuildIn
@@ -34,18 +33,6 @@ public class CityPlayerBuilding : MonoBehaviour {
         }
     }
 
-    public Player PlayersBuilding
-    {
-        get
-        {
-            return playersBuilding;
-        }
-
-        set
-        {
-            playersBuilding = value;
-        }
-    }
 
     public virtual void Init()
     {

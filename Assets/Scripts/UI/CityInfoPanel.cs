@@ -4,21 +4,8 @@ using UnityEngine;
 
 public abstract class CityInfoPanel : MonoBehaviour {
     protected City city;
-    [SerializeField] BuildingChoicePanel buildingChoicePanel;
     bool active = false;
 
-    public BuildingChoicePanel BuildingChoicePanel
-    {
-        get
-        {
-            return buildingChoicePanel;
-        }
-
-        set
-        {
-            buildingChoicePanel = value;
-        }
-    }
 
     public void SetActive(City cityToWatch)
     {
@@ -52,10 +39,6 @@ public abstract class CityInfoPanel : MonoBehaviour {
             }
             
             active = false;
-            if (BuildingChoicePanel)
-            {
-                BuildingChoicePanel.SetInactive();
-            }
 
         }
     }

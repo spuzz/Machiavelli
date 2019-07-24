@@ -156,6 +156,7 @@ public abstract class Player : MonoBehaviour {
     public void AddCity(City city)
     {
         cities.Add(city);
+        city.Player = this;
         UpdateResources();
         // TODO
         //city.onInfoChange += cityStateChange;
@@ -255,6 +256,10 @@ public abstract class Player : MonoBehaviour {
             agent.StartTurn();
         }
 
+        foreach (City city in cities)
+        {
+            city.StartTurn();
+        }
         UpdateResources();
         gold += goldPerTurn;
         NotifyInfoChange();

@@ -74,7 +74,7 @@ public class Agent : Unit {
     {
         if (player)
         {
-            unitUI.SetColour(player.GetColour().Colour);
+            UnitUI.SetColour(player.GetColour().Colour);
             HexUnit.MaterialColourChanger.ChangeMaterial(player.GetColour());
         }
 
@@ -89,9 +89,9 @@ public class Agent : Unit {
         this.player = player;
 
         UpdateOwnerVisiblity(HexUnit.Location, true);
-        if (unitUI)
+        if (UnitUI)
         {
-            unitUI.SetColour(player.GetColour().Colour);
+            UnitUI.SetColour(player.GetColour().Colour);
         }
         MaterialColourChanger changer = HexUnit.MaterialColourChanger;
         changer.ChangeMaterial(player.GetColour());
@@ -149,26 +149,16 @@ public class Agent : Unit {
         float orientation = reader.ReadSingle();
         int hitPoints = 100;
         int movementLeft = 2;
-        string unitName = reader.ReadString();
-        if (header >= 3)
-        {
-            hitPoints = reader.ReadInt32();
-            movementLeft = reader.ReadInt32();
-        }
         string agentConfig = "Builder";
-        if (header >= 4)
-        {
-            agentConfig = reader.ReadString();
-        }
+
+        hitPoints = reader.ReadInt32();
+        movementLeft = reader.ReadInt32();
+        agentConfig = reader.ReadString();
+
         HexUnit unit = gameController.CreateAgent(agentConfig,grid.GetCell(coordinates), player);
-
         Agent agent = unit.GetComponent<Agent>();
-
-        if (header >= 3)
-        {
-            agent.HitPoints = hitPoints;
-            agent.SetMovementLeft(movementLeft);
-        }
+        agent.HitPoints = hitPoints;
+        agent.SetMovementLeft(movementLeft);
 
         return agent;
     }
