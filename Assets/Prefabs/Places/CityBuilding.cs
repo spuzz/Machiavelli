@@ -6,7 +6,7 @@ public class CityBuilding : MonoBehaviour {
 
     protected City cityBuildIn;
     CityPlayerBuildConfig buildConfig;
-
+    [SerializeField] ResourceBenefit resourceBenefit;
     public City CityBuildIn
     {
         get
@@ -33,6 +33,18 @@ public class CityBuilding : MonoBehaviour {
         }
     }
 
+    public ResourceBenefit ResourceBenefit
+    {
+        get
+        {
+            return resourceBenefit;
+        }
+
+        set
+        {
+            resourceBenefit = value;
+        }
+    }
 
     public virtual void Init()
     {

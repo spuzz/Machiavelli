@@ -62,6 +62,10 @@ public class HexGameUI : MonoBehaviour {
 
     private void DoSelectionInput()
     {
+        if (Input.GetKeyDown(KeyCode.Escape) && HUD.City)
+        {
+            ClearSelection();
+        }
         if (gameController.TurnOver == false && !EventSystem.current.IsPointerOverGameObject())
         {
             if (Input.GetMouseButtonDown(0))
@@ -106,34 +110,64 @@ public class HexGameUI : MonoBehaviour {
 	void DoSelection () {
 		grid.ClearPath();
 		UpdateCurrentCell();
-		if (currentCell) {
-            if(currentCell.GetTopUnit() && currentCell.GetTopUnit().Controllable)
+		if (currentCell)
+        {
+            if (currentCell.GetTopUnit() && currentCell.GetTopUnit().Controllable)
             {
-                if(selectedUnit)
-                {
-                    SetLayerRecursively(selectedUnit.gameObject,0);
-                }
-                selectedUnit = currentCell.GetTopUnit();
-                SetLayerRecursively(selectedUnit.gameObject, 9);
-                HUD.Unit = selectedUnit.GetComponent<Unit>();
+                SelectUnit(currentCell.GetTopUnit());
             }
             else if (currentCell.City)
             {
+                ClearSelection();
                 if (selectedUnit)
                 {
                     SetLayerRecursively(selectedUnit.gameObject, 0);
                 }
-                selectedUnit = null;
-                HUD.City  = currentCell.City;
+                SelectCity(currentCell.City);
             }
         }
-	}
+    }
+
+    public void SelectUnit(HexUnit hexUnit)
+    {
+        ClearSelection();
+        if (selectedUnit)
+        {
+            SetLayerRecursively(selectedUnit.gameObject, 0);
+        }
+        selectedUnit = hexUnit;
+        SetLayerRecursively(selectedUnit.gameObject, 9);
+        HUD.Unit = selectedUnit.GetComponent<Unit>();
+    }
+
+    private void ClearSelection()
+    {
+        if (HUD.City)
+        {
+            HUD.City.GetHexCell().HexCellUI.EnableCanvas(false);
+            foreach (HexCell cell in HUD.City.GetOwnedCells())
+            {
+                cell.HexCellUI.EnableCanvas(false);
+            }
+            HUD.City = null;
+        }
+    }
 
     public void SelectCity(City city)
     {
+
         grid.ClearPath();
         selectedUnit = null;
         HUD.City = city;
+        city.GetHexCell().HexCellUI.EnableCanvas(true);
+        city.GetHexCell().HexCellUI.CurrentCityOwner = city;
+        city.GetHexCell().HexCellUI.SetToggleLocked(true);
+        foreach (HexCell cell in city.GetOwnedCells())
+        {
+            cell.HexCellUI.EnableCanvas(true);
+            cell.HexCellUI.CurrentCityOwner = city;
+            cell.HexCellUI.SetToggleLocked(false);
+        }
     }
 
     public void SelectUnit(Unit unit)

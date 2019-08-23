@@ -4,7 +4,7 @@ using UnityEngine;
 
 public abstract class CityInfoPanel : MonoBehaviour {
     protected City city;
-    bool active = false;
+    bool active = true;
 
 
     public void SetActive(City cityToWatch)

@@ -1,4 +1,5 @@
-﻿using System.Collections;
+﻿using Assets.Scripts.AI.General;
+using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System.Linq;
@@ -20,7 +21,17 @@ public class BuildingManager{
         buildQueue.AddFirst(new BuildInProgress(buildConfig, id));
     }
 
-    public int buildsInQueue()
+    public BuildConfig RemoveFromQueue(int queueNumber)
+    {
+        if (BuildsInQueue() > queueNumber)
+        {
+            return ExtensionMethods.RemoveAt(buildQueue, queueNumber).Value.BuildConfig;
+        }
+        return null;
+            
+    }
+
+    public int BuildsInQueue()
     {
         return buildQueue.Count;
     }
@@ -29,7 +40,12 @@ public class BuildingManager{
     {
         if(buildQueue.Count > 0)
         {
-            return buildQueue.First.Value.TimeLeft() / production;
+            int days = 9999;
+            if (production != 0)
+            {
+                days = (buildQueue.First.Value.TimeLeft() + production - 1) / production;
+            }
+            return  days;
         }
         return -1;
     }
@@ -74,7 +90,7 @@ public class BuildingManager{
 
     public BuildConfig GetConfigInQueue(int numberInQueue)
     {
-        if(numberInQueue < buildsInQueue())
+        if(numberInQueue < BuildsInQueue())
         {
             return buildQueue.ElementAt(numberInQueue).BuildConfig;
         }

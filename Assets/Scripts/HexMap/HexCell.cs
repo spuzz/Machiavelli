@@ -10,14 +10,11 @@ public class HexCell : MonoBehaviour {
 
     [SerializeField] bool[] roads;
 
-    [SerializeField] int production = 2;
-    [SerializeField] int food = 2;
-    [SerializeField] int income = 20;
     [SerializeField] PlayerColour playerColour;
     [SerializeField] PlayerColour defaultPlayerColour;
     [SerializeField] HexCellTextEffectHandler textEffectHandler;
-
-
+    [SerializeField] HexCellGameData hexCellGameData;
+    [SerializeField] HexCellUI hexCellUI;
     public HexCoordinates coordinates;
 
 	public RectTransform uiRect;
@@ -352,44 +349,6 @@ public class HexCell : MonoBehaviour {
         }
     }
 
-    public int Production
-    {
-        get
-        {
-            return production;
-        }
-
-        set
-        {
-            production = value;
-        }
-    }
-
-    public int Food
-    {
-        get
-        {
-            return food;
-        }
-
-        set
-        {
-            food = value;
-        }
-    }
-
-    public int Income
-    {
-        get
-        {
-            return income;
-        }
-
-        set
-        {
-            income = value;
-        }
-    }
 
     public HexCellTextEffectHandler TextEffectHandler
     {
@@ -401,6 +360,32 @@ public class HexCell : MonoBehaviour {
         set
         {
             textEffectHandler = value;
+        }
+    }
+
+    public HexCellGameData HexCellGameData
+    {
+        get
+        {
+            return hexCellGameData;
+        }
+
+        set
+        {
+            hexCellGameData = value;
+        }
+    }
+
+    public HexCellUI HexCellUI
+    {
+        get
+        {
+            return hexCellUI;
+        }
+
+        set
+        {
+            hexCellUI = value;
         }
     }
 
@@ -777,7 +762,7 @@ public class HexCell : MonoBehaviour {
 		}
 		writer.Write((byte)roadFlags);
 		writer.Write(IsExplored);
-
+        HexCellGameData.Save(writer);
 	}
 
 	public void Load (BinaryReader reader, int header) {
@@ -818,6 +803,8 @@ public class HexCell : MonoBehaviour {
 
         IsExplored = reader.ReadBoolean();
         city = null;
+
+        HexCellGameData.Load(reader, header);
         ShaderData.RefreshVisibility(this);
 
 	}

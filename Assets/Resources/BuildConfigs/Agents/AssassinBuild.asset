@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00538d5d87873434b907c764de750305, type: 3}
   m_Name: AssassinBuild
   m_EditorClassIdentifier: 
-  baseProductionCost: 4
+  baseProductionCost: 200
   basePurchaseCost: 30
   prerequisites: []
   focusType: 6

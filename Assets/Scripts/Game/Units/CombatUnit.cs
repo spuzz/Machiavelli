@@ -37,8 +37,12 @@ public class CombatUnit : Unit
         this.player = player;
 
         UpdateOwnerVisiblity(HexUnit.Location, true);
-        // TODO
-        //UpdateColours();
+        if (UnitUI)
+        {
+            UnitUI.SetColour(player.GetColour().Colour);
+        }
+        MaterialColourChanger changer = HexUnit.MaterialColourChanger;
+        changer.ChangeMaterial(player.GetColour());
 
     }
     public override Player GetPlayer()

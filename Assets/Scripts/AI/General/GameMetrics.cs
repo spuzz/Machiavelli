@@ -6,6 +6,7 @@ using UnityEngine;
 
 public enum FocusType
 {
+    ALL,
     PRODUCTION,
     ECONOMIC,
     SCIENCE,
@@ -13,7 +14,12 @@ public enum FocusType
     DEFENCE,
     OFFENCE,
     MILITARY,
-    EXPANSION
+    EXPANSION,
+    MELEE,
+    RANGED,
+    MOUNTED,
+    SIEGE,
+    AGENT
 
 }
 
@@ -31,10 +37,9 @@ static class TextColors
 
 static class GameConsts
 {
-    public static int capitalUnitCap = 2;
-    public static int baseUnitCap = 3;
 
     public static int startingGold = 300;
     public static bool playAnimations = true;
+    public static List<int> populationFoodReqirements = new List<int> { 0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 390, 420, 450, 480, 510, 540, 570, 600, 630, 660, 690, 720, 750, 780, 810, 840, 870, 900 };
 }
 

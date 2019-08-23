@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea61b27dab4118a488e2ef2e7b6a504d, type: 3}
+  m_Name: Factory
+  m_EditorClassIdentifier: 
+  baseProductionCost: 500
+  basePurchaseCost: 0
+  prerequisites: []
+  focusType: 0
+  buildingImage: {fileID: 21300000, guid: 63cb801b2c6092149ba3f82b08eee987, type: 3}
+  name: Factory
+  displayName: Factory
+  toolTipText: Factory
+  buildPrefab: {fileID: 1084114713908218, guid: a45f1d7318fd62c46bbbc1f63a0c4d30,
+    type: 2}

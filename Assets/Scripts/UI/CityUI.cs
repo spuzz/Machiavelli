@@ -13,7 +13,7 @@ public class CityUI : MonoBehaviour
     [SerializeField] CityHealthBar cityHealthBar;
     [SerializeField] Image cityStateSymbol;
     [SerializeField] Text cityName;
-    [SerializeField] Text influence;
+    [SerializeField] Text population;
     [SerializeField] City city;
     [SerializeField] RawImage backGround;
     [SerializeField] ToolTip toolTip;
@@ -93,15 +93,6 @@ public class CityUI : MonoBehaviour
         backGround.color = cityColor;
     }
 
-    public void SetPopulation(string pop)
-    {
-
-    }
-
-    public void SetInfluence(string inf)
-    {
-        influence.text = inf;
-    }
 
     private void Awake()
     {
@@ -139,6 +130,7 @@ public class CityUI : MonoBehaviour
         toolTip.Clear();
         toolTip.SetHeader("City Info");
         toolTip.AddText("");
+        population.text = city.Population.ToString();
 
     }
 }

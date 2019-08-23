@@ -8,6 +8,7 @@ public class BuildingOption : MonoBehaviour {
 
     [SerializeField] Image optionImage;
     [SerializeField] TextMeshProUGUI optionName;
+    [SerializeField] TextMeshProUGUI constructionTime;
     City city;
     BuildConfig buildConfig;
 
@@ -60,6 +61,19 @@ public class BuildingOption : MonoBehaviour {
         set
         {
             optionName = value;
+        }
+    }
+
+    public TextMeshProUGUI ConstructionTime
+    {
+        get
+        {
+            return constructionTime;
+        }
+
+        set
+        {
+            constructionTime = value;
         }
     }
 

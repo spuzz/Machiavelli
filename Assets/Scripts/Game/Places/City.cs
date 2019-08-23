@@ -13,29 +13,31 @@ public class City : MonoBehaviour {
     Player player;
     CityState cityStateOwner;
     HexCell hexCell;
+
     // Internal Components
     [SerializeField] CityUI cityUI;
+    [SerializeField] CityResouceController cityResouceController;
     HexVision hexVision;
+
     // Attributes
-    public static int cityIDCounter = 1;
-    int cityID;
+    [SerializeField] int visionRange = 2;
     [SerializeField] int baseHitPoints = 200;
     [SerializeField] int baseStrength = 25;
-    [SerializeField] int baseProduction = 0;
-    [SerializeField] int baseFood = 0;
-    [SerializeField] int baseScience = 0;
-    [SerializeField] int baseIncome = 0;
-    [SerializeField] int visionRange = 2;
-    [SerializeField] int gold = 100;
+    public static int cityIDCounter = 1;
+    int cityID;
 
     [SerializeField] List<CityBuilding> buildings;
     [SerializeField] List<BuildConfig> buildingOptions;
     [SerializeField] List<BuildConfig> trainingOptions;
 
+    int maintenance = 0;
+    int population = 1;
+    int food = 0;
     bool alive;
 
     BuildingManager buildingManager = new BuildingManager();
     List<HexCell> ownedCells = new List<HexCell>();
+    List<HexCell> workedCells = new List<HexCell>();
     List<CombatUnit> cityUnits = new List<CombatUnit>();
 
     public delegate void OnInfoChange(City city);
@@ -191,18 +193,6 @@ public class City : MonoBehaviour {
         }
     }
 
-    public int Gold
-    {
-        get
-        {
-            return gold;
-        }
-
-        set
-        {
-            gold = value;
-        }
-    }
 
     public int Strength
     {
@@ -224,6 +214,58 @@ public class City : MonoBehaviour {
         set
         {
             alive = value;
+        }
+    }
+
+    public int Maintenance
+    {
+        get
+        {
+            return maintenance;
+        }
+
+        set
+        {
+            maintenance = value;
+        }
+    }
+
+    public CityResouceController CityResouceController
+    {
+        get
+        {
+            return cityResouceController;
+        }
+
+        set
+        {
+            cityResouceController = value;
+        }
+    }
+
+    public int Population
+    {
+        get
+        {
+            return population;
+        }
+
+        set
+        {
+            population = value;
+        }
+    }
+
+    public int Food
+    {
+        get
+        {
+            return food;
+        }
+
+        set
+        {
+            food = value;
         }
     }
 
@@ -249,6 +291,11 @@ public class City : MonoBehaviour {
             unit.HexVision.HasVision = true;
         }
         cityUnits.Add(unit);
+        if(Player)
+        {
+            unit.SetPlayer(Player);
+        }
+
         NotifyInfoChange();
     }
 
@@ -286,7 +333,6 @@ public class City : MonoBehaviour {
 
         }
         UpdateWalls();
-        AddCellYield(hexCell);
         HexVision.SetCells(PathFindingUtilities.GetCellsInRange(hexCell, VisionRange));
         NotifyInfoChange();
     }
@@ -297,8 +343,105 @@ public class City : MonoBehaviour {
         return hexCell;
     }
 
+
+    public IEnumerable<HexCell> GetOwnedCells()
+    {
+        return ownedCells;
+    }
+
+    public IEnumerable<HexCell> GetWorkedCells()
+    {
+        return workedCells;
+    }
+
+    public void RemoveWorkedCell(HexCell cell)
+    {
+        if(workedCells.Contains(cell))
+        {
+            workedCells.Remove(cell);
+        }
+        NotifyInfoChange();
+    }
+
+    public void AddWorkedCell(HexCell cell)
+    {
+        if (!workedCells.Contains(cell))
+        {
+            workedCells.Add(cell);
+        }
+        NotifyInfoChange();
+    }
+
+    public bool CanWorkAnotherCell()
+    {
+        if(workedCells.Count() <= Population)
+        {
+            return true;
+        }
+        return false;
+    }
+
+    private int GetMaintenance()
+    {
+        int adjustedMaintenance = maintenance;
+        return adjustedMaintenance;
+    }
+
+    private int GetIncome()
+    {
+        int adjustedGold = CityResouceController.GetGold();
+        return adjustedGold;
+    }
+
+    public void IncreasePopulation()
+    {
+        Population += 1;
+        AdjustWorkedCells();
+    }
+
+    public void DecreasePopulation()
+    {
+        if(Population < 1)
+        {
+            throw new InvalidOperationException("Population already at 1!");
+        }
+        Population -= 1;
+        AdjustWorkedCells();
+    }
+
+    private void AdjustWorkedCells()
+    {
+        foreach(HexCell cell in workedCells)
+        {
+            cell.GetComponent<HexCellGameData>().IsWorked = false;
+        }
+        workedCells.Clear();
+        hexCell.HexCellGameData.IsWorked = true;
+        workedCells.Add(hexCell);
+        for(int pop = 0; pop < Population; pop++)
+        {
+            if(ownedCells.Count - workedCells.Count > 0)
+            {
+                HexCell cellToWork = PickCellToWork();
+                workedCells.Add(cellToWork);
+                cellToWork.GetComponent<HexCellGameData>().IsWorked = true;
+            }
+
+        }
+        NotifyInfoChange();
+    }
+
+    private HexCell PickCellToWork()
+    {
+        List<HexCell> cellsInOrder = ownedCells.Where(c => !workedCells.Contains(c)).ToList();
+        cellsInOrder = cellsInOrder.OrderByDescending(c => c.GetComponent<HexCellGameData>().GetTotalYield()).ToList();
+        return cellsInOrder[0];
+        
+    }
+
     private void Awake()
     {
+        SortBuildOptions();
         gameController = FindObjectOfType<GameController>();
         cityStateOwner = GetComponent<CityState>();
         hexGrid = FindObjectOfType<HexGrid>();
@@ -307,12 +450,17 @@ public class City : MonoBehaviour {
         gameController.VisionSystem.AddHexVision(hexVision);
         cityID = cityIDCounter;
         cityIDCounter++;
+
     }
 
+    public void Start()
+    {
+        AdjustWorkedCells();
+    }
 
     public void StartTurn()
     {
-        BuildingManager.DayPassed(1);
+        BuildingManager.DayPassed(CityResouceController.GetProduction());
         BuildConfig buildConfig = BuildingManager.GetCompletedBuild();
         while (buildConfig)
         {
@@ -334,8 +482,23 @@ public class City : MonoBehaviour {
         {
             unit.StartTurn();
         }
-    }
+        Player.Gold += GetIncome();
+        Player.Gold -= GetMaintenance();
+        Food += CityResouceController.GetFood();
+        if(Food >= GameConsts.populationFoodReqirements[Population] && Population < GameConsts.populationFoodReqirements.Count())
+        {
+            Food -= GameConsts.populationFoodReqirements[Population];
+            IncreasePopulation();
+        }
 
+        if (Food <= 0 && Population > 1)
+        {
+            DecreasePopulation();
+            Food = GameConsts.populationFoodReqirements[Population] / 2;
+            
+        }
+        NotifyInfoChange();
+    }
 
     public void TakeTurn()
     {
@@ -363,20 +526,6 @@ public class City : MonoBehaviour {
 
         cityUI.CityStateSymbol.sprite = gameController.GetCityStateSymbol(cityStateOwner.SymbolID);
 
-    }
-
-    private void AddCellYield(HexCell hexCell)
-    {
-        baseProduction += hexCell.Production;
-        baseIncome += hexCell.Income;
-        baseFood += hexCell.Food;
-    }
-
-    private void RemoveCellYield(HexCell hexCell)
-    {
-        baseProduction -= hexCell.Production;
-        baseIncome -= hexCell.Income;
-        baseFood -= hexCell.Food;
     }
 
 
@@ -408,6 +557,46 @@ public class City : MonoBehaviour {
             buildingOptions.Remove(config);
         }
         NotifyInfoChange();
+    }
+
+    public void RemoveBuild(int queueNumber)
+    {
+
+        BuildConfig config = BuildingManager.RemoveFromQueue(queueNumber);
+        if(config && config.GetBuildType() == BuildConfig.BUILDTYPE.BUILDING)
+        {
+            AddBuildOption(config);
+        }
+        NotifyInfoChange();
+    }
+
+    public void AddBuildOption(BuildConfig config)
+    {
+        if(config.GetBuildType() == BuildConfig.BUILDTYPE.BUILDING)
+        {
+            buildingOptions.Add(config);
+        }
+        else
+        {
+            trainingOptions.Add(config);
+        }
+        SortBuildOptions();
+    }
+
+    private void SortBuildOptions()
+    {
+        buildingOptions.Sort(delegate (BuildConfig x, BuildConfig y)
+        {
+            int a = x.Name.CompareTo(y.Name);
+            return a;
+        });
+
+        trainingOptions.Sort(delegate (BuildConfig x, BuildConfig y)
+        {
+            int a = x.Name.CompareTo(y.Name);
+            return a;
+        });
+
     }
 
     public IEnumerable<CityBuilding> GetCityBuildings()
@@ -454,6 +643,7 @@ public class City : MonoBehaviour {
 
         CityBuilding building = gameController.CreateCityPlayerBuilding(config);
         buildings.Add(building);
+        cityResouceController.AddBuilding(building);
         NotifyInfoChange();
         return true;
     }

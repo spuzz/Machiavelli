@@ -58,6 +58,8 @@ GameObject:
   - component: {fileID: 114574744724499650}
   - component: {fileID: 114456317341596724}
   - component: {fileID: 114315490007427326}
+  - component: {fileID: 114444115069094918}
+  - component: {fileID: 114991996797070884}
   m_Layer: 0
   m_Name: City
   m_TagString: Untagged
@@ -76,7 +78,7 @@ GameObject:
   - component: {fileID: 222752763235432098}
   - component: {fileID: 114474624663275106}
   m_Layer: 0
-  m_Name: Influence
+  m_Name: Population
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -237,7 +239,7 @@ MonoBehaviour:
   cityHealthBar: {fileID: 114105987027955466}
   cityStateSymbol: {fileID: 114385817747930390}
   cityName: {fileID: 114252449335611880}
-  influence: {fileID: 114474624663275106}
+  population: {fileID: 114474624663275106}
   city: {fileID: 114574744724499650}
   backGround: {fileID: 114132559925525118}
   toolTip: {fileID: 114003633487691406}
@@ -356,6 +358,23 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114444115069094918
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1778271005254408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47cf2a510ba492d40b3671a8767316ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseProduction: 5
+  baseFood: 0
+  baseScience: 2
+  baseGold: 5
+  city: {fileID: 114574744724499650}
+  resourceBenefits: {fileID: 114991996797070884}
 --- !u!114 &114456317341596724
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -416,24 +435,30 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   hexGrid: {fileID: 0}
   cityUI: {fileID: 114176040660542350}
+  cityResouceController: {fileID: 114444115069094918}
+  visionRange: 2
   baseHitPoints: 100
   baseStrength: 25
-  baseProduction: 0
-  baseFood: 0
-  baseScience: 0
-  baseIncome: 0
-  visionRange: 2
-  gold: 100
   buildings: []
   buildingOptions:
-  - {fileID: 11400000, guid: 832fec4590ef6304da09302d4a662727, type: 2}
-  - {fileID: 11400000, guid: 108a1a4beb8b044498d7f95ea06b1130, type: 2}
+  - {fileID: 11400000, guid: 1756179ebbb687e45b24b3f82e20549c, type: 2}
+  - {fileID: 11400000, guid: e47e6b0d2f2b8fb4492d4967717d8f4f, type: 2}
+  - {fileID: 11400000, guid: 00a2029437169ca478fb5570c7ac8dfc, type: 2}
+  - {fileID: 11400000, guid: e5b857255f0bd0e4a9609754b25511a6, type: 2}
+  - {fileID: 11400000, guid: 985af29cd602c5443811982400f0135f, type: 2}
+  - {fileID: 11400000, guid: 01315c4342dc8d54aa38866f5320aacb, type: 2}
+  - {fileID: 11400000, guid: b6540c54b82c6f1469e2381264d21ef4, type: 2}
+  - {fileID: 11400000, guid: 08fde271cfff5b54b86679a794ca7a6e, type: 2}
+  - {fileID: 11400000, guid: e9d27e09a9d40b24aa850ae8705706c6, type: 2}
+  - {fileID: 11400000, guid: c858c8d8d73fbd9468f06b6f50a133df, type: 2}
+  - {fileID: 11400000, guid: 72d56542de492284ea45d5a66937e765, type: 2}
+  - {fileID: 11400000, guid: 787c37efef161ac408466c9f730c766c, type: 2}
+  - {fileID: 11400000, guid: 8daca086fc2f8aa4c8bf3de516c9b18c, type: 2}
   trainingOptions:
   - {fileID: 11400000, guid: 5d79ae666f4c039469c9033d500d14be, type: 2}
-  - {fileID: 11400000, guid: b9fa9b4ce7313e24eabd7a40c6b71f37, type: 2}
-  - {fileID: 11400000, guid: 237967ea37bab6646a3a19459130a1b1, type: 2}
-  - {fileID: 11400000, guid: 1eaaf0b6389fef242af0016541b290cc, type: 2}
   - {fileID: 11400000, guid: 7973809bfbff6bf48b631fa6acd585b9, type: 2}
+  - {fileID: 11400000, guid: 237967ea37bab6646a3a19459130a1b1, type: 2}
+  - {fileID: 11400000, guid: eaa339952c98a0a43a194ae7accfb3ea, type: 2}
 --- !u!114 &114592943687886820
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -486,6 +511,23 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &114991996797070884
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1778271005254408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a48d6aa49af84ac46993592628470096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  production: {x: 0, y: 0}
+  gold: {x: 0, y: 0}
+  science: {x: 0, y: 0}
+  food: {x: 0, y: 0}
+  defence: {x: 0, y: 0}
+  focusProductionBonus: []
 --- !u!222 &222038326183577680
 CanvasRenderer:
   m_ObjectHideFlags: 1

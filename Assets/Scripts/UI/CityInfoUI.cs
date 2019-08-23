@@ -13,17 +13,25 @@ public class CityInfoUI : CityInfoPanel
     [SerializeField] Text food;
     [SerializeField] Text production;
     [SerializeField] Text science;
+    [SerializeField] Text population;
+    [SerializeField] Text foodStored;
+    [SerializeField] Text turns;
     [SerializeField] Image currentBuildingImage;
     public override void UpdateUI(City cityUpdated)
     {
-        // TODO
-        //cityStateName.text = city.GetCityState().CityStateName;
-        //health.text = city.HitPoints.ToString() + "/" + city.BaseHitPoints.ToString();
-        //strength.text = city.Strength.ToString();
-        //gold.text = city.GetIncome().ToString();
-        //food.text = city.currentFood.ToString() + " (" + city.Food + "/" + city.foodForNextPop.ToString() + ")";
-        //production.text = city.currentProduction.ToString();
-        //science.text = city.currentScience.ToString();
+        cityStateName.text = city.GetCityState().CityStateName;
+        health.text = city.HitPoints.ToString() + "/" + city.BaseHitPoints.ToString();
+        strength.text = city.Strength.ToString();
+        gold.text = city.CityResouceController.GetGold().ToString();
+        food.text = city.CityResouceController.GetFood().ToString();
+        production.text = city.CityResouceController.GetProduction().ToString();
+        science.text = city.CityResouceController.GetScience().ToString();
+
+        population.text = city.Population.ToString();
+        foodStored.text = city.Food + "/" + GameConsts.populationFoodReqirements[city.Population].ToString();
+        int foodRequired = (GameConsts.populationFoodReqirements[city.Population] - city.Food);
+        int turnsNeeded = (foodRequired + city.CityResouceController.GetFood() - 1) / city.CityResouceController.GetFood();
+        turns.text = turnsNeeded.ToString() + " Turns";
         //BuildConfig config = city.BuildingManager.currentBuilding();
         //if (config)
         //{

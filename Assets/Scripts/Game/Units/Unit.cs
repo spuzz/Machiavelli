@@ -377,7 +377,7 @@ public abstract class Unit : MonoBehaviour {
         }
 
         hexUnit.Move(move);
-
+        path.RemoveRange(0, move.Count - 1);
         for (int a = 1; a < move.Count; a++)
         {
             UpdateOwnerVisiblity(move[a - 1], false);
