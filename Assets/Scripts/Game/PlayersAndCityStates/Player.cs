@@ -11,11 +11,13 @@ public abstract class Player : MonoBehaviour {
     // External Components
     protected GameController gameController;
     // Internal Components
-
+    [SerializeField] ScienceController scienceController;
     // Attributes
     [SerializeField] int gold = 100;
     private int goldPerTurn = 5;
     [SerializeField] List<CityPlayerBuildConfig> cityPlayerBuildConfigs;
+    [SerializeField] List<AgentBuildConfig> agentBuildConfigs;
+    [SerializeField] List<CombatUnitBuildConfig> combatUnitBuildConfigs;
     private int colorID;
     int playerNumber = 0;
     bool isHuman = false;
@@ -99,6 +101,19 @@ public abstract class Player : MonoBehaviour {
         set
         {
             colorID = value;
+        }
+    }
+
+    public ScienceController ScienceController
+    {
+        get
+        {
+            return scienceController;
+        }
+
+        set
+        {
+            scienceController = value;
         }
     }
 
@@ -225,10 +240,6 @@ public abstract class Player : MonoBehaviour {
     {
         return cityPlayerBuildConfigs;
     }
-    public CityPlayerBuildConfig GetRandomCityPlayerBuildConfigs()
-    {
-        return cityPlayerBuildConfigs[UnityEngine.Random.Range(0, cityPlayerBuildConfigs.Count)];
-    }
 
     public CityPlayerBuildConfig GetCityPlayerBuildConfig(int id)
     {
@@ -239,6 +250,58 @@ public abstract class Player : MonoBehaviour {
     {
         return cityPlayerBuildConfigs.Find(c => c.Name.CompareTo(name) ==0);
     }
+
+    public IEnumerable<AgentBuildConfig> GetAgentBuildConfigs()
+    {
+        return agentBuildConfigs;
+    }
+
+    public AgentBuildConfig GetAgentBuildConfig(int id)
+    {
+        return agentBuildConfigs[id];
+    }
+
+    public AgentBuildConfig GetAgentBuildConfig(string name)
+    {
+        return agentBuildConfigs.Find(c => c.Name.CompareTo(name) == 0);
+    }
+
+    public IEnumerable<CombatUnitBuildConfig> GetCombatUnitBuildConfigs()
+    {
+        return combatUnitBuildConfigs;
+    }
+
+    public CombatUnitBuildConfig GetCombatUnitBuildConfig(int id)
+    {
+        return combatUnitBuildConfigs[id];
+    }
+
+    public CombatUnitBuildConfig GetCombatUnitBuildConfig(string name)
+    {
+        return combatUnitBuildConfigs.Find(c => c.Name.CompareTo(name) == 0);
+    }
+
+    private void SortBuildOptions()
+    {
+        cityPlayerBuildConfigs.Sort(delegate (CityPlayerBuildConfig x, CityPlayerBuildConfig y)
+        {
+            int a = x.Name.CompareTo(y.Name);
+            return a;
+        });
+
+        combatUnitBuildConfigs.Sort(delegate (CombatUnitBuildConfig x, CombatUnitBuildConfig y)
+        {
+            int a = x.Name.CompareTo(y.Name);
+            return a;
+        });
+
+        agentBuildConfigs.Sort(delegate (AgentBuildConfig x, AgentBuildConfig y)
+        {
+            int a = x.Name.CompareTo(y.Name);
+            return a;
+        });
+    }
+
     private void Awake()
     {
         gameController = FindObjectOfType<GameController>();
@@ -246,6 +309,23 @@ public abstract class Player : MonoBehaviour {
         nextPlayerNumber++;
     }
 
+    private void Start()
+    {
+        foreach(CityPlayerBuildConfig config in gameController.DefaultBuildings)
+        {
+            cityPlayerBuildConfigs.Add(config);
+        }
+
+        foreach (AgentBuildConfig config in gameController.DefaultAgents)
+        {
+            agentBuildConfigs.Add(config);
+        }
+
+        foreach (CombatUnitBuildConfig config in gameController.DefaultCombatUnits)
+        {
+            combatUnitBuildConfigs.Add(config);
+        }
+    }
 
     public void StartTurn()
     {
@@ -262,6 +342,7 @@ public abstract class Player : MonoBehaviour {
         }
         UpdateResources();
         gold += goldPerTurn;
+        ScienceController.StartTurn();
         NotifyInfoChange();
     }
 
@@ -292,6 +373,34 @@ public abstract class Player : MonoBehaviour {
         NotifyInfoChange();
     }
 
+    public int GetScience()
+    {
+        int science = 0;
+        foreach(City city in cities)
+        {
+            science += city.CityResouceController.GetScience();
+        }
+        return science;
+    }
+
+    public void AddResearch(Research research)
+    {
+        foreach(CityPlayerBuildConfig config in research.GetBuildingConfigs())
+        {
+            cityPlayerBuildConfigs.Add(config);
+        }
+
+        foreach (AgentBuildConfig config in research.GetAgentConfigs())
+        {
+            agentBuildConfigs.Add(config);
+        }
+
+        foreach (CombatUnitBuildConfig config in research.GetCombatUnitConfigs())
+        {
+            combatUnitBuildConfigs.Add(config);
+        }
+        NotifyInfoChange();
+    }
     public void SavePlayer(BinaryWriter writer)
     {
 

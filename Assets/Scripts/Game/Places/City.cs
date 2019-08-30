@@ -27,8 +27,8 @@ public class City : MonoBehaviour {
     int cityID;
 
     [SerializeField] List<CityBuilding> buildings;
-    [SerializeField] List<BuildConfig> buildingOptions;
-    [SerializeField] List<BuildConfig> trainingOptions;
+    //[SerializeField] List<BuildConfig> buildingOptions;
+    //[SerializeField] List<BuildConfig> trainingOptions;
 
     int maintenance = 0;
     int population = 1;
@@ -138,8 +138,16 @@ public class City : MonoBehaviour {
 
         set
         {
+            if(player)
+            {
+                player.onInfoChange -= PlayerUpdated;
+            }
             player = value;
 
+            if(player)
+            {
+                player.onInfoChange += PlayerUpdated;
+            }
             UpdateCityBar();
             foreach (CombatUnit unit in cityUnits)
             {
@@ -149,6 +157,11 @@ public class City : MonoBehaviour {
             UpdateVision();
             NotifyInfoChange();
         }
+    }
+
+    private void PlayerUpdated(Player player)
+    {
+        NotifyInfoChange();
     }
 
     public void UpdateVision()
@@ -269,14 +282,14 @@ public class City : MonoBehaviour {
         }
     }
 
-    public IEnumerable<BuildConfig> GetBuildingOptions()
-    {
-        return buildingOptions;
-    }
-    public IEnumerable<BuildConfig> GetTrainingOptions()
-    {
-        return trainingOptions;
-    }
+    //public IEnumerable<BuildConfig> GetBuildingOptions()
+    //{
+    //    return buildingOptions;
+    //}
+    //public IEnumerable<BuildConfig> GetTrainingOptions()
+    //{
+    //    return trainingOptions;
+    //}
 
     public void RemoveUnit(CombatUnit unit)
     {
@@ -441,7 +454,6 @@ public class City : MonoBehaviour {
 
     private void Awake()
     {
-        SortBuildOptions();
         gameController = FindObjectOfType<GameController>();
         cityStateOwner = GetComponent<CityState>();
         hexGrid = FindObjectOfType<HexGrid>();
@@ -552,10 +564,6 @@ public class City : MonoBehaviour {
     public void AddBuild(BuildConfig config)
     {
         buildingManager.AddBuild(config);
-        if(buildingOptions.Contains(config))
-        {
-            buildingOptions.Remove(config);
-        }
         NotifyInfoChange();
     }
 
@@ -563,40 +571,39 @@ public class City : MonoBehaviour {
     {
 
         BuildConfig config = BuildingManager.RemoveFromQueue(queueNumber);
-        if(config && config.GetBuildType() == BuildConfig.BUILDTYPE.BUILDING)
-        {
-            AddBuildOption(config);
-        }
         NotifyInfoChange();
     }
 
-    public void AddBuildOption(BuildConfig config)
+    public IEnumerable<BuildConfig> GetBuildingOptions()
     {
-        if(config.GetBuildType() == BuildConfig.BUILDTYPE.BUILDING)
+        List<BuildConfig> configs = new List<BuildConfig>();
+        foreach(BuildConfig config in Player.GetCityPlayerBuildConfigs())
         {
-            buildingOptions.Add(config);
+            if(!buildings.Find(C => C.BuildConfig == config))
+            {
+                configs.Add(config);
+            }
         }
-        else
-        {
-            trainingOptions.Add(config);
-        }
-        SortBuildOptions();
+        return configs;
     }
 
-    private void SortBuildOptions()
+    public IEnumerable<BuildConfig> GetCombatUnitTrainingOptions()
     {
-        buildingOptions.Sort(delegate (BuildConfig x, BuildConfig y)
+        List<BuildConfig> configs = new List<BuildConfig>();
+        foreach (BuildConfig config in Player.GetCombatUnitBuildConfigs())
         {
-            int a = x.Name.CompareTo(y.Name);
-            return a;
-        });
-
-        trainingOptions.Sort(delegate (BuildConfig x, BuildConfig y)
+            configs.Add(config);
+        }
+        return configs;
+    }
+    public IEnumerable<BuildConfig> GetAgentTrainingOptions()
+    {
+        List<BuildConfig> configs = new List<BuildConfig>();
+        foreach (BuildConfig config in Player.GetAgentBuildConfigs())
         {
-            int a = x.Name.CompareTo(y.Name);
-            return a;
-        });
-
+            configs.Add(config);
+        }
+        return configs;
     }
 
     public IEnumerable<CityBuilding> GetCityBuildings()

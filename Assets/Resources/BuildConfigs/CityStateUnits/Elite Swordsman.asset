@@ -9,14 +9,14 @@ MonoBehaviour:
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: 11ff4f446dbefac40bf1796673187b03, type: 3}
-  m_Name: Swordsman
+  m_Name: Elite Swordsman
   m_EditorClassIdentifier: 
-  baseProductionCost: 100
+  baseProductionCost: 250
   basePurchaseCost: 100
   prerequisites: []
   focusType: 9
   buildingImage: {fileID: 21300000, guid: 41e5cf88faac8004fb825e953ae630c3, type: 3}
-  name: Swordsman
-  displayName: Swordsman
-  toolTipText: Swordsman
-  combatUnitConfig: {fileID: 11400000, guid: f15b4125920265d49bf6fbaeca457c59, type: 2}
+  name: Elite Swordsman
+  displayName: Elite Swordsman
+  toolTipText: Elite Swordsman
+  combatUnitConfig: {fileID: 11400000, guid: 1e9299de1641f9a49b288efab9802ef8, type: 2}

@@ -17,6 +17,9 @@ public class GameController : MonoBehaviour
 
     [SerializeField] List<Sprite> possibleCityStateSymbols;
     [SerializeField] List<PlayerColour> possiblePlayerColors;
+    [SerializeField] List<CityPlayerBuildConfig> defaultBuildings;
+    [SerializeField] List<AgentBuildConfig> defaultAgents;
+    [SerializeField] List<CombatUnitBuildConfig> defaultCombatUnits;
     [SerializeField] HexMapCamera hexMapCamera;
     [SerializeField] HUD hud;
     [SerializeField] HumanPlayer humanPlayer;
@@ -95,6 +98,45 @@ public class GameController : MonoBehaviour
             return instance;
         }
 
+    }
+
+    public List<CityPlayerBuildConfig> DefaultBuildings
+    {
+        get
+        {
+            return defaultBuildings;
+        }
+
+        set
+        {
+            defaultBuildings = value;
+        }
+    }
+
+    public List<AgentBuildConfig> DefaultAgents
+    {
+        get
+        {
+            return defaultAgents;
+        }
+
+        set
+        {
+            defaultAgents = value;
+        }
+    }
+
+    public List<CombatUnitBuildConfig> DefaultCombatUnits
+    {
+        get
+        {
+            return defaultCombatUnits;
+        }
+
+        set
+        {
+            defaultCombatUnits = value;
+        }
     }
 
     public int GetTurn()

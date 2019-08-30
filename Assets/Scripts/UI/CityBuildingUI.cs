@@ -46,7 +46,11 @@ public class CityBuildingUI : CityInfoPanel {
         {
             AddOption(config,buildingsContent);
         }
-        foreach (BuildConfig config in city.GetTrainingOptions())
+        foreach (BuildConfig config in city.GetCombatUnitTrainingOptions())
+        {
+            AddOption(config, unitsContent);
+        }
+        foreach (BuildConfig config in city.GetAgentTrainingOptions())
         {
             AddOption(config, unitsContent);
         }
