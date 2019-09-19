@@ -309,6 +309,7 @@ public class City : MonoBehaviour {
             unit.SetPlayer(Player);
         }
 
+        unit.UnitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(cityStateOwner.SymbolID));
         NotifyInfoChange();
     }
 
@@ -362,6 +363,10 @@ public class City : MonoBehaviour {
         return ownedCells;
     }
 
+    public int UnassignedPopulation()
+    {
+        return Population - (workedCells.Count - 1);
+    }
     public IEnumerable<HexCell> GetWorkedCells()
     {
         return workedCells;
@@ -577,11 +582,14 @@ public class City : MonoBehaviour {
     public IEnumerable<BuildConfig> GetBuildingOptions()
     {
         List<BuildConfig> configs = new List<BuildConfig>();
-        foreach(BuildConfig config in Player.GetCityPlayerBuildConfigs())
+        if (Player)
         {
-            if(!buildings.Find(C => C.BuildConfig == config))
+            foreach (BuildConfig config in Player.GetCityPlayerBuildConfigs())
             {
-                configs.Add(config);
+                if (!buildings.Find(C => C.BuildConfig == config))
+                {
+                    configs.Add(config);
+                }
             }
         }
         return configs;
@@ -590,18 +598,25 @@ public class City : MonoBehaviour {
     public IEnumerable<BuildConfig> GetCombatUnitTrainingOptions()
     {
         List<BuildConfig> configs = new List<BuildConfig>();
-        foreach (BuildConfig config in Player.GetCombatUnitBuildConfigs())
+        if(Player)
         {
-            configs.Add(config);
+            foreach (BuildConfig config in Player.GetCombatUnitBuildConfigs())
+            {
+                configs.Add(config);
+            }
         }
+
         return configs;
     }
     public IEnumerable<BuildConfig> GetAgentTrainingOptions()
     {
         List<BuildConfig> configs = new List<BuildConfig>();
-        foreach (BuildConfig config in Player.GetAgentBuildConfigs())
+        if (Player)
         {
-            configs.Add(config);
+            foreach (BuildConfig config in Player.GetAgentBuildConfigs())
+            {
+                configs.Add(config);
+            }
         }
         return configs;
     }

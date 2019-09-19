@@ -397,22 +397,22 @@ public class HexCell : MonoBehaviour {
             {
                 City.HexVision.Visible = true;
             }
-            bool lastVisibleUnit = false;
-            for (int a = hexUnits.Count - 1; a >= 0; a--)
+            bool visibleUnit = true;
+            for (int a = 0; a < hexUnits.Count; a++)
             {
 
-                if (lastVisibleUnit == false)
+                if (visibleUnit == true)
                 {
                     if (Vector3.Distance(hexUnits[a].transform.localPosition, this.Position) < 1)
                     {
-                        lastVisibleUnit = true;
+                        visibleUnit = false;
                         hexUnits[a].HexVision.Visible = true;
    
                     }
                 }
                 else
                 {
-                    if(Vector3.Distance(hexUnits[a].transform.localPosition,this.Position) < 1 && hexUnits[a].HexVision.HasVision == false)
+                    if(Vector3.Distance(hexUnits[a].transform.localPosition,this.Position) < 1 || hexUnits[a].HexVision.HasVision == false)
                     {
                         hexUnits[a].HexVision.Visible = false;
                     }
@@ -629,9 +629,20 @@ public class HexCell : MonoBehaviour {
 
     public bool CanUnitMoveToCell(HexUnit unit)
     {
-        HexUnit hexUnit = hexUnits.Find(c => c.unit.HexUnitType == unit.unit.HexUnitType);
-        if (hexUnit)
+        List<HexUnit> unitsOfSameType = hexUnits.FindAll(c => c.unit.HexUnitType == unit.unit.HexUnitType);
+        if (unitsOfSameType.Count > 0)
         {
+            if(unit.unit.HexUnitType == Unit.UnitType.COMBAT)
+            {
+                foreach(HexUnit hexUnit in unitsOfSameType)
+                {
+                    if((hexUnit.unit as CombatUnit).CombatType == (unit.unit as CombatUnit).CombatType)
+                    {
+                        return false;
+                    }
+                }
+                return true;
+            }
             return false;
         }
         return true;
@@ -664,14 +675,90 @@ public class HexCell : MonoBehaviour {
     public void AddUnit(HexUnit hexUnit)
     {
         hexUnits.Add(hexUnit);
-        hexUnits = hexUnits.OrderBy(u => u.unit.HexUnitType).ToList();
+        OrderUnits();
+        foreach (HexUnit unit in hexUnits)
+        {
+            unit.unit.UpdateUI(0);
+        }
         UpdateVision();
     }
 
+    private void OrderUnits()
+    {
+        List<HexUnit> units = new List<HexUnit>();
+        HexUnit unit = hexUnits.Find(u => u.unit.HexUnitType == Unit.UnitType.AGENT);
+        if(unit)
+        {
+            units.Add(unit);
+        }
+        List<HexUnit> cellUnits = hexUnits.FindAll(u => u.unit.HexUnitType == Unit.UnitType.COMBAT);
+        if(cellUnits.Count > 0)
+        {
+            unit = cellUnits.Find(u => (u.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.MELEE);
+            if (unit)
+            {
+                units.Add(unit);
+            }
+            unit = cellUnits.Find(u => (u.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.SUPPORT);
+            if (unit)
+            {
+                units.Add(unit);
+            }
+            unit = cellUnits.Find(u => (u.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.SIEGE);
+            if (unit)
+            {
+                units.Add(unit);
+            }
+        }
+
+        hexUnits = units;
+    }
+
+    public void ReOrderUnit(HexUnit hexUnit)
+    {
+        List<HexUnit> units = new List<HexUnit>();
+        HexUnit unit = hexUnits.Find(u => u == hexUnit);
+        if (unit)
+        {
+            units.Add(unit);
+            hexUnits.Remove(unit);
+        }
+        unit = hexUnits.Find(u => u.unit.HexUnitType == Unit.UnitType.AGENT);
+        if (unit)
+        {
+            units.Add(unit);
+        }
+        List<HexUnit> cellUnits = hexUnits.FindAll(u => u.unit.HexUnitType == Unit.UnitType.COMBAT);
+        if (cellUnits.Count > 0)
+        {
+            unit = cellUnits.Find(u => (u.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.MELEE);
+            if (unit)
+            {
+                units.Add(unit);
+            }
+            unit = cellUnits.Find(u => (u.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.SUPPORT);
+            if (unit)
+            {
+                units.Add(unit);
+            }
+            unit = cellUnits.Find(u => (u.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.SIEGE);
+            if (unit)
+            {
+                units.Add(unit);
+            }
+        }
+
+        hexUnits = units;
+        UpdateVision();
+    }
     public void RemoveUnit(HexUnit hexUnit)
     {
         hexUnits.Remove(hexUnit);
-        hexUnits = hexUnits.OrderBy(u => u.unit.HexUnitType).ToList();
+        OrderUnits();
+        foreach (HexUnit unit in hexUnits)
+        {
+            unit.unit.UpdateUI(0);
+        }
         UpdateVision();
     }
 
@@ -682,7 +769,7 @@ public class HexCell : MonoBehaviour {
             return null;
             
         }
-        return hexUnits[hexUnits.Count - 1];
+        return hexUnits[0];
 
     }
 

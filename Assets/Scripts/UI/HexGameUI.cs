@@ -66,11 +66,15 @@ public class HexGameUI : MonoBehaviour {
         {
             ClearSelection();
         }
-        if (gameController.TurnOver == false && !EventSystem.current.IsPointerOverGameObject())
+        if (gameController.TurnOver == false)
         {
             if (Input.GetMouseButtonDown(0))
             {
-                DoSelection();
+                if (!EventSystem.current.IsPointerOverGameObject())
+                {
+                    DoSelection();
+                }
+
             }
             else if (selectedUnit)
             {
@@ -80,7 +84,10 @@ public class HexGameUI : MonoBehaviour {
                 }
                 else
                 {
-                    DoPathfinding();
+                    //if (!EventSystem.current.IsPointerOverGameObject())
+                    //{
+                        DoPathfinding();
+                    //}
                 }
             }
         }
@@ -138,6 +145,8 @@ public class HexGameUI : MonoBehaviour {
         selectedUnit = hexUnit;
         SetLayerRecursively(selectedUnit.gameObject, 9);
         HUD.Unit = selectedUnit.GetComponent<Unit>();
+        selectedUnit.Location.ReOrderUnit(selectedUnit);
+        selectedUnit.unit.UpdateUI(0);
     }
 
     private void ClearSelection()
@@ -180,7 +189,7 @@ public class HexGameUI : MonoBehaviour {
     void DoPathfinding () {
 		if (UpdateCurrentCell()) {
             // TODO
-            if (currentCell && (selectedUnit.IsValidDestination(currentCell))) { //|| selectedUnit.IsValidAttackDestination(currentCell))) {
+            if (currentCell && (selectedUnit.IsValidDestination(currentCell) || selectedUnit.IsValidAttackDestination(currentCell))) { //) {
 				grid.FindPath(selectedUnit.Location, currentCell, selectedUnit);
 			}
 			else {
@@ -193,15 +202,15 @@ public class HexGameUI : MonoBehaviour {
 		if (grid.HasPath) {
             List<HexCell> path = grid.GetPath();
             // TODO
-            //if (path[path.Count - 1].GetFightableUnit(selectedUnit))
-            //{
-            //    selectedUnit.GetComponent<Unit>().SetPath(path.GetRange(0,path.Count - 1));
-            //    selectedUnit.GetComponent<Unit>().AttackCell(path[path.Count -1]);
-            //}
-            //else
-            //{
-            selectedUnit.GetComponent<Unit>().SetPath(grid.GetPath());
-            //}
+            if (path[path.Count - 1].GetFightableUnit(selectedUnit))
+            {
+                selectedUnit.GetComponent<Unit>().SetPath(path.GetRange(0, path.Count - 1));
+                selectedUnit.GetComponent<Unit>().AttackCell(path[path.Count - 1]);
+            }
+            else
+            {
+                selectedUnit.GetComponent<Unit>().SetPath(grid.GetPath());
+            }
 			
             selectedUnit.DoActions();
             grid.ClearPath();

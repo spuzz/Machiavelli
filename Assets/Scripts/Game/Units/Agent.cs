@@ -56,13 +56,14 @@ public class Agent : Unit {
         HexVision.AddVisibleObject(HexUnit.GetMesh());
         BaseMovement = config.BaseMovement;
         BaseStrength = config.BaseStrength;
+        UnitUI.SetUnitSymbol(config.Symbol);
         // TODO
         //Symbol = config.Symbol;
         //foreach(AbilityConfig abilityConfig in config.GetAbilityConfigs())
         //{
         //    abilities.AbilitiesList.Add(abilityConfig);
         //}
-        
+
     }
 
     public AgentConfig GetAgentConfig()

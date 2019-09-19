@@ -7,26 +7,43 @@ public class CombatUnit : Unit
 {
     [SerializeField] Texture mercBackground;
 
-    public enum Stance
-    {
-        UNASSIGNED,
-        OFFENCE,
-        DEFENCE,
-        EXPLORE
-    }
-
-    Stance currentStance = Stance.UNASSIGNED;
     CombatUnitConfig combatUnitConfig;
-    bool mercenary;
     City cityOwner;
     Player player;
 
-    public Stance CurrentStance
+    public enum CombatUnitType
     {
-        get { return currentStance; }
-        set { currentStance = value; }
+        MELEE,
+        SUPPORT,
+        SIEGE
     }
 
+    public enum CombatClassification
+    {
+        LIGHTCAVALRY,
+        HEAVYCAVALRY,
+        SPEARMEN,
+        SWORDSMAN,
+        AXEMEN,
+        SUPPORT,
+        SIEGE
+        
+    }
+
+    CombatUnitType combatUnitType;
+
+    public CombatUnitType CombatType
+    {
+        get
+        {
+            return combatUnitType;
+        }
+
+        set
+        {
+            combatUnitType = value;
+        }
+    }
 
     public void SetPlayer(Player player)
     {
@@ -58,14 +75,18 @@ public class CombatUnit : Unit
         HexVision.AddVisibleObject(HexUnit.GetMesh());
         BaseMovement = config.BaseMovement;
         BaseStrength = config.BaseStrength;
-        BaseRangeStrength = config.BaseRangeStrength;
-        Range = config.Range;
+        CombatType = config.CombatUnitType;
+        UnitUI.SetUnitSymbol(config.Symbol);
         // TODO
         //Symbol = config.Symbol;
 
 
     }
 
+    public override void UpdateUI(int healthChange)
+    {
+        base.UpdateUI(healthChange);
+    }
     public CombatUnitConfig GetCombatUnitConfig()
     {
         return combatUnitConfig;

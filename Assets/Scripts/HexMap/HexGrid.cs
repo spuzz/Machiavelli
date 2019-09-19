@@ -501,7 +501,7 @@ public class HexGrid : MonoBehaviour {
 				}
 				if (!unit.IsValidDestination(neighbor, allowUnexplored)) {
                     // TODO
-                    if(neighbor != toCell) // || !unit.IsValidAttackDestination(neighbor))
+                    if(neighbor != toCell || !unit.IsValidAttackDestination(neighbor))
                     {
                         continue;
                     }

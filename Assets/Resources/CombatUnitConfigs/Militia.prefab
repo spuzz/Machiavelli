@@ -735,6 +735,7 @@ GameObject:
   m_Component:
   - component: {fileID: 4287681604452266}
   - component: {fileID: 95573064315951370}
+  - component: {fileID: 114001966594390762}
   m_Layer: 0
   m_Name: Militia
   m_TagString: Untagged
@@ -1312,8 +1313,8 @@ Transform:
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1687465103616774}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
-  m_LocalPosition: {x: -30, y: 0, z: 0}
-  m_LocalScale: {x: 5, y: 5, z: 5}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 3, y: 3, z: 3}
   m_Children:
   - {fileID: 4746426439509356}
   - {fileID: 4384171409530052}
@@ -2642,6 +2643,19 @@ Animator:
   m_HasTransformHierarchy: 1
   m_AllowConstantClipSamplingOptimization: 1
   m_KeepAnimatorControllerStateOnDisable: 0
+--- !u!114 &114001966594390762
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1687465103616774}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: d4c68dbdb6448984294f9e074ec9cb65, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  excludedMaterials: []
+  type: 0
 --- !u!137 &137068888577598520
 SkinnedMeshRenderer:
   m_ObjectHideFlags: 1

@@ -353,6 +353,22 @@ public class HexUnit : MonoBehaviour {
         return (cell.IsExplored || allowUnxplored) && !cell.IsUnderwater && cell.CanUnitMoveToCell(this);
     }
 
+    public bool IsValidAttackDestination(HexCell cell)
+    {
+        HexUnit enemyUnit = cell.hexUnits.Find(c => c.unit.HexUnitType == unit.HexUnitType);
+        if(enemyUnit)
+        {
+            if ((unit.GetCityOwner() && enemyUnit.unit.GetCityOwner() == unit.GetCityOwner()) || (unit.GetPlayer() && enemyUnit.unit.GetPlayer() == unit.GetPlayer()))
+            {
+                return false;
+            }
+            return true;
+        }
+        return false;
+
+
+    }
+
     public void KillUnit()
     {
         Grid.RemoveUnit(this);

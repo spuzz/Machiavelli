@@ -15,7 +15,6 @@ public class HexMapEditor : MonoBehaviour {
     [SerializeField] Dropdown players;
     [SerializeField] Dropdown cityStateUnits;
     [SerializeField] Dropdown cityStates;
-    [SerializeField] Dropdown cities;
     [SerializeField] Toggle editModeToggle;
     [SerializeField] Toggle animationsToggle;
     public HexGrid hexGrid;
@@ -177,7 +176,6 @@ public class HexMapEditor : MonoBehaviour {
 
         cityStates.ClearOptions();
 
-        cities.ClearOptions();
 
         GameConsts.playAnimations = false;
     }
@@ -213,19 +211,13 @@ public class HexMapEditor : MonoBehaviour {
         if(cityStates.options.Count != gameController.CityStateCount())
         {
             cityStates.ClearOptions();
-            cityStates.AddOptions(gameController.CityStateNames());
+            cityStates.AddOptions(gameController.GetCityNames());
         }
 
         if (players.options.Count != gameController.PlayerCount() || gameController.PlayerCount() == 3)
         {
             players.ClearOptions();
             players.AddOptions(gameController.PlayerNames());
-        }
-
-        if (cities.options.Count != gameController.GetCityCount() || gameController.GetCityCount() == 3)
-        {
-            cities.ClearOptions();
-            cities.AddOptions(gameController.GetCityNames());
         }
 
         previousCell = null;
@@ -284,9 +276,9 @@ public class HexMapEditor : MonoBehaviour {
     void CreateCityStateUnit()
     {
         HexCell cell = GetCellUnderCursor();
-        if (cities.options.Count > 0 && cell && cell.CanUnitMoveToCell(Unit.UnitType.COMBAT))
+        if (cityStates.options.Count > 0 && cell && cell.CanUnitMoveToCell(Unit.UnitType.COMBAT))
         {
-            int cityID = System.Convert.ToInt32(cities.options[players.value].text);
+            int cityID = System.Convert.ToInt32(cityStates.options[cityStates.value].text);
             City city = gameController.GetCity(cityID);
             if(city)
             {

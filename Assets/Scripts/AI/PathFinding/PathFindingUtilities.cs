@@ -29,7 +29,7 @@ public static class PathFindingUtilities
 
                     int cost = nextNode.Cost;
                     // TODO
-                    if (!unit.HexUnit.IsValidDestination(neighbour, allowUnexplored)) // && !unit.HexUnit.IsValidAttackDestination(neighbour))
+                    if (!unit.HexUnit.IsValidDestination(neighbour, allowUnexplored) && !unit.HexUnit.IsValidAttackDestination(neighbour))
                     {
                         continue;
                     }

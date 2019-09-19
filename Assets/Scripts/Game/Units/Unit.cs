@@ -23,8 +23,6 @@ public abstract class Unit : MonoBehaviour {
     [SerializeField] int baseMovement = 2;
     [SerializeField] int movementLeft = 0;
     [SerializeField] int baseStrength = 20;
-    [SerializeField] int baseRangeStrength = 0;
-    [SerializeField] int range = 0;
     [SerializeField] HexUnit hexUnit;
     [SerializeField] int baseMovementFactor = 5;
     [SerializeField] int baseHitPoints = 100;
@@ -49,6 +47,16 @@ public abstract class Unit : MonoBehaviour {
     public int GetBaseHitpoints()
     {
         return baseHitPoints;
+    }
+
+    public void DamageUnit(int defenceDamage)
+    {
+        int hitpointsLeft = HitPoints - defenceDamage;
+        if(hitpointsLeft < 0)
+        {
+            hitpointsLeft = 0;
+        }
+        HitPoints = hitpointsLeft;
     }
 
     public virtual City GetCityOwner()
@@ -103,11 +111,6 @@ public abstract class Unit : MonoBehaviour {
     public int Strength
     {
         get { return BaseStrength; }
-    }
-
-    public int RangeStrength
-    {
-        get { return BaseRangeStrength; }
     }
 
 
@@ -170,33 +173,6 @@ public abstract class Unit : MonoBehaviour {
             baseMovementFactor = value;
         }
     }
-
-    public int Range
-    {
-        get
-        {
-            return range;
-        }
-
-        set
-        {
-            range = value;
-        }
-    }
-
-    public int BaseRangeStrength
-    {
-        get
-        {
-            return baseRangeStrength;
-        }
-
-        set
-        {
-            baseRangeStrength = value;
-        }
-    }
-
 
     public UnitType HexUnitType
     {
@@ -306,21 +282,11 @@ public abstract class Unit : MonoBehaviour {
     public bool AttackCell(HexCell cell)
     {
         bool melee = true;
-        if (Range == 0)
+        if (cell.coordinates.DistanceTo(HexUnit.Location.coordinates) > 1)
         {
-            if(cell.coordinates.DistanceTo(HexUnit.Location.coordinates) > 1)
-            {
-                return false;
-            }
+            return false;
         }
-        else
-        {
-            if (cell.coordinates.DistanceTo(HexUnit.Location.coordinates) > Range)
-            {
-                return false;
-            }
-        }
-        if(Range > 0)
+        if (HexUnitType == UnitType.COMBAT && ((this as CombatUnit).CombatType == CombatUnit.CombatUnitType.SUPPORT || (this as CombatUnit).CombatType == CombatUnit.CombatUnitType.SIEGE))
         {
             melee = false;
         }
@@ -414,7 +380,7 @@ public abstract class Unit : MonoBehaviour {
         if (HexUnitType == UnitType.COMBAT && GetCityOwner() != city.GetCityState())
         {
             CityState currentCityState = city.GetCityState();
-            result = CombatSystem.CityFight(this, city);
+            result = CombatSystem.Fight(this.HexUnit.Location, city.GetHexCell());
 
             SetMovementLeft(0);
         }
@@ -426,19 +392,19 @@ public abstract class Unit : MonoBehaviour {
         KeyValuePair<int, int> result = new KeyValuePair<int, int>();
         if (unit)
         {
-            result = CombatSystem.UnitFight(this, unit.GetComponent<Unit>());
+            result = CombatSystem.Fight(this.HexUnit.Location, unit.Location);
             SetMovementLeft(0);
         }
         return result;
     }
 
-    public void UpdateUI(int healthChange)
+    public virtual void UpdateUI(int healthChange)
     {
         if(healthChange != 0)
         {
             UnitUI.UpdateHealthBar(healthChange);
         }
-
+        UnitUI.UpdateStackButtons();
     }
 
     public virtual void UpdateOwnerVisiblity(HexCell hexCell, bool increase)

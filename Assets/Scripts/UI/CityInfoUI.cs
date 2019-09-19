@@ -14,6 +14,7 @@ public class CityInfoUI : CityInfoPanel
     [SerializeField] Text production;
     [SerializeField] Text science;
     [SerializeField] Text population;
+    [SerializeField] Text unassignedPop;
     [SerializeField] Text foodStored;
     [SerializeField] Text turns;
     [SerializeField] Image currentBuildingImage;
@@ -28,6 +29,7 @@ public class CityInfoUI : CityInfoPanel
         science.text = city.CityResouceController.GetScience().ToString();
 
         population.text = city.Population.ToString();
+        unassignedPop.text = city.UnassignedPopulation().ToString();
         foodStored.text = city.Food + "/" + GameConsts.populationFoodReqirements[city.Population].ToString();
         int foodRequired = (GameConsts.populationFoodReqirements[city.Population] - city.Food);
         int turnsNeeded = (foodRequired + city.CityResouceController.GetFood() - 1) / city.CityResouceController.GetFood();

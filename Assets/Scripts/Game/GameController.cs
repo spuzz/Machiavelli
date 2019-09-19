@@ -338,12 +338,13 @@ public class GameController : MonoBehaviour
     {
         HexUnit hexUnit = Instantiate(agentPrefab).GetComponent<HexUnit>();
         Agent agent = hexUnit.GetComponent<Agent>();
+        agent.HexUnitType = Unit.UnitType.AGENT;
         agent.SetAgentConfig(agentConfig);
         hexGrid.AddUnit(hexUnit);
         hexUnit.Grid = hexGrid;
         hexUnit.Location = cell;
         hexUnit.Orientation = Random.Range(0f, 360f);
-        agent.HexUnitType = Unit.UnitType.AGENT;
+
 
         if (player.IsHuman)
         {
@@ -358,12 +359,13 @@ public class GameController : MonoBehaviour
     {
         HexUnit hexUnit = Instantiate(agentPrefab).GetComponent<HexUnit>();
         Agent agent = hexUnit.GetComponent<Agent>();
+        agent.HexUnitType = Unit.UnitType.AGENT;
         agent.SetAgentConfig(GetAgentConfig(agentConfig));
         hexGrid.AddUnit(hexUnit);
         hexUnit.Grid = hexGrid;
         hexUnit.Location = cell;
         hexUnit.Orientation = Random.Range(0f, 360f);
-        agent.HexUnitType = Unit.UnitType.AGENT;
+
        
         if (player.IsHuman)
         {
@@ -403,6 +405,10 @@ public class GameController : MonoBehaviour
         combatUnit.HexUnitType = Unit.UnitType.COMBAT;
         hexGrid.AddUnit(hexUnit);
         city.AddUnit(hexUnit.GetComponent<CombatUnit>());
+        if (city.Player && city.Player.IsHuman)
+        {
+            hexUnit.Controllable = true;
+        }
         return hexUnit;
     }
 

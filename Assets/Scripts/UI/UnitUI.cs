@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
 // Add a UI Socket transform to your enemy
@@ -18,7 +19,8 @@ public class UnitUI : MonoBehaviour {
     [SerializeField] Texture BackGround;
     [SerializeField] HexCellTextEffect textEffect;
 
-    Unit unit;
+    [SerializeField] Unit unit;
+    [SerializeField] List<Button> unitStackButtons;
     Camera cameraToLookAt;
     bool visible = true;
 
@@ -46,7 +48,7 @@ public class UnitUI : MonoBehaviour {
         set
         {
             visible = value;
-            canvas.enabled = value;
+            //canvas.enabled = value;
         }
     }
 
@@ -85,6 +87,11 @@ public class UnitUI : MonoBehaviour {
         
     }
 
+    public void SetUnitSymbol(Texture symbol)
+    {
+        unitSymbol.texture = symbol;
+        Symbol = symbol;
+    }
     public void UpdateUnit(Unit unit, int healthChange)
     {
         UpdateHealthBar(healthChange);
@@ -98,4 +105,39 @@ public class UnitUI : MonoBehaviour {
         
     }
 
+    public void UpdateStackButtons()
+    {
+        int unitCount = 0;
+        foreach(HexUnit hexUnit in unit.HexUnit.Location.hexUnits)
+        {
+            if(hexUnit != unit.HexUnit)
+            {
+                unitStackButtons[unitCount].gameObject.SetActive(true);
+                unitStackButtons[unitCount].GetComponentInChildren<RawImage>().texture = hexUnit.unit.UnitUI.Symbol;
+                unitCount++;
+            }
+        }
+        for(int a= unitCount; a < unitStackButtons.Count;a++)
+        {
+            unitStackButtons[a].gameObject.SetActive(false);
+        }
+    }
+
+    public void SelectUnit(int buttonNumber)
+    {
+        int unitCount = 0;
+        foreach (HexUnit hexUnit in unit.HexUnit.Location.hexUnits)
+        {
+            if (hexUnit != unit.HexUnit)
+            {
+                if(unitCount == buttonNumber)
+                {
+                    FindObjectOfType<HexGameUI>().SelectUnit(hexUnit);
+                    return;
+                }
+                unitCount++;
+            }
+        }
+
+    }
 }
