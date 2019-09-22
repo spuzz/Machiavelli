@@ -698,19 +698,15 @@ public class GameController : MonoBehaviour
 
     public void Load(BinaryReader reader, int header, HexGrid hexGrid)
     {
-        if (header >= 3)
-        {
-            turn = reader.ReadInt32();
-        }
+
+        turn = reader.ReadInt32();
 
         HumanPlayer.Load(reader, this, hexGrid, header);
-        if (header >= 2)
+
+        int playerCount = reader.ReadInt32();
+        for (int i = 0; i < playerCount; i++)
         {
-            int playerCount = reader.ReadInt32();
-            for (int i = 0; i < playerCount; i++)
-            {
-                AIPlayer.Load(reader, this, hexGrid, header);
-            }
+            AIPlayer.Load(reader, this, hexGrid, header);
         }
 
         int cityCount = reader.ReadInt32();

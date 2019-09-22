@@ -217,7 +217,7 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Texture: {fileID: 0}
+  m_Texture: {fileID: 2800000, guid: 43a7d98bd4222b64e933596512dc09ad, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
@@ -440,25 +440,6 @@ MonoBehaviour:
   baseHitPoints: 100
   baseStrength: 25
   buildings: []
-  buildingOptions:
-  - {fileID: 11400000, guid: 1756179ebbb687e45b24b3f82e20549c, type: 2}
-  - {fileID: 11400000, guid: e47e6b0d2f2b8fb4492d4967717d8f4f, type: 2}
-  - {fileID: 11400000, guid: 00a2029437169ca478fb5570c7ac8dfc, type: 2}
-  - {fileID: 11400000, guid: e5b857255f0bd0e4a9609754b25511a6, type: 2}
-  - {fileID: 11400000, guid: 985af29cd602c5443811982400f0135f, type: 2}
-  - {fileID: 11400000, guid: 01315c4342dc8d54aa38866f5320aacb, type: 2}
-  - {fileID: 11400000, guid: b6540c54b82c6f1469e2381264d21ef4, type: 2}
-  - {fileID: 11400000, guid: 08fde271cfff5b54b86679a794ca7a6e, type: 2}
-  - {fileID: 11400000, guid: e9d27e09a9d40b24aa850ae8705706c6, type: 2}
-  - {fileID: 11400000, guid: c858c8d8d73fbd9468f06b6f50a133df, type: 2}
-  - {fileID: 11400000, guid: 72d56542de492284ea45d5a66937e765, type: 2}
-  - {fileID: 11400000, guid: 787c37efef161ac408466c9f730c766c, type: 2}
-  - {fileID: 11400000, guid: 8daca086fc2f8aa4c8bf3de516c9b18c, type: 2}
-  trainingOptions:
-  - {fileID: 11400000, guid: 5d79ae666f4c039469c9033d500d14be, type: 2}
-  - {fileID: 11400000, guid: 7973809bfbff6bf48b631fa6acd585b9, type: 2}
-  - {fileID: 11400000, guid: 237967ea37bab6646a3a19459130a1b1, type: 2}
-  - {fileID: 11400000, guid: eaa339952c98a0a43a194ae7accfb3ea, type: 2}
 --- !u!114 &114592943687886820
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -639,8 +620,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.93, y: -0.84}
-  m_SizeDelta: {x: 283.1, y: 55}
+  m_AnchoredPosition: {x: 4.5, y: -0.84}
+  m_SizeDelta: {x: 261.33, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224669045274125054
 RectTransform:
@@ -657,8 +638,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -174.1, y: 0.00000053644}
-  m_SizeDelta: {x: 55, y: 55}
+  m_AnchoredPosition: {x: -168.84, y: -0.00000089683}
+  m_SizeDelta: {x: 74.315, y: 70.85}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224767272530332140
 RectTransform:

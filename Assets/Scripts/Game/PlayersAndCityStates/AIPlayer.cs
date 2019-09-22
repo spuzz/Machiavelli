@@ -49,14 +49,7 @@ public class AIPlayer : Player
     public static void Load(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
     {
         AIPlayer instance;
-        if (header >= 6)
-        {
-            instance = gameController.CreateAIPlayer(reader.ReadInt32());
-        }
-        else
-        {
-            instance = gameController.CreateAIPlayer();
-        }
+        instance = gameController.CreateAIPlayer(reader.ReadInt32());
         instance.PlayerNumber = reader.ReadInt32();
         int unitCount = reader.ReadInt32();
         for (int i = 0; i < unitCount; i++)

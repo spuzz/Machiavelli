@@ -150,18 +150,15 @@ public class BuildingManager{
     }
     public void Load(BinaryReader reader, GameController gameController, int header)
     {
-        if(header >= 5)
+        int count = reader.ReadInt32();
+        for (int a = 0; a < count; a++)
         {
-            int count = reader.ReadInt32();
-            for(int a=0; a<count; a++)
-            {
-                buildQueue.AddLast(BuildInProgress.Load(reader,gameController));
-            }
-            count = reader.ReadInt32();
-            for (int a = 0; a < count; a++)
-            {
-                buildsReady.AddLast(BuildInProgress.Load(reader, gameController));
-            }
+            buildQueue.AddLast(BuildInProgress.Load(reader, gameController));
+        }
+        count = reader.ReadInt32();
+        for (int a = 0; a < count; a++)
+        {
+            buildsReady.AddLast(BuildInProgress.Load(reader, gameController));
         }
     }
 }

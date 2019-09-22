@@ -115,27 +115,19 @@ public class CombatUnit : Unit
         float orientation = reader.ReadSingle();
         int hitPoints = 100;
         int movementLeft = 2;
-        string unitName = reader.ReadString();
-        if (header >= 3)
-        {
-            hitPoints = reader.ReadInt32();
-            movementLeft = reader.ReadInt32();
-        }
+        //string unitName = reader.ReadString();
+
+        hitPoints = reader.ReadInt32();
+        movementLeft = reader.ReadInt32();
 
         string combatUnitConfig = "Swordsman";
-        if (header >= 4)
-        {
-            combatUnitConfig = reader.ReadString();
-        }
-
+        combatUnitConfig = reader.ReadString();
 
         HexUnit hexUnit = gameController.CreateCityStateUnit(combatUnitConfig, grid.GetCell(coordinates), city);
         CombatUnit combatUnit = hexUnit.GetComponent<CombatUnit>();
-        if (header >= 3)
-        {
-            combatUnit.HitPoints = hitPoints;
-            combatUnit.SetMovementLeft(movementLeft);
-        }
+
+        combatUnit.HitPoints = hitPoints;
+        combatUnit.SetMovementLeft(movementLeft);
         return combatUnit;
     }
 }
