@@ -709,6 +709,12 @@ public class City : MonoBehaviour {
             CombatUnit combatUnit = CombatUnit.Load(reader, gameController, hexGrid, header, city);
         }
         city.GetComponent<CityState>().Load(reader, gameController, hexGrid, header);
+        for (int i = 0; i < city.cityUnits.Count; i++)
+        {
+            city.cityUnits[i].UnitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(city.cityStateOwner.SymbolID));
+            city.cityUnits[i].CityStateOwner = city.GetCityState();
+        }
+        city.UpdateCityBar();
 
     }
     public void NotifyInfoChange()

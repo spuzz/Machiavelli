@@ -29,8 +29,8 @@ public class HexUnit : MonoBehaviour {
     private int speed = 0;
 
     HexCell location, currentTravelLocation;
-
-
+    float t;
+    Vector3 a, b, c = new Vector3();
 
     public List<HexCell> pathToTravel = null;
     List<HexAction> actions = new List<HexAction>();
@@ -203,7 +203,118 @@ public class HexUnit : MonoBehaviour {
         Animator = GetComponentInChildren<Animator>();
         MaterialColourChanger = GetComponentInChildren<MaterialColourChanger>();
     }
+    public IEnumerator MoveUnit(HexUnit unitToMove, HexCell currentTravelLocation, HexCell newTravelLocation, float t)
+    {
+        this.t = t;
+        a = currentTravelLocation.Position;
+        b = currentTravelLocation.Position;
+        c = currentTravelLocation.Position;
 
+        a = c;
+        b = currentTravelLocation.Position;
+        int currentColumn = currentTravelLocation.ColumnIndex;
+        int nextColumn;
+        nextColumn = newTravelLocation.ColumnIndex;
+        if (currentColumn != nextColumn)
+        {
+            if (nextColumn < currentColumn - 1)
+            {
+                a.x -= HexMetrics.innerDiameter * HexMetrics.wrapSize;
+                b.x -= HexMetrics.innerDiameter * HexMetrics.wrapSize;
+            }
+            else if (nextColumn > currentColumn + 1)
+            {
+                a.x += HexMetrics.innerDiameter * HexMetrics.wrapSize;
+                b.x += HexMetrics.innerDiameter * HexMetrics.wrapSize;
+            }
+            unitToMove.Grid.MakeChildOfColumn(unitToMove.transform, nextColumn);
+            currentColumn = nextColumn;
+        }
+
+        c = (b + newTravelLocation.Position) * 0.5f;
+
+
+        unitToMove.HexVision.AddCells(unitToMove.Grid.GetVisibleCells(newTravelLocation, unitToMove.VisionRange));
+
+        if (currentTravelLocation.IsVisible == true && GameConsts.playAnimations)
+        {
+            yield return unitToMove.LookAt(newTravelLocation.Position);
+            unitToMove.Animator.SetBool("Walking", true);
+            unitToMove.HexVision.Visible = true;
+            for (; t < 1f; t += Time.deltaTime * HexUnit.TravelSpeed)
+            {
+                unitToMove.transform.localPosition = Bezier.GetPoint(a, b, c, t);
+                Vector3 d = Bezier.GetDerivative(a, b, c, t);
+                d.y = 0f;
+                unitToMove.transform.localRotation = Quaternion.LookRotation(d);
+                yield return null;
+            }
+            unitToMove.Animator.SetBool("Walking", false);
+            t -= 1f;
+        }
+        else
+        {
+            unitToMove.HexVision.Visible = false;
+            unitToMove.transform.localPosition = c;
+            t = Time.deltaTime * HexUnit.TravelSpeed;
+        }
+        unitToMove.HexVision.ClearCells();
+        unitToMove.HexVision.AddCells(unitToMove.Grid.GetVisibleCells(newTravelLocation, unitToMove.VisionRange));
+    }
+
+    public IEnumerator MoveUnitEnd(HexUnit unitToMove, HexCell currentTravelLocation, HexCell newTravelLocation)
+    {
+        a = c;
+        b = newTravelLocation.Position;
+        c = b;
+        int currentColumn = currentTravelLocation.ColumnIndex;
+        int nextColumn;
+        nextColumn = newTravelLocation.ColumnIndex;
+
+        if (currentColumn != nextColumn)
+        {
+            if (nextColumn < currentColumn - 1)
+            {
+                a.x -= HexMetrics.innerDiameter * HexMetrics.wrapSize;
+            }
+            else if (nextColumn > currentColumn + 1)
+            {
+                a.x += HexMetrics.innerDiameter * HexMetrics.wrapSize;
+            }
+            unitToMove.Grid.MakeChildOfColumn(unitToMove.transform, nextColumn);
+            currentColumn = nextColumn;
+        }
+
+        unitToMove.HexVision.AddCells(unitToMove.Grid.GetVisibleCells(newTravelLocation, unitToMove.VisionRange));
+        t = Time.deltaTime * HexUnit.TravelSpeed;
+        if (newTravelLocation.IsVisible == true && GameConsts.playAnimations)
+        {
+            yield return unitToMove.LookAt(newTravelLocation.Position);
+            unitToMove.Animator.SetBool("Walking", true);
+            unitToMove.HexVision.Visible = true;
+            for (; t < 1f; t += Time.deltaTime * HexUnit.TravelSpeed)
+            {
+                unitToMove.transform.localPosition = Bezier.GetPoint(a, b, c, t);
+                Vector3 d = Bezier.GetDerivative(a, b, c, t);
+                d.y = 0f;
+                unitToMove.transform.localRotation = Quaternion.LookRotation(d);
+                yield return null;
+
+            }
+            unitToMove.Animator.SetBool("Walking", false);
+            t -= 1f;
+        }
+        else
+        {
+            unitToMove.HexVision.Visible = false;
+            unitToMove.transform.localPosition = c;
+            t = Time.deltaTime * HexUnit.TravelSpeed;
+        }
+
+
+        unitToMove.HexVision.ClearCells();
+        unitToMove.HexVision.AddCells(unitToMove.Grid.GetVisibleCells(newTravelLocation, unitToMove.VisionRange));
+    }
 
     public IEnumerator LookAt (Vector3 point) {
 		if (HexMetrics.Wrapping) {
@@ -256,6 +367,22 @@ public class HexUnit : MonoBehaviour {
             Location.DecreaseVisibility();
         }
     }
+
+    public IEnumerator Counter(HexCell target)
+    {
+
+        float attackTime = 0;
+        LookAt(target.Position);
+        Location.IncreaseVisibility(false);
+        Animator.SetBool("Attacking", true);
+        for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
+        {
+            yield return null;
+        }
+        Animator.SetBool("Attacking", false);
+        Location.DecreaseVisibility();
+    }
+
     public void Move(List<HexCell> moves)
     {
 
@@ -272,6 +399,17 @@ public class HexUnit : MonoBehaviour {
 
         actions.Add(action);
     }
+
+    public void Attack(HexCell target, KeyValuePair<int,int> result, HexUnit targetUnit)
+    {
+
+        HexAction action = hexUnitActionController.CreateAction();
+        action.ActionsUnit = this;
+        action.AddAction(target,Location, new List<HexUnit>() { targetUnit } , result.Key, result.Value);
+        
+        actions.Add(action);
+    }
+
     public void SetLocationOnly(HexCell cell)
     {
         location = cell;
@@ -286,6 +424,10 @@ public class HexUnit : MonoBehaviour {
 		HexCell fromCell, HexCell toCell, HexDirection direction, bool allowUnexplored = false)
 	{
 		if (!IsValidDestination(toCell, allowUnexplored)) {
+            if(IsValidAttackDestination(toCell))
+            {
+                return 5;
+            }
 			return -1;
 		}
 		HexEdgeType edgeType = fromCell.GetEdgeType(toCell);
@@ -306,6 +448,16 @@ public class HexUnit : MonoBehaviour {
 		}
 		return moveCost;
 	}
+
+    public void UpdateUnit(int healthChange, bool killUnit)
+    {
+        unit.ShowHealthChange(healthChange);
+        unit.UpdateUI(-healthChange);
+        if (unit.HitPoints <= 0 && killUnit)
+        {
+            DieAnimationAndRemove();
+        }
+    }
 
     public AnimatorOverrideController AnimatorOverrideController
     {

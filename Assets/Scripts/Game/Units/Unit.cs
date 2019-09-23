@@ -298,9 +298,10 @@ public abstract class Unit : MonoBehaviour {
             return true;
         }
         HexUnit unit = cell.GetFightableUnit(this.HexUnit);
-        if(unit)
+        if (unit)
         {
             KeyValuePair<int, int> result =  FightUnit(unit);
+            hexUnit.Attack(cell, result, unit);
             return true;
         }
 
@@ -405,6 +406,17 @@ public abstract class Unit : MonoBehaviour {
             UnitUI.UpdateHealthBar(healthChange);
         }
         UnitUI.UpdateStackButtons();
+    }
+
+
+    public void ShowHealthChange(int change)
+    {
+        Color color;
+        color = Color.red;
+        if (hexUnit.Location.IsVisible)
+        {
+            hexUnit.Location.TextEffectHandler.AddTextEffect(change.ToString(), hexUnit.transform, color);
+        }
     }
 
     public virtual void UpdateOwnerVisiblity(HexCell hexCell, bool increase)

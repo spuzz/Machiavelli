@@ -641,6 +641,10 @@ public class HexCell : MonoBehaviour {
                         return false;
                     }
                 }
+                if(unitsOfSameType.Find(c => c.unit.GetCityOwner() != unit.unit.GetCityOwner()))
+                {
+                    return false;
+                }
                 return true;
             }
             return false;
