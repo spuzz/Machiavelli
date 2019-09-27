@@ -23,7 +23,9 @@ public class HexUnit : MonoBehaviour {
     [SerializeField] Projectile projectilePreFab;
     const float rotationSpeed = 540f;
 	const float travelSpeed = 3f;
-    const float fightSpeed = 1f;
+
+
+    int visionRange = 0;
     bool controllable = false;
     float orientation;
     private int speed = 0;
@@ -114,7 +116,12 @@ public class HexUnit : MonoBehaviour {
     {
         get
         {
-            return 2;
+            return visionRange;
+        }
+
+        set
+        {
+            visionRange = value;
         }
 
     }
@@ -203,12 +210,16 @@ public class HexUnit : MonoBehaviour {
         Animator = GetComponentInChildren<Animator>();
         MaterialColourChanger = GetComponentInChildren<MaterialColourChanger>();
     }
-    public IEnumerator MoveUnit(HexUnit unitToMove, HexCell currentTravelLocation, HexCell newTravelLocation, float t)
+    public IEnumerator MoveUnit(HexUnit unitToMove, HexCell currentTravelLocation, HexCell newTravelLocation, float t, float percOfFullDistance, bool startMove)
     {
         this.t = t;
-        a = currentTravelLocation.Position;
-        b = currentTravelLocation.Position;
-        c = currentTravelLocation.Position;
+        if(startMove)
+        {
+            a = currentTravelLocation.Position;
+            b = currentTravelLocation.Position;
+            c = currentTravelLocation.Position;
+        }
+
 
         a = c;
         b = currentTravelLocation.Position;
@@ -231,7 +242,7 @@ public class HexUnit : MonoBehaviour {
             currentColumn = nextColumn;
         }
 
-        c = (b + newTravelLocation.Position) * 0.5f;
+        c = b + (( newTravelLocation.Position - b) * (0.5f * percOfFullDistance));
 
 
         unitToMove.HexVision.AddCells(unitToMove.Grid.GetVisibleCells(newTravelLocation, unitToMove.VisionRange));
@@ -356,31 +367,17 @@ public class HexUnit : MonoBehaviour {
         float attackTime = 0;
         if ((Location.IsVisible || target.IsVisible) && GameConsts.playAnimations)
         {
+
             LookAt(target.Position);
             Location.IncreaseVisibility(false);
             Animator.SetBool("Attacking", true);
-            for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
+            for (; attackTime < GameConsts.fightSpeed; attackTime += Time.deltaTime)
             {
                 yield return null;
             }
             Animator.SetBool("Attacking", false);
             Location.DecreaseVisibility();
         }
-    }
-
-    public IEnumerator Counter(HexCell target)
-    {
-
-        float attackTime = 0;
-        LookAt(target.Position);
-        Location.IncreaseVisibility(false);
-        Animator.SetBool("Attacking", true);
-        for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
-        {
-            yield return null;
-        }
-        Animator.SetBool("Attacking", false);
-        Location.DecreaseVisibility();
     }
 
     public void Move(List<HexCell> moves)
@@ -400,12 +397,18 @@ public class HexUnit : MonoBehaviour {
         actions.Add(action);
     }
 
-    public void Attack(HexCell target, KeyValuePair<int,int> result, HexUnit targetUnit)
+    public void Attack(HexCell target, List<FightResult> results)
     {
 
         HexAction action = hexUnitActionController.CreateAction();
         action.ActionsUnit = this;
-        action.AddAction(target,Location, new List<HexUnit>() { targetUnit } , result.Key, result.Value);
+        List<HexUnit> combatUnits = Location.hexUnits.FindAll(c => c != this && c.unit.HexUnitType != Unit.UnitType.AGENT);
+        List<HexUnit> enemyCombatUnits = target.hexUnits.FindAll(c => c != this && c.unit.HexUnitType != Unit.UnitType.AGENT);
+        foreach (HexUnit unit in combatUnits)
+        {
+            action.AddExtraUnit(unit);
+        }
+        action.AddAction(target,Location, enemyCombatUnits, results);
         
         actions.Add(action);
     }

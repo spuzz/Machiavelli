@@ -33,15 +33,12 @@ public class HexAction : MonoBehaviour
     CityState cityStateTarget;
     AbilityConfig abilityConfigToShow;
     bool meleeAction = true;
-    bool killTarget = false;
-    bool killSelf = false;
-    int damageToSelf = 0;
-    int damageToTarget = 0;
+    List<FightResult> actionResults;
     int energyCost = 0;
     int finishedActions = 0;
     Status actionStatus = Status.WAITING;
     float t;
-
+    List<HexUnit> temporaryVisibleUnits = new List<HexUnit>();
     public IEnumerable<HexCell> GetPath()
     {
         return path;
@@ -161,33 +158,6 @@ public class HexAction : MonoBehaviour
             cityTarget = value;
         }
     }
-
-    public bool KillTarget
-    {
-        get
-        {
-            return killTarget;
-        }
-
-        set
-        {
-            killTarget = value;
-        }
-    }
-
-    public bool KillSelf
-    {
-        get
-        {
-            return killSelf;
-        }
-
-        set
-        {
-            killSelf = value;
-        }
-    }
-
     public CityState CityStateTarget
     {
         get
@@ -225,16 +195,6 @@ public class HexAction : MonoBehaviour
         {
             energyCost = value;
         }
-    }
-
-    public void SetKillTarget()
-    {
-        KillTarget = true;
-    }
-
-    public void SetKillSelf()
-    {
-        KillSelf = true;
     }
 
     public bool Compare(HexAction action)
@@ -297,21 +257,20 @@ public class HexAction : MonoBehaviour
         this.CityStateTarget = cityState;
         this.CityTarget = cityTarget;
         this.actionCell = actionCell;
-        this.damageToSelf = damageToSelf;
-        this.damageToTarget = damageToTarget;
+        //this.damageToSelf = damageToSelf;
+        //this.damageToTarget = damageToTarget;
         this.FinalMove = finalMove;
         this.UnitTarget = cityTarget.GetHexCell().hexUnits.FindAll(c => c.unit.HexUnitType == Unit.UnitType.COMBAT);
     }
 
-    public void AddAction(HexCell actionCell, HexCell finalMove, List<HexUnit> unitTarget, int damageToSelf, int damageToTarget)
+    public void AddAction(HexCell actionCell, HexCell finalMove, List<HexUnit> unitTarget, List<FightResult> result)
     {
         path.Add(actionsUnit.Location);
         path.Add(actionCell);
         HexActionType = ActionType.ATTACKUNIT;
         this.UnitTarget = unitTarget;
         this.actionCell = actionCell;
-        this.damageToSelf = damageToSelf;
-        this.damageToTarget = damageToTarget;
+        actionResults = result;
         this.FinalMove = finalMove;
     }
 
@@ -333,26 +292,52 @@ public class HexAction : MonoBehaviour
         }
         int actionsToComplete = 0;
         finishedActions = 0;
+        bool tempVisibility = false;
         if (HexActionType == ActionType.ATTACKCITY || HexActionType == ActionType.ATTACKUNIT)
         {
+            if (!ActionCell.IsVisible && path[0].IsVisible)
+            {
+                if(ActionCell.IsVisible == false)
+                {
+                    tempVisibility = true;
+                    ActionCell.IncreaseVisibility(false);
+                }
+            }
             foreach (HexUnit unit in extraUnits)
             {
                 actionsToComplete++;
                 StartCoroutine(DoAction(unit, ActionCell, finalMove));
             }
-            foreach (HexUnit unit in UnitTarget)
+            if(ActionCell.City)
             {
-                actionsToComplete++;
-                StartCoroutine(DoAction(unit, path[0], ActionCell));
+                StartCoroutine(DoCityUpdate(ActionCell.City));
             }
+            else
+            {
+                foreach (HexUnit unit in UnitTarget)
+                {
+                    actionsToComplete++;
+                    StartCoroutine(DoAction(unit, path[0], ActionCell));
+                }
+            }
+
             actionsToComplete++;
-            StartCoroutine(DoAction(actionsUnit, ActionCell, finalMove));
+            StartCoroutine(DoAction(actionsUnit, ActionCell, finalMove, true));
         }
 
         while(finishedActions != actionsToComplete)
         {
-            yield return null;
+            yield return new WaitForEndOfFrame();
         }
+        foreach(HexUnit hexUnit in temporaryVisibleUnits)
+        {
+            hexUnit.HexVision.Visible = false;
+        }
+        if(tempVisibility)
+        {
+            ActionCell.DecreaseVisibility();
+        }
+        temporaryVisibleUnits.Clear();
         if (HexActionType == ActionType.USEABILITY)
         {
             yield return StartCoroutine(DoAbility());
@@ -366,27 +351,42 @@ public class HexAction : MonoBehaviour
         HexCell currentTravelLocation = path[0];
 
 
-
+        bool startMove = true;
         for (int i = 1; i < path.Count; i++)
         {
-            yield return StartCoroutine(actionsUnit.MoveUnit(actionsUnit, currentTravelLocation, path[i], t));
+            yield return StartCoroutine(actionsUnit.MoveUnit(actionsUnit, currentTravelLocation, path[i], t, 1, startMove));
             currentTravelLocation = path[i];
+            startMove = false;
 
         }
         yield return StartCoroutine(actionsUnit.MoveUnitEnd(actionsUnit, currentTravelLocation, path[path.Count - 1]));
         actionsUnit.Location.UpdateVision();
     }
 
-    private IEnumerator DoAction(HexUnit unitToDoAction, HexCell targetCell, HexCell endActionCell)
+    private IEnumerator DoAction(HexUnit unitToDoAction, HexCell targetCell, HexCell endActionCell, bool mainUnit = false)
     {
+
+        if (unitToDoAction.HexVision.Visible == false && (ActionCell.IsVisible || path[0].IsVisible) )
+        {
+            temporaryVisibleUnits.Add(unitToDoAction);
+            unitToDoAction.HexVision.Visible = true;
+        }
         HexCell currentTravelLocation = unitToDoAction.Location;
         if ((unitToDoAction.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.MELEE)
         {
             //a = currentTravelLocation.Position;
             //b = currentTravelLocation.Position;
             //c = currentTravelLocation.Position;
-            
-            yield return StartCoroutine(unitToDoAction.MoveUnit(unitToDoAction, currentTravelLocation, targetCell,t));
+            float percOfDistanceToTarget = 1;
+            if(targetCell.ContainsCombatType(CombatUnit.CombatUnitType.MELEE))
+            {
+                percOfDistanceToTarget = 0.66f;
+            }
+            else
+            {
+                percOfDistanceToTarget = 1.33f;
+            }
+            yield return StartCoroutine(unitToDoAction.MoveUnit(unitToDoAction, currentTravelLocation, targetCell,t, percOfDistanceToTarget, true ));
         }
         else
         {
@@ -394,16 +394,37 @@ public class HexAction : MonoBehaviour
         }
 
 
-
+        if (mainUnit && actionResults.FindAll(c => c.ambush == true).Count > 0)
+        {
+            targetCell.TextEffectHandler.AddTextEffect("AMBUSH!", unitToDoAction.transform, Color.red);
+        }
         yield return StartCoroutine(unitToDoAction.Fight(targetCell));
 
-        unitToDoAction.UpdateUnit(damageToSelf, KillSelf);
-
-        if ((unitToDoAction.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.MELEE && KillSelf == false)
+        List<FightResult> results = actionResults.FindAll(c => c.unit == unitToDoAction);
+        
+        if (results.Count != 0)
         {
-            yield return StartCoroutine(unitToDoAction.MoveUnitEnd(unitToDoAction, currentTravelLocation, endActionCell));
+            FightResult result = results[0];
+            unitToDoAction.UpdateUnit(result.damageReceived, result.isKilled);
+
+            if ((unitToDoAction.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.MELEE && !result.isKilled)
+            {
+                yield return StartCoroutine(unitToDoAction.MoveUnitEnd(unitToDoAction, currentTravelLocation, endActionCell));
+                yield return StartCoroutine(unitToDoAction.LookAt(targetCell.Position));
+            }
+
         }
+
         finishedActions++;
+    }
+
+    public IEnumerator DoCityUpdate(City city)
+    {
+        yield return new WaitForSeconds(GameConsts.fightSpeed);
+        FightResult result = actionResults.Find(c => c.unit == null);
+        city.GetHexCell().TextEffectHandler.AddTextEffect(result.damageReceived.ToString(), city.GetHexCell().transform, Color.red);
+        city.UpdateHealthBar();
+        city.UpdateCity();
     }
 
     public IEnumerator DoAbility()

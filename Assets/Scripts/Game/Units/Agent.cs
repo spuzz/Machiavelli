@@ -57,6 +57,7 @@ public class Agent : Unit {
         BaseMovement = config.BaseMovement;
         BaseStrength = config.BaseStrength;
         UnitUI.SetUnitSymbol(config.Symbol);
+        HexUnit.VisionRange = config.VisionRange;
         // TODO
         //Symbol = config.Symbol;
         //foreach(AbilityConfig abilityConfig in config.GetAbilityConfigs())

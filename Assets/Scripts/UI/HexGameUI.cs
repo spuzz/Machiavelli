@@ -202,7 +202,7 @@ public class HexGameUI : MonoBehaviour {
 		if (grid.HasPath) {
             List<HexCell> path = grid.GetPath();
             // TODO
-            if (path[path.Count - 1].GetFightableUnit(selectedUnit))
+            if (path[path.Count - 1].GetFightableUnit(selectedUnit) || (path[path.Count - 1].City && !path[path.Count - 1].City.Player.IsHuman))
             {
                 selectedUnit.GetComponent<Unit>().SetPath(path.GetRange(0, path.Count - 1));
                 selectedUnit.GetComponent<Unit>().AttackCell(path[path.Count - 1]);

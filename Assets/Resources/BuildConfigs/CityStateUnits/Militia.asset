@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Name: Militia
   m_EditorClassIdentifier: 
   baseProductionCost: 50
-  basePurchaseCost: 100
+  basePurchaseCost: 30
   prerequisites: []
   focusType: 9
   buildingImage: {fileID: 21300000, guid: 41e5cf88faac8004fb825e953ae630c3, type: 3}

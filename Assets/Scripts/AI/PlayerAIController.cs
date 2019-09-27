@@ -20,12 +20,12 @@ public class PlayerAIController : MonoBehaviour
 
         foreach (Agent agent in agentsAtStart)
         {
-
-            agent.GetComponent<AgentBehaviourTree>().TakeTurn();
-            while (agent && agent.GetComponent<AgentBehaviourTree>().IsFinished() == false)
-            {
-                yield return new WaitForEndOfFrame();
-            }
+            // TODO
+            //agent.GetComponent<AgentBehaviourTree>().TakeTurn();
+            //while (agent && agent.GetComponent<AgentBehaviourTree>().IsFinished() == false)
+            //{
+            yield return new WaitForEndOfFrame();
+            //}
             if (agent)
             {
                 agent.EndTurn();

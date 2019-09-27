@@ -151,6 +151,7 @@ public class City : MonoBehaviour {
             UpdateCityBar();
             foreach (CombatUnit unit in cityUnits)
             {
+                unit.SetPlayer(player);
                 unit.UpdateUI(0);
             }
             cityStateOwner.Player = player;
@@ -159,6 +160,36 @@ public class City : MonoBehaviour {
         }
     }
 
+    public void SetPlayerOnly(Player ply, bool killAllUnits = true)
+    {
+        if (player)
+        {
+            player.onInfoChange -= PlayerUpdated;
+        }
+        player = ply;
+        if (player)
+        {
+            player.onInfoChange += PlayerUpdated;
+            cityStateOwner.Player = player;
+            if (killAllUnits)
+            {
+                foreach (CombatUnit unit in cityUnits)
+                {
+                    gameController.DestroyUnit(unit);
+                }
+            }
+
+        }
+
+        NotifyInfoChange();
+    }
+
+    public void UpdateCity(bool killAllUnits = true)
+    {
+        UpdateCityBar();
+        UpdateVision();
+        NotifyInfoChange();
+    }
     private void PlayerUpdated(Player player)
     {
         NotifyInfoChange();
@@ -304,6 +335,7 @@ public class City : MonoBehaviour {
             unit.HexVision.HasVision = true;
         }
         cityUnits.Add(unit);
+        unit.CityStateOwner = GetCityState();
         if(Player)
         {
             unit.SetPlayer(Player);
@@ -669,7 +701,15 @@ public class City : MonoBehaviour {
         NotifyInfoChange();
         return true;
     }
-
+    public void DamageCity(int defenceDamage)
+    {
+        int hitpointsLeft = HitPoints - defenceDamage;
+        if (hitpointsLeft < 0)
+        {
+            hitpointsLeft = 0;
+        }
+        HitPoints = hitpointsLeft;
+    }
 
     public void Save(BinaryWriter writer)
     {

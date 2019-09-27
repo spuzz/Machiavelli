@@ -281,27 +281,19 @@ public abstract class Unit : MonoBehaviour {
 
     public bool AttackCell(HexCell cell)
     {
-        bool melee = true;
+        if(movementLeft < 1)
+        {
+            return false;
+        }
         if (cell.coordinates.DistanceTo(HexUnit.Location.coordinates) > 1)
         {
             return false;
         }
-        if (HexUnitType == UnitType.COMBAT && ((this as CombatUnit).CombatType == CombatUnit.CombatUnitType.SUPPORT || (this as CombatUnit).CombatType == CombatUnit.CombatUnitType.SIEGE))
-        {
-            melee = false;
-        }
-        if (cell.City)
-        {
-            CityState cityState = cell.City.GetCityState();
-            KeyValuePair<int,int> result = FightCity(cell.City);
 
-            return true;
-        }
-        HexUnit unit = cell.GetFightableUnit(this.HexUnit);
-        if (unit)
+        if (cell.City || cell.GetFightableUnit(this.HexUnit) )
         {
-            KeyValuePair<int, int> result =  FightUnit(unit);
-            hexUnit.Attack(cell, result, unit);
+            List<FightResult> results =  Fight(cell);
+            hexUnit.Attack(cell, results);
             return true;
         }
 
@@ -375,28 +367,32 @@ public abstract class Unit : MonoBehaviour {
         return true;
     }
 
-    public KeyValuePair<int,int> FightCity(City city)
-    {
-        KeyValuePair<int, int> result = new KeyValuePair<int, int>();
-        if (HexUnitType == UnitType.COMBAT && GetCityOwner() != city.GetCityState())
-        {
-            CityState currentCityState = city.GetCityState();
-            result = CombatSystem.Fight(this.HexUnit.Location, city.GetHexCell());
+    //public List<FightResult> FightCity(City city)
+    //{
+    //    List<FightResult> results = new List<FightResult>();
+    //    if (HexUnitType == UnitType.COMBAT && GetCityOwner() != city.GetCityState())
+    //    {
+    //        CityState currentCityState = city.GetCityState();
+    //        results = CombatSystem.Fight(this.HexUnit.Location, city.GetHexCell());
 
-            SetMovementLeft(0);
-        }
-        return result;
-    }
+    //        SetMovementLeft(0);
+    //    }
+    //    return results;
+    //}
 
-    public KeyValuePair<int, int> FightUnit(HexUnit unit)
+    public List<FightResult> Fight(HexCell targetCell)
     {
-        KeyValuePair<int, int> result = new KeyValuePair<int, int>();
-        if (unit)
+        List<FightResult> results = new List<FightResult>();
+        if (targetCell.City || targetCell.GetFightableUnit(hexUnit))
         {
-            result = CombatSystem.Fight(this.HexUnit.Location, unit.Location);
-            SetMovementLeft(0);
+            results = CombatSystem.Fight(this.HexUnit.Location, targetCell);
+            foreach(HexUnit hexUnit in hexUnit.Location.hexUnits.FindAll(c => c.unit.HexUnitType == UnitType.COMBAT))
+            {
+                hexUnit.unit.SetMovementLeft(0);
+            }
+            
         }
-        return result;
+        return results;
     }
 
     public virtual void UpdateUI(int healthChange)

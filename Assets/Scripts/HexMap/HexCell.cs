@@ -777,6 +777,16 @@ public class HexCell : MonoBehaviour {
 
     }
 
+    public bool ContainsCombatType(CombatUnit.CombatUnitType type)
+    {
+        List<HexUnit> units = hexUnits.FindAll(c => c.unit.HexUnitType == Unit.UnitType.COMBAT);
+        if(units.Find(c => (c.unit as CombatUnit).CombatType == type))
+        {
+            return true;
+        }
+        return false;
+    }
+
     void RefreshPosition () {
 		Vector3 position = transform.localPosition;
 		position.y = elevation * HexMetrics.elevationStep;

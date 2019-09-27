@@ -9,6 +9,7 @@ public class AgentConfig : ScriptableObject
     [SerializeField] string name;
     [SerializeField] int baseMovement = 2;
     [SerializeField] int baseStrength = 25;
+    [SerializeField] int visionRange = 0;
     [SerializeField] Texture symbol;
     [SerializeField] Sprite portrait;
     [SerializeField] GameObject meshChild;
@@ -96,6 +97,18 @@ public class AgentConfig : ScriptableObject
         }
     }
 
+    public int VisionRange
+    {
+        get
+        {
+            return visionRange;
+        }
+
+        set
+        {
+            visionRange = value;
+        }
+    }
 }
 
 

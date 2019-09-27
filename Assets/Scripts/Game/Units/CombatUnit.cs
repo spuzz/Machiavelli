@@ -11,6 +11,7 @@ public class CombatUnit : Unit
     City cityOwner;
     Player player;
 
+
     public enum CombatUnitType
     {
         MELEE,
