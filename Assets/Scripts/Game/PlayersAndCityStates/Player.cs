@@ -14,6 +14,7 @@ public abstract class Player : MonoBehaviour {
     [SerializeField] ScienceController scienceController;
     // Attributes
     [SerializeField] int gold = 100;
+    [SerializeField] int politicalCapital = 0;
     private int goldPerTurn = 5;
     [SerializeField] List<CityPlayerBuildConfig> cityPlayerBuildConfigs;
     [SerializeField] List<AgentBuildConfig> agentBuildConfigs;
@@ -114,6 +115,19 @@ public abstract class Player : MonoBehaviour {
         set
         {
             scienceController = value;
+        }
+    }
+
+    public int PoliticalCapital
+    {
+        get
+        {
+            return politicalCapital;
+        }
+
+        set
+        {
+            politicalCapital = value;
         }
     }
 

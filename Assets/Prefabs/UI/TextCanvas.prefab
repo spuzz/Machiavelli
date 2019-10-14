@@ -23,7 +23,7 @@ GameObject:
   - component: {fileID: 114108990315345256}
   - component: {fileID: 114655703885491222}
   - component: {fileID: 114403480769443986}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: TextCanvas
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -42,7 +42,7 @@ GameObject:
   - component: {fileID: 114210033389549616}
   - component: {fileID: 114979005954060890}
   - component: {fileID: 114074768982607176}
-  m_Layer: 5
+  m_Layer: 9
   m_Name: PopupText
   m_TagString: Untagged
   m_Icon: {fileID: 0}
@@ -182,7 +182,7 @@ Canvas:
   m_SortingBucketNormalizedSize: 0
   m_AdditionalShaderChannelsFlag: 0
   m_SortingLayerID: 0
-  m_SortingOrder: 0
+  m_SortingOrder: 1
   m_TargetDisplay: 0
 --- !u!224 &224638961135491736
 RectTransform:

@@ -366,11 +366,13 @@ public class HexAction : MonoBehaviour
     private IEnumerator DoAction(HexUnit unitToDoAction, HexCell targetCell, HexCell endActionCell, bool mainUnit = false)
     {
 
+        
         if (unitToDoAction.HexVision.Visible == false && (ActionCell.IsVisible || path[0].IsVisible) )
         {
             temporaryVisibleUnits.Add(unitToDoAction);
             unitToDoAction.HexVision.Visible = true;
         }
+        unitToDoAction.unit.UnitUI.gameObject.SetActive(false);
         HexCell currentTravelLocation = unitToDoAction.Location;
         if ((unitToDoAction.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.MELEE)
         {
@@ -416,6 +418,7 @@ public class HexAction : MonoBehaviour
         }
 
         finishedActions++;
+        unitToDoAction.unit.UnitUI.gameObject.SetActive(true);
     }
 
     public IEnumerator DoCityUpdate(City city)
