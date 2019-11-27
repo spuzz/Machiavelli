@@ -7,6 +7,8 @@ using UnityEngine.UI;
 public class PlayerInfoTopBarUI : MonoBehaviour {
 
     [SerializeField] Text goldText;
+    [SerializeField] Text scienceText;
+    [SerializeField] Text politicalText;
     Player player;
     GameController gameController;
 
@@ -26,5 +28,7 @@ public class PlayerInfoTopBarUI : MonoBehaviour {
     public void UpdateUI()
     {
         goldText.text = player.Gold.ToString() + "(+" + player.GoldPerTurn.ToString() + ")";
+        scienceText.text = "+" + player.GetScience().ToString();
+        politicalText.text = player.PoliticalCapital.ToString() ;
     }
 }
