@@ -384,7 +384,7 @@ public class AgentBehaviourTree : MonoBehaviour {
             List<City> targets = new List<City>();
             foreach (HexCell cell in cells)
             {
-                if(cell.City && cell.City.Player && cell.City.Player != agent.GetPlayer() && agent.GetPlayer().exploredCells.Contains(cell))
+                if(cell.City && cell.City.GetCityState().Player && cell.City.GetCityState().Player != agent.GetPlayer() && agent.GetPlayer().exploredCells.Contains(cell))
                 {
                     targets.Add(cell.City);
                 }

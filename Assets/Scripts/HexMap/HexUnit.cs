@@ -424,7 +424,7 @@ public class HexUnit : MonoBehaviour {
     }
 
     public int GetMoveCost (
-		HexCell fromCell, HexCell toCell, HexDirection direction, bool allowUnexplored = false)
+		HexCell fromCell, HexCell toCell, HexDirection direction, bool allowUnexplored = true)
 	{
 		if (!IsValidDestination(toCell, allowUnexplored)) {
             if(IsValidAttackDestination(toCell))
@@ -505,7 +505,21 @@ public class HexUnit : MonoBehaviour {
     }
     public bool IsValidDestination(HexCell cell, bool allowUnxplored = false)
     {
-        return (cell.IsExplored || allowUnxplored) && !cell.IsUnderwater && cell.CanUnitMoveToCell(this);
+        return (cell.IsExplored || allowUnxplored || NeighbourExplored(cell)) && !cell.IsUnderwater && cell.CanUnitMoveToCell(this);
+    }
+
+    private bool NeighbourExplored(HexCell cell)
+    {
+        for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+        {
+            HexCell neighbour = cell.GetNeighbor(d);
+            if (neighbour.IsExplored)
+            {
+                return true;
+            }
+
+        }
+        return false;
     }
 
     public bool IsValidAttackDestination(HexCell cell)

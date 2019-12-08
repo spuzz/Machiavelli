@@ -51,6 +51,14 @@ public class CombatUnit : Unit
         if (player)
         {
             UpdateOwnerVisiblity(HexUnit.Location, false);
+            if(player.IsHuman)
+            {
+                HexUnit.Controllable = true;
+            }
+            else
+            {
+                HexUnit.Controllable = false;
+            }
         }
         this.player = player;
 

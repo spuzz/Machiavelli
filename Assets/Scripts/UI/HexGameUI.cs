@@ -188,7 +188,6 @@ public class HexGameUI : MonoBehaviour {
 
     void DoPathfinding () {
 		if (UpdateCurrentCell()) {
-            // TODO
             if (currentCell && (selectedUnit.IsValidDestination(currentCell) || selectedUnit.IsValidAttackDestination(currentCell))) { //) {
 				grid.FindPath(selectedUnit.Location, currentCell, selectedUnit);
 			}
@@ -202,7 +201,7 @@ public class HexGameUI : MonoBehaviour {
 		if (grid.HasPath) {
             List<HexCell> path = grid.GetPath();
             // TODO
-            if (path[path.Count - 1].GetFightableUnit(selectedUnit) || (path[path.Count - 1].City && !path[path.Count - 1].City.Player.IsHuman))
+            if (path[path.Count - 1].GetFightableUnit(selectedUnit) || (path[path.Count - 1].City && !path[path.Count - 1].City.GetCityState().Player.IsHuman))
             {
                 selectedUnit.GetComponent<Unit>().SetPath(path.GetRange(0, path.Count - 1));
                 selectedUnit.GetComponent<Unit>().AttackCell(path[path.Count - 1]);
@@ -229,16 +228,15 @@ public class HexGameUI : MonoBehaviour {
 
     void FinishAbilitySelection()
     {
-        // TODO
-        //HexCell target = grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
-        //if (selectedUnit && target && abilityTargetOptions.Contains(target))
-        //{
-        //    selectedUnit.GetComponent<Unit>().RunAbility(abilityIndex, target,true);
-        //}
-        //grid.ClearHighlightedCells(abilityTargetOptions);
-        //abilitySelection = false;
-        //abilityTargetOptions.Clear();
-        //HUD.UpdateUI();
+        HexCell target = grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
+        if (selectedUnit && target && abilityTargetOptions.Contains(target))
+        {
+            selectedUnit.GetComponent<Abilities>().RunAbility(abilityIndex, target, true);
+        }
+        grid.ClearHighlightedCells(abilityTargetOptions);
+        abilitySelection = false;
+        abilityTargetOptions.Clear();
+        HUD.UpdateUI();
     }
 
     bool UpdateCurrentCell () {

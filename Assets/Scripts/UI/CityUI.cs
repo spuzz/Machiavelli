@@ -91,6 +91,10 @@ public class CityUI : MonoBehaviour
     {
         Color cityColor = new Color(color.r, color.g, color.b, 0.6f);
         backGround.color = cityColor;
+        if (color == Color.black)
+        {
+            cityColor = Color.grey;
+        }
         cityStateSymbol.color = cityColor;
     }
 

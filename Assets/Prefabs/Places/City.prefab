@@ -11,6 +11,21 @@ Prefab:
   m_SourcePrefab: {fileID: 0}
   m_RootGameObject: {fileID: 1778271005254408}
   m_IsPrefabAsset: 1
+--- !u!1 &1279140209826702
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4468231931161734}
+  m_Layer: 0
+  m_Name: Politicians
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1551131538717636
 GameObject:
   m_ObjectHideFlags: 1
@@ -60,6 +75,7 @@ GameObject:
   - component: {fileID: 114315490007427326}
   - component: {fileID: 114444115069094918}
   - component: {fileID: 114991996797070884}
+  - component: {fileID: 114825669005962242}
   m_Layer: 0
   m_Name: City
   m_TagString: Untagged
@@ -149,8 +165,22 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 224161211013340834}
+  - {fileID: 4468231931161734}
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4468231931161734
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1279140209826702}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4363802538032816}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &114003633487691406
 MonoBehaviour:
@@ -163,8 +193,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a33ddaa51232d14bb023e40668baa2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: City Test
-  header: City Test
+  text: <color=white></color><br>
+  header: City Info
   editModeOnly: 1
 --- !u!114 &114105987027955466
 MonoBehaviour:
@@ -389,6 +419,10 @@ MonoBehaviour:
   cityStateAIController: {fileID: 114315490007427326}
   cityStateName: City State
   symbolID: 0
+  politicians: []
+  politicianPrefab: {fileID: 114411272746674006, guid: 1e84974061115674aa3d0fa98d7b82a1,
+    type: 2}
+  city: {fileID: 114574744724499650}
 --- !u!114 &114474624663275106
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -421,7 +455,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 0
+  m_Text: 1
 --- !u!114 &114574744724499650
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -492,6 +526,17 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
+--- !u!114 &114825669005962242
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1778271005254408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: fdbb0a257b5b0f04f91ece61cabd1d55, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
 --- !u!114 &114991996797070884
 MonoBehaviour:
   m_ObjectHideFlags: 1

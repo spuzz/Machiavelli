@@ -387,7 +387,7 @@ public class GameController : MonoBehaviour
         combatUnit.HexUnitType = Unit.UnitType.COMBAT;
         hexGrid.AddUnit(hexUnit);
         city.AddUnit(hexUnit.GetComponent<CombatUnit>());
-        if(city.Player && city.Player.IsHuman)
+        if(city.GetCityState().Player && city.GetCityState().Player.IsHuman)
         {
             hexUnit.Controllable = true;
         }
@@ -405,7 +405,7 @@ public class GameController : MonoBehaviour
         combatUnit.HexUnitType = Unit.UnitType.COMBAT;
         hexGrid.AddUnit(hexUnit);
         city.AddUnit(hexUnit.GetComponent<CombatUnit>());
-        if (city.Player && city.Player.IsHuman)
+        if (city.GetCityState().Player && city.GetCityState().Player.IsHuman)
         {
             hexUnit.Controllable = true;
         }

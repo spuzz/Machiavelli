@@ -10,7 +10,6 @@ public class City : MonoBehaviour {
     // External Components
     [SerializeField] HexGrid hexGrid;
     GameController gameController;
-    Player player;
     CityState cityStateOwner;
     HexCell hexCell;
 
@@ -129,59 +128,12 @@ public class City : MonoBehaviour {
         }
     }
 
-    public Player Player
+    public void KillAllUnits()
     {
-        get
+        foreach (CombatUnit unit in cityUnits)
         {
-            return player;
+            gameController.DestroyUnit(unit);
         }
-
-        set
-        {
-            if(player)
-            {
-                player.onInfoChange -= PlayerUpdated;
-            }
-            player = value;
-
-            if(player)
-            {
-                player.onInfoChange += PlayerUpdated;
-            }
-            UpdateCityBar();
-            foreach (CombatUnit unit in cityUnits)
-            {
-                unit.SetPlayer(player);
-                unit.UpdateUI(0);
-            }
-            cityStateOwner.Player = player;
-            UpdateVision();
-            NotifyInfoChange();
-        }
-    }
-
-    public void SetPlayerOnly(Player ply, bool killAllUnits = true)
-    {
-        if (player)
-        {
-            player.onInfoChange -= PlayerUpdated;
-        }
-        player = ply;
-        if (player)
-        {
-            player.onInfoChange += PlayerUpdated;
-            cityStateOwner.Player = player;
-            if (killAllUnits)
-            {
-                foreach (CombatUnit unit in cityUnits)
-                {
-                    gameController.DestroyUnit(unit);
-                }
-            }
-
-        }
-
-        NotifyInfoChange();
     }
 
     public void UpdateCity(bool killAllUnits = true)
@@ -190,20 +142,17 @@ public class City : MonoBehaviour {
         UpdateVision();
         NotifyInfoChange();
     }
-    private void PlayerUpdated(Player player)
-    {
-        NotifyInfoChange();
-    }
+
 
     public void UpdateVision()
     {
-        if (!Player)
+        if (!cityStateOwner.Player)
         {
             SetVision(false);
             return;
         }
 
-        if (player.IsHuman)
+        if (cityStateOwner.Player.IsHuman)
         {
             SetVision(true);
         }
@@ -330,15 +279,15 @@ public class City : MonoBehaviour {
 
     public void AddUnit(CombatUnit unit)
     {
-        if (player && player.IsHuman)
+        if (cityStateOwner.Player && cityStateOwner.Player.IsHuman)
         {
             unit.HexVision.HasVision = true;
         }
         cityUnits.Add(unit);
         unit.CityStateOwner = GetCityState();
-        if(Player)
+        if(cityStateOwner.Player)
         {
-            unit.SetPlayer(Player);
+            unit.SetPlayer(cityStateOwner.Player);
         }
 
         unit.UnitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(cityStateOwner.SymbolID));
@@ -437,11 +386,27 @@ public class City : MonoBehaviour {
         return adjustedMaintenance;
     }
 
-    private int GetIncome()
+    private int GetPoliticianMaintenance()
+    {
+        int adjustedMaintenance = 0;
+        adjustedMaintenance += cityStateOwner.GetPoliticianMaintenance();
+        return adjustedMaintenance;
+    }
+
+    public int GetIncomePerTurn()
     {
         int adjustedGold = CityResouceController.GetGold();
+        adjustedGold -= GetMaintenance();
         return adjustedGold;
     }
+
+    public int GetPoliticalCapitalPerTurn()
+    {
+        int pcPerTurn = CityResouceController.GetPC();
+        pcPerTurn -= GetPoliticianMaintenance();
+        return pcPerTurn;
+    }
+
 
     public void IncreasePopulation()
     {
@@ -489,6 +454,11 @@ public class City : MonoBehaviour {
         
     }
 
+    public int GetPoliticalCost()
+    {
+        return GameConsts.populationPoliticalCost[population - 1];
+    }
+
     private void Awake()
     {
         gameController = FindObjectOfType<GameController>();
@@ -531,8 +501,6 @@ public class City : MonoBehaviour {
         {
             unit.StartTurn();
         }
-        Player.Gold += GetIncome();
-        Player.Gold -= GetMaintenance();
         Food += CityResouceController.GetFood();
         if(Food >= GameConsts.populationFoodReqirements[Population] && Population < GameConsts.populationFoodReqirements.Count())
         {
@@ -562,10 +530,10 @@ public class City : MonoBehaviour {
 
     public void UpdateCityBar()
     {
-        if (Player)
+        if (cityStateOwner.Player)
         {
-            CityUI.SetPlayerColour(Player.GetColour().Colour);
-            hexCell.PlayerColour = Player.GetColour();
+            CityUI.SetPlayerColour(cityStateOwner.Player.GetColour().Colour);
+            hexCell.PlayerColour = cityStateOwner.Player.GetColour();
         }
         else
         {
@@ -593,6 +561,10 @@ public class City : MonoBehaviour {
             cell.Walled = false;
         }
         hexCell.Walled = false;
+        foreach(Unit unit in cityUnits)
+        {
+            gameController.DestroyUnit(unit);
+        }
         Destroy(gameObject);
         
     }
@@ -614,9 +586,9 @@ public class City : MonoBehaviour {
     public IEnumerable<BuildConfig> GetBuildingOptions()
     {
         List<BuildConfig> configs = new List<BuildConfig>();
-        if (Player)
+        if (cityStateOwner.Player)
         {
-            foreach (BuildConfig config in Player.GetCityPlayerBuildConfigs())
+            foreach (BuildConfig config in cityStateOwner.Player.GetCityPlayerBuildConfigs())
             {
                 if (!buildings.Find(C => C.BuildConfig == config))
                 {
@@ -630,9 +602,9 @@ public class City : MonoBehaviour {
     public IEnumerable<BuildConfig> GetCombatUnitTrainingOptions()
     {
         List<BuildConfig> configs = new List<BuildConfig>();
-        if(Player)
+        if(cityStateOwner.Player)
         {
-            foreach (BuildConfig config in Player.GetCombatUnitBuildConfigs())
+            foreach (BuildConfig config in cityStateOwner.Player.GetCombatUnitBuildConfigs())
             {
                 configs.Add(config);
             }
@@ -643,9 +615,9 @@ public class City : MonoBehaviour {
     public IEnumerable<BuildConfig> GetAgentTrainingOptions()
     {
         List<BuildConfig> configs = new List<BuildConfig>();
-        if (Player)
+        if (cityStateOwner.Player)
         {
-            foreach (BuildConfig config in Player.GetAgentBuildConfigs())
+            foreach (BuildConfig config in cityStateOwner.Player.GetAgentBuildConfigs())
             {
                 configs.Add(config);
             }
@@ -682,7 +654,7 @@ public class City : MonoBehaviour {
         {
             if (cell.CanUnitMoveToCell(Unit.UnitType.AGENT))
             {
-                gameController.CreateAgent(agentConfig, cell, Player);
+                gameController.CreateAgent(agentConfig, cell, cityStateOwner.Player);
                 NotifyInfoChange();
                 return true;
             }
@@ -714,14 +686,6 @@ public class City : MonoBehaviour {
     public void Save(BinaryWriter writer)
     {
         GetHexCell().coordinates.Save(writer);
-        if(player)
-        {
-            writer.Write(player.PlayerNumber);
-        }
-        else
-        {
-            writer.Write(-1);
-        }
         buildingManager.Save(writer);
         writer.Write(cityUnits.Count);
         foreach(CombatUnit unit in cityUnits)
@@ -734,14 +698,14 @@ public class City : MonoBehaviour {
     public static void Load(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
     {
         HexCoordinates coordinates = HexCoordinates.Load(reader);
-        
-        int playerNumber = reader.ReadInt32();
+        int playerNumber = -1;
+        if (header < 2)
+        {
+            playerNumber = reader.ReadInt32();
+        }
+
         HexCell cell = hexGrid.GetCell(coordinates);
         City city = gameController.CreateCity(cell);
-        if (playerNumber != -1)
-        {
-            gameController.GetPlayer(playerNumber).AddCity(city);
-        }
         city.buildingManager.Load(reader,gameController,header);
         int unitCount = reader.ReadInt32();
         for (int i = 0; i < unitCount; i++)
@@ -749,6 +713,14 @@ public class City : MonoBehaviour {
             CombatUnit combatUnit = CombatUnit.Load(reader, gameController, hexGrid, header, city);
         }
         city.GetComponent<CityState>().Load(reader, gameController, hexGrid, header);
+        if (header < 2)
+        {
+            if (playerNumber != -1)
+            {
+                gameController.GetPlayer(playerNumber).AddCity(city);
+            }
+
+        }
         for (int i = 0; i < city.cityUnits.Count; i++)
         {
             city.cityUnits[i].UnitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(city.cityStateOwner.SymbolID));

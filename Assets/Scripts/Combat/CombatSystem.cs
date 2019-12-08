@@ -72,7 +72,8 @@ public static class CombatSystem
 
         if (city.HitPoints <= 0)
         {
-            city.SetPlayerOnly(attackCellUnits[0].unit.GetPlayer());
+            city.GetCityState().SetPlayerOnly(attackCellUnits[0].unit.GetPlayer());
+            city.KillAllUnits();
             city.HitPoints = 100;
         }
 

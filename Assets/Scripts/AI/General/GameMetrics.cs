@@ -41,6 +41,10 @@ static class GameConsts
     public static int startingGold = 300;
     public static bool playAnimations = true;
     public static List<int> populationFoodReqirements = new List<int> { 0, 30, 60, 90, 120, 150, 180, 210, 240, 270, 300, 330, 360, 390, 420, 450, 480, 510, 540, 570, 600, 630, 660, 690, 720, 750, 780, 810, 840, 870, 900 };
+    public static List<int> populationPoliticalCost = new List<int> { 150, 200, 300, 450, 650, 900, 1200, 1550, 1950, 2400, 2950, 3500 };
+    public static int HQGold = 5;
+    public static int HQPC = 5;
+    public static int HQScience = 2;
     public static float ambushBonus = 1.2f;
     public static float fightSpeed = 2f;
 }

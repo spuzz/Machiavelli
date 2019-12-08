@@ -19,5 +19,4 @@ MonoBehaviour:
   portrait: {fileID: 21300000, guid: 9adf7a610e61692488aaeb5e92d82f70, type: 3}
   meshChild: {fileID: 1004281485604820, guid: 5cb18c48d60b3d846a66259590342625, type: 2}
   abilityConfigs:
-  - {fileID: 0}
-  - {fileID: 0}
+  - {fileID: 11400000, guid: 87ed761bd410c834490b9f3037303927, type: 2}

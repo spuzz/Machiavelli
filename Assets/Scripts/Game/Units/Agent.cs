@@ -16,9 +16,10 @@ public class Agent : Unit {
 
     AgentConfig agentConfig;
     Player player;
-
+    
     int energy = 100;
     [SerializeField] int energyRegen = 5;
+
     public Stance CurrentStance
     {
         get
@@ -58,12 +59,11 @@ public class Agent : Unit {
         BaseStrength = config.BaseStrength;
         UnitUI.SetUnitSymbol(config.Symbol);
         HexUnit.VisionRange = config.VisionRange;
-        // TODO
-        //Symbol = config.Symbol;
-        //foreach(AbilityConfig abilityConfig in config.GetAbilityConfigs())
-        //{
-        //    abilities.AbilitiesList.Add(abilityConfig);
-        //}
+        
+        foreach (AbilityConfig abilityConfig in config.GetAbilityConfigs())
+        {
+            abilities.AbilitiesList.Add(abilityConfig);
+        }
 
     }
 

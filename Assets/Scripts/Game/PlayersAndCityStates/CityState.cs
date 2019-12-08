@@ -11,6 +11,8 @@ public class CityState : MonoBehaviour
     // External Components
     GameController gameController;
     Player player;
+
+
     // Internal Components
     [SerializeField] CityStateAIController cityStateAIController;
 
@@ -19,9 +21,11 @@ public class CityState : MonoBehaviour
     public static int cityStateIDCounter = 1;
     [SerializeField] string cityStateName = "City State";
     [SerializeField] int symbolID;
+    [SerializeField] List<Politician> politicians;
+    [SerializeField] Politician politicianPrefab;
     bool alive = true;
 
-    City city;
+    [SerializeField] City city;
 
 
     public delegate void OnInfoChange(CityState cityState);
@@ -36,10 +40,64 @@ public class CityState : MonoBehaviour
 
         set
         {
+            if (player)
+            {
+                player.onInfoChange -= PlayerUpdated;
+            }
             player = value;
+
+            if (player)
+            {
+                player.onInfoChange += PlayerUpdated;
+            }
+            foreach (CombatUnit unit in city.GetUnits())
+            {
+                unit.SetPlayer(player);
+                unit.UpdateUI(0);
+            }
+            city.UpdateCity();
+            NotifyInfoChange();
         }
     }
 
+    public void SetPlayerOnly(Player ply)
+    {
+        if (player)
+        {
+            player.onInfoChange -= PlayerUpdated;
+            player.RemoveCity(city);
+        }
+        player = ply;
+        if (player)
+        {
+            player.AddCity(city);
+            player.onInfoChange += PlayerUpdated;
+        }
+        foreach (CombatUnit unit in city.GetUnits())
+        {
+            unit.SetPlayer(player);
+        }
+
+        NotifyInfoChange();
+    }
+
+    public void SetAllPoliticians(Player player)
+    {
+        foreach (Politician politician in politicians)
+        {
+            politician.ControllingPlayer = player;
+        }
+        UpdatePoliticalLandscape();
+    }
+
+    public void UpdateCityState()
+    {
+        foreach (CombatUnit unit in city.GetUnits())
+        {
+            unit.UpdateUI(0);
+        }
+        city.UpdateCity();
+    }
 
     public int CityStateID
     {
@@ -114,6 +172,17 @@ public class CityState : MonoBehaviour
 
     }
 
+    public void CreatePolitician()
+    {
+        Politician politician = Instantiate <Politician>(politicianPrefab,transform.Find("Politicians").transform);
+        politicians.Add(politician);
+    }
+
+    public void AddPoliticionToPlayer(Player player)
+    {
+
+    }
+
     public void DestroyCityState()
     {
         Destroy(gameObject);
@@ -124,6 +193,11 @@ public class CityState : MonoBehaviour
     {
         writer.Write(CityStateID);
         writer.Write(SymbolID);
+        writer.Write(politicians.Count);
+        foreach(Politician politician in politicians)
+        {
+            politician.Save(writer);
+        }
     }
 
     public void Load(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
@@ -131,6 +205,76 @@ public class CityState : MonoBehaviour
 
         CityStateID = reader.ReadInt32();
         SymbolID = gameController.PickSymbol(reader.ReadInt32());
+        if(header >= 2)
+        {
+
+            int polCount = reader.ReadInt32();
+            for(int a=0; a<polCount; a++)
+            {
+                Politician pol = Instantiate<Politician>(politicianPrefab);
+                politicians.Add(pol);
+                pol.CityState = this;
+                pol.Load(reader, gameController, header);
+            }
+            if(polCount == 0)
+            {
+                for(int a = 0; a < city.Population; a++)
+                {
+                    Politician pol = Instantiate<Politician>(politicianPrefab);
+                    politicians.Add(pol);
+                    pol.CityState = this;
+                }
+
+            }
+            UpdatePoliticalLandscape();
+            UpdateCityState();
+        }
+    }
+
+    public void UpdatePoliticalLandscape()
+    {
+        Player playerResult = GetOwningPlayer();
+        if (playerResult && playerResult != Player)
+        {
+            SetPlayerOnly(playerResult);
+        }
+    }
+
+    private Player GetOwningPlayer()
+    {
+        Dictionary<Player, int> players = new Dictionary<Player, int>();
+        foreach(Politician pol in politicians)
+        {
+            Player player = pol.ControllingPlayer;
+            if (player)
+            {
+                if(players.ContainsKey(player))
+                {
+                    players[player]++;
+                }
+                else
+                {
+                    players[player] = 1;
+                }
+            }
+        }
+        if(players.Count == 0)
+        {
+            return null;
+        }
+        Player highestPlayer = players.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+        if (players[highestPlayer] > politicians.Count / 2)
+        {
+            return highestPlayer;
+        }
+
+        return null;
+    }
+
+    private void PlayerUpdated(Player player)
+    {
+        NotifyInfoChange();
+        city.NotifyInfoChange();
     }
 
     public void NotifyInfoChange()
@@ -139,5 +283,15 @@ public class CityState : MonoBehaviour
         {
             onInfoChange(this);
         }
+    }
+
+    public int GetPoliticianMaintenance()
+    {
+        int mnt = 0;
+        foreach(Politician pol in politicians)
+        {
+            mnt += 1;
+        }
+        return mnt;
     }
 }

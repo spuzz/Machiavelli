@@ -26,6 +26,8 @@ public abstract class Unit : MonoBehaviour {
     [SerializeField] HexUnit hexUnit;
     [SerializeField] int baseMovementFactor = 5;
     [SerializeField] int baseHitPoints = 100;
+    [SerializeField] protected Abilities abilities;
+
     UnitType hexUnitType;
     int hitPoints = 100;
     bool alive = true;

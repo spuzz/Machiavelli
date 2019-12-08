@@ -137,8 +137,7 @@ public class HUD : MonoBehaviour {
     public void UseAbility(int abilityNumber)
     {
         TargetCell = Unit.HexUnit.Location;
-        // TODO
-        //Unit.AttemptAbility(abilityNumber, TargetCell);
+        Unit.GetComponent<Abilities>().AttemptAbility(abilityNumber, TargetCell);
     }
 
 

@@ -15,7 +15,6 @@ public abstract class Player : MonoBehaviour {
     // Attributes
     [SerializeField] int gold = 100;
     [SerializeField] int politicalCapital = 0;
-    private int goldPerTurn = 5;
     [SerializeField] List<CityPlayerBuildConfig> cityPlayerBuildConfigs;
     [SerializeField] List<AgentBuildConfig> agentBuildConfigs;
     [SerializeField] List<CombatUnitBuildConfig> combatUnitBuildConfigs;
@@ -82,14 +81,18 @@ public abstract class Player : MonoBehaviour {
     {
         get
         {
-            return goldPerTurn;
+            return CalculateGoldPerTurn();
         }
 
-        set
+    }
+
+    public int PCPerTurn
+    {
+        get
         {
-            goldPerTurn = value;
-            NotifyInfoChange();
+            return CalculatePCPerTurn();
         }
+
     }
 
     public int ColorID
@@ -130,6 +133,27 @@ public abstract class Player : MonoBehaviour {
             politicalCapital = value;
         }
     }
+
+    private int CalculateGoldPerTurn()
+    {
+        int goldPerTurn = GameConsts.HQGold;
+        foreach(City city in cities)
+        {
+            goldPerTurn += city.GetIncomePerTurn();
+        }
+        return goldPerTurn;
+    }
+
+    private int CalculatePCPerTurn()
+    {
+        int pcPerTurn = GameConsts.HQPC;
+        foreach (City city in cities)
+        {
+            pcPerTurn += city.GetPoliticalCapitalPerTurn();
+        }
+        return pcPerTurn;
+    }
+
 
     public virtual void AddVisibleCell(HexCell cell)
     {
@@ -185,15 +209,7 @@ public abstract class Player : MonoBehaviour {
     public void AddCity(City city)
     {
         cities.Add(city);
-        city.Player = this;
-        UpdateResources();
-        // TODO
-        //city.onInfoChange += cityStateChange;
-    }
-
-    private void cityStateChange(CityState cityState)
-    {
-        UpdateResources();
+        NotifyInfoChange();
     }
 
     public virtual bool IsFriend(CityState city)
@@ -204,9 +220,7 @@ public abstract class Player : MonoBehaviour {
     public void RemoveCity(City city)
     {
         cities.Remove(city);
-        // TODO
-        //city.onInfoChange -= cityStateChange;
-        UpdateResources();
+        NotifyInfoChange();
     }
 
     public IEnumerable<City> GetCities()
@@ -354,8 +368,8 @@ public abstract class Player : MonoBehaviour {
         {
             city.StartTurn();
         }
-        UpdateResources();
-        gold += goldPerTurn;
+        gold += GoldPerTurn;
+        politicalCapital += PCPerTurn;
         ScienceController.StartTurn();
         NotifyInfoChange();
     }
@@ -374,17 +388,6 @@ public abstract class Player : MonoBehaviour {
         }
         agents.RemoveAll(c => c.Alive == false);
 
-    }
-
-    private void UpdateResources()
-    {
-        goldPerTurn = 5;
-        foreach(City city in cities)
-        {
-            // TODO
-            //cityState.GetPlayerIncome();
-        }
-        NotifyInfoChange();
     }
 
     public int GetScience()
@@ -419,6 +422,7 @@ public abstract class Player : MonoBehaviour {
     {
 
         writer.Write(gold);
+        writer.Write(politicalCapital);
     }
 
     public void LoadPlayer(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
@@ -436,6 +440,10 @@ public abstract class Player : MonoBehaviour {
         }
 
         Gold = reader.ReadInt32();
+        if(header >= 2)
+        {
+            politicalCapital = reader.ReadInt32();
+        }
 
     }
     public abstract void Save(BinaryWriter writer);

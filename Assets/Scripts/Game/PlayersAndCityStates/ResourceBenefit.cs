@@ -14,11 +14,13 @@ public class ResourceBenefit : MonoBehaviour
         public int maintenanceReduction;
     }
     [SerializeField] Vector2 production;
+    [SerializeField] Vector2 politicalCapital;
     [SerializeField] Vector2 gold;
     [SerializeField] Vector2 science;
     [SerializeField] Vector2 food;
     [SerializeField] Vector2 defence;
     [SerializeField] List<FocusBonus> focusProductionBonus;
+
     public Vector2 Production
     {
         get
@@ -84,6 +86,19 @@ public class ResourceBenefit : MonoBehaviour
         }
     }
 
+    public Vector2 PoliticalCapital
+    {
+        get
+        {
+            return politicalCapital;
+        }
+
+        set
+        {
+            politicalCapital = value;
+        }
+    }
+
     public List<FocusBonus> FocusProductionBonus
     {
         get
@@ -104,7 +119,8 @@ public class ResourceBenefit : MonoBehaviour
         Production += benefit.Production;
         Science += benefit.Science;
         Defence += benefit.Defence;
-        foreach(FocusBonus bonus in benefit.FocusProductionBonus)
+        PoliticalCapital += benefit.PoliticalCapital;
+        foreach (FocusBonus bonus in benefit.FocusProductionBonus)
         {
             IEnumerable<FocusBonus> bonuses = focusProductionBonus.Where(c => c.type == bonus.type);
             if (bonuses.Count() > 0)
@@ -129,6 +145,7 @@ public class ResourceBenefit : MonoBehaviour
         Production -= benefit.Production;
         Science -= benefit.Science;
         Defence -= benefit.Defence;
+        PoliticalCapital -= benefit.PoliticalCapital;
 
         foreach (FocusBonus bonus in benefit.FocusProductionBonus)
         {
@@ -151,5 +168,6 @@ public class ResourceBenefit : MonoBehaviour
         Production = new Vector2(0, 0);
         Science = new Vector2(0, 0);
         Defence = new Vector2(0, 0);
+        PoliticalCapital = new Vector2(0, 0);
     }
 }

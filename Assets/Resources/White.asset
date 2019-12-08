@@ -14,4 +14,4 @@ MonoBehaviour:
   id: 5
   unitMaterial: {fileID: 2100000, guid: 9062d548f8941e441a84508fe9cf35c9, type: 2}
   buildingMaterial: {fileID: 2100000, guid: cb4cd99c93c162e4eabc2a311f1a6afe, type: 2}
-  colour: {r: 1, g: 1, b: 1, a: 1}
+  colour: {r: 1, g: 0.33490568, b: 0.65614295, a: 1}

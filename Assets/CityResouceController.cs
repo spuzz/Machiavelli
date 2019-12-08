@@ -9,6 +9,7 @@ public class CityResouceController : MonoBehaviour {
     [SerializeField] int baseFood = 0;
     [SerializeField] int baseScience = 2;
     [SerializeField] int baseGold = 5;
+    [SerializeField] int basePC = 0;
 
     [SerializeField] City city;
 
@@ -168,6 +169,22 @@ public class CityResouceController : MonoBehaviour {
         gold = (float)System.Math.Floor(gold);
 
         return (int)gold;
+
+    }
+
+    public int GetPC()
+    {
+        float pc = basePC;
+
+        pc += ResourceBenefits.Gold.x;
+        float bonusPerc = ResourceBenefits.Gold.y;
+
+        bonusPerc = 1.0f + bonusPerc / 100.0f;
+        pc = pc * bonusPerc;
+        pc = (float)System.Math.Floor(pc);
+
+        return (int)pc;
+
 
     }
 }

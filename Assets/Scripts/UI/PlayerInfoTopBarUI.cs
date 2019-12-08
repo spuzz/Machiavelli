@@ -29,6 +29,6 @@ public class PlayerInfoTopBarUI : MonoBehaviour {
     {
         goldText.text = player.Gold.ToString() + "(+" + player.GoldPerTurn.ToString() + ")";
         scienceText.text = "+" + player.GetScience().ToString();
-        politicalText.text = player.PoliticalCapital.ToString() ;
+        politicalText.text = player.PoliticalCapital.ToString() + "(+" + player.PCPerTurn.ToString() + ")"; ;
     }
 }

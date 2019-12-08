@@ -305,9 +305,10 @@ public class HexMapEditor : MonoBehaviour {
         }
 
 
-        if(player && city.Player != player)
+        if(player && city.GetCityState().Player != player)
         {
-            city.Player = player;
+            city.GetCityState().SetAllPoliticians(player);
+            city.GetCityState().UpdateCityState();
         }
     }
 
