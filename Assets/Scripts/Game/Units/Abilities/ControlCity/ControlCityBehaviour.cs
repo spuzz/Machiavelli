@@ -26,7 +26,7 @@ public class ControlCityBehaviour : AbilityBehaviour
 
     public override bool IsValidTarget(HexCell target)
     {
-        if (target.City && !target.City.GetCityState().Player && target.City.GetPoliticalCost() < gameObject.GetComponent<Unit>().GetPlayer().PoliticalCapital)
+        if (target.City && !target.City.GetCityState().Player && target.City.GetPoliticalCost() <= gameObject.GetComponent<Unit>().GetPlayer().PoliticalCapital)
         {
 
             return true;

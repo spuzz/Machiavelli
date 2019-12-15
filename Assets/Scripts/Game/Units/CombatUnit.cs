@@ -46,12 +46,18 @@ public class CombatUnit : Unit
         }
     }
 
-    public void SetPlayer(Player player)
+    public void SetPlayer(Player ply)
     {
         if (player)
         {
+
             UpdateOwnerVisiblity(HexUnit.Location, false);
-            if(player.IsHuman)
+        }
+
+        if (ply)
+        {
+            player = ply;
+            if (ply.IsHuman)
             {
                 HexUnit.Controllable = true;
             }
@@ -59,16 +65,27 @@ public class CombatUnit : Unit
             {
                 HexUnit.Controllable = false;
             }
-        }
-        this.player = player;
 
-        UpdateOwnerVisiblity(HexUnit.Location, true);
-        if (UnitUI)
-        {
-            UnitUI.SetColour(player.GetColour().Colour);
+            UpdateOwnerVisiblity(HexUnit.Location, true);
+            if (UnitUI)
+            {
+                UnitUI.SetColour(ply.GetColour().Colour);
+            }
+            MaterialColourChanger changer = HexUnit.MaterialColourChanger;
+            changer.ChangeMaterial(ply.GetColour());
         }
-        MaterialColourChanger changer = HexUnit.MaterialColourChanger;
-        changer.ChangeMaterial(player.GetColour());
+        else
+        {
+            if (UnitUI)
+            {
+                UnitUI.SetColour(Color.white);
+            }
+            MaterialColourChanger changer = HexUnit.MaterialColourChanger;
+            changer.ChangeMaterial(gameController.DefaultColour);
+        }
+
+
+
 
     }
     public override Player GetPlayer()

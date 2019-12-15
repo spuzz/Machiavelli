@@ -81,13 +81,33 @@ public class CityState : MonoBehaviour
         NotifyInfoChange();
     }
 
-    public void SetAllPoliticians(Player player)
+    public void SetAllPoliticians(Player player, int loyalty = 100)
     {
         foreach (Politician politician in politicians)
         {
             politician.ControllingPlayer = player;
+            politician.Loyalty = loyalty;
         }
         UpdatePoliticalLandscape();
+    }
+
+    public void LowerLoyalty(int lowerLoyalty, Player player)
+    {
+        foreach(Politician pol in politicians.FindAll(c => c.ControllingPlayer == player))
+        {
+            pol.Loyalty -= lowerLoyalty;
+            CheckPoliciticianLoyalty(pol);
+        }
+    }
+
+    private void CheckPoliciticianLoyalty(Politician pol)
+    {
+        if (pol.Loyalty == 0)
+        {
+            pol.ControllingPlayer = null;
+            UpdatePoliticalLandscape();
+        }
+
     }
 
     public void UpdateCityState()
@@ -155,6 +175,16 @@ public class CityState : MonoBehaviour
         return city;
     }
 
+    public int TotalPoliticians()
+    {
+        return politicians.Count;
+    }
+
+    public int PoliticiansByPlayer(Player player)
+    {
+        return politicians.FindAll(c => c.ControllingPlayer == player).Count;
+    }
+
     private void Awake()
     {
         gameController = FindObjectOfType<GameController>();
@@ -175,19 +205,18 @@ public class CityState : MonoBehaviour
     public void CreatePolitician()
     {
         Politician politician = Instantiate <Politician>(politicianPrefab,transform.Find("Politicians").transform);
+        if(player)
+        {
+            politician.ControllingPlayer = player;
+            politician.Loyalty = 100;
+        }
         politicians.Add(politician);
-    }
-
-    public void AddPoliticionToPlayer(Player player)
-    {
-
     }
 
     public void DestroyCityState()
     {
         Destroy(gameObject);
     }
-
 
     public void Save(BinaryWriter writer)
     {
@@ -211,7 +240,7 @@ public class CityState : MonoBehaviour
             int polCount = reader.ReadInt32();
             for(int a=0; a<polCount; a++)
             {
-                Politician pol = Instantiate<Politician>(politicianPrefab);
+                Politician pol = Instantiate<Politician>(politicianPrefab,transform.Find("Politicians").transform);
                 politicians.Add(pol);
                 pol.CityState = this;
                 pol.Load(reader, gameController, header);
@@ -220,7 +249,7 @@ public class CityState : MonoBehaviour
             {
                 for(int a = 0; a < city.Population; a++)
                 {
-                    Politician pol = Instantiate<Politician>(politicianPrefab);
+                    Politician pol = Instantiate<Politician>(politicianPrefab, transform.Find("Politicians").transform);
                     politicians.Add(pol);
                     pol.CityState = this;
                 }
@@ -234,7 +263,7 @@ public class CityState : MonoBehaviour
     public void UpdatePoliticalLandscape()
     {
         Player playerResult = GetOwningPlayer();
-        if (playerResult && playerResult != Player)
+        if (playerResult != Player)
         {
             SetPlayerOnly(playerResult);
         }
@@ -290,7 +319,7 @@ public class CityState : MonoBehaviour
         int mnt = 0;
         foreach(Politician pol in politicians)
         {
-            mnt += 1;
+            mnt += GameConsts.maintanencePerPop;
         }
         return mnt;
     }

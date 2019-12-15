@@ -5,7 +5,7 @@ using System.IO;
 
 public class SaveLoadMenu : MonoBehaviour {
 
-	const int mapFileVersion = 2;
+	const int mapFileVersion = 3;
 
 	public Text menuLabel, actionButtonLabel;
 
@@ -123,7 +123,7 @@ public class SaveLoadMenu : MonoBehaviour {
 
     public void LoadDefaultMap()
     {
-        string map = Path.Combine(Application.persistentDataPath, "DemoMap.map");
+        string map = Path.Combine(Application.persistentDataPath, "SaveTest2.map");
         Load(map);
        
     }

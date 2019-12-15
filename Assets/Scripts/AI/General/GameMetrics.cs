@@ -47,5 +47,7 @@ static class GameConsts
     public static int HQScience = 2;
     public static float ambushBonus = 1.2f;
     public static float fightSpeed = 2f;
+    public static int negativePCTurnIncrease = 2;
+    public static int maintanencePerPop = 1;
 }
 

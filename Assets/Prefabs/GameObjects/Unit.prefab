@@ -422,7 +422,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 0, g: 0, b: 0, a: 1}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -545,6 +545,7 @@ MonoBehaviour:
   hexUnit: {fileID: 114701888605048992}
   baseMovementFactor: 5
   baseHitPoints: 100
+  abilities: {fileID: 0}
   mercBackground: {fileID: 2800000, guid: d970acfae50454242b24f529d8dd21e2, type: 3}
 --- !u!114 &114220827588293676
 MonoBehaviour:

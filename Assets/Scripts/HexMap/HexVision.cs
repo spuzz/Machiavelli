@@ -36,8 +36,13 @@ public class HexVision : MonoBehaviour
 
         set
         {
-            UpdateVision(value);
-            hasVision = value;
+            
+            if(hasVision != value)
+            {
+                hasVision = value;
+                UpdateVision(value);
+            }
+
         }
     }
 
@@ -76,7 +81,7 @@ public class HexVision : MonoBehaviour
     }
     private void UpdateVision(bool value)
     {
-        if(editMode == false && hasVision != value)
+        if(editMode == false)
         {
             if(value == true)
             {

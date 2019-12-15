@@ -16,6 +16,7 @@ public class GameController : MonoBehaviour
     [SerializeField] AIPlayer aiPlayerPrefab;
 
     [SerializeField] List<Sprite> possibleCityStateSymbols;
+    [SerializeField] PlayerColour defaultColour;
     [SerializeField] List<PlayerColour> possiblePlayerColors;
     [SerializeField] List<CityPlayerBuildConfig> defaultBuildings;
     [SerializeField] List<AgentBuildConfig> defaultAgents;
@@ -136,6 +137,19 @@ public class GameController : MonoBehaviour
         set
         {
             defaultCombatUnits = value;
+        }
+    }
+
+    public PlayerColour DefaultColour
+    {
+        get
+        {
+            return defaultColour;
+        }
+
+        set
+        {
+            defaultColour = value;
         }
     }
 

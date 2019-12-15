@@ -17,7 +17,10 @@ public class CityInfoUI : CityInfoPanel
     [SerializeField] Text unassignedPop;
     [SerializeField] Text foodStored;
     [SerializeField] Text turns;
+    [SerializeField] Text politicians;
     [SerializeField] Image currentBuildingImage;
+    [SerializeField] HumanPlayer player;
+
     public override void UpdateUI(City cityUpdated)
     {
         cityStateName.text = city.GetCityState().CityStateName;
@@ -34,6 +37,7 @@ public class CityInfoUI : CityInfoPanel
         int foodRequired = (GameConsts.populationFoodReqirements[city.Population] - city.Food);
         int turnsNeeded = (foodRequired + city.CityResouceController.GetFood() - 1) / city.CityResouceController.GetFood();
         turns.text = turnsNeeded.ToString() + " Turns";
+        politicians.text = city.GetCityState().PoliticiansByPlayer(player) + "/" + city.GetCityState().TotalPoliticians();
         //BuildConfig config = city.BuildingManager.currentBuilding();
         //if (config)
         //{

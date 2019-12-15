@@ -53,9 +53,10 @@ public class AgentPanel : MonoBehaviour {
             
             if(Unit)
             {
+                List<AbilityConfig> abilities = unit.GetComponent<Abilities>().AbilitiesList;
                 for (int count = 0; count < abilityButtons.Count; count++)
                 {
-                    List<AbilityConfig> abilities = unit.GetComponent<Abilities>().AbilitiesList;
+
                     if (count >= abilities.Count)
                     {
                         abilityButtons[count].gameObject.SetActive(false);
@@ -63,7 +64,7 @@ public class AgentPanel : MonoBehaviour {
                     else
                     {
                         abilityButtons[count].gameObject.SetActive(true);
-                        abilityButtons[count].interactable = abilities[count].GetValidTargets(unit.HexUnit.Location).Count != 0;
+                        abilityButtons[count].interactable = unit.GetComponent<Abilities>().ValidTargets(count, unit.HexUnit.Location).Count != 0;
                         abilityButtons[count].image.sprite = abilities[count].DefaultIcon;
 
                         ToolTip tooltip = abilityButtons[count].GetComponent<ToolTip>();

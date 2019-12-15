@@ -8,6 +8,7 @@ public class Politician : MonoBehaviour {
     [SerializeField] Player controllingPlayer;
     [SerializeField] Politician politicianPrefab;
     [SerializeField] CityState cityState;
+    [SerializeField] [Range(0,100)] int loyalty;
 
     public Player ControllingPlayer
     {
@@ -18,7 +19,20 @@ public class Politician : MonoBehaviour {
 
         set
         {
-            controllingPlayer = value;
+            if(controllingPlayer != value)
+            {
+                if(controllingPlayer)
+                {
+                    controllingPlayer.LosePolitician(cityState);
+                }
+
+                controllingPlayer = value;
+                if (controllingPlayer)
+                {
+                    controllingPlayer.GainPolitician(cityState);
+                }
+            }
+
             CityState.UpdatePoliticalLandscape();
         }
     }
@@ -36,6 +50,19 @@ public class Politician : MonoBehaviour {
         }
     }
 
+    public int Loyalty
+    {
+        get
+        {
+            return loyalty;
+        }
+
+        set
+        {
+            loyalty = value;
+        }
+    }
+
     public void Save(BinaryWriter writer)
     {
         if(controllingPlayer)
@@ -46,6 +73,7 @@ public class Politician : MonoBehaviour {
         {
             writer.Write(-1);
         }
+        writer.Write(loyalty);
 
     }
 
@@ -54,9 +82,13 @@ public class Politician : MonoBehaviour {
         int playerNumber = reader.ReadInt32();
         if(playerNumber != -1)
         {
-            controllingPlayer = gameController.GetPlayer(playerNumber);
+            ControllingPlayer = gameController.GetPlayer(playerNumber);
+            loyalty = 100;
         }
-
+        if(header > 2)
+        {
+            loyalty = reader.ReadInt32();
+        }
     }
 
     void Start () {

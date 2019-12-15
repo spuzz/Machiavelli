@@ -55,7 +55,11 @@ public class UnitUI : MonoBehaviour {
     public void SetColour(Color color)
     {
         unitBackground.color = new Color(color.r, color.g, color.b, 1.0f);
-        //cityStateSymbol.color = new Color(color.r, color.g, color.b, 0.6f);
+        if(cityStateSymbol)
+        {
+            cityStateSymbol.color = new Color(color.r, color.g, color.b, 0.6f);
+        }
+
         foreach(Button button in unitStackButtons)
         {
             button.image.color = new Color(color.r, color.g, color.b, 0.6f);

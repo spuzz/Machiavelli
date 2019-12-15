@@ -15,7 +15,9 @@ public abstract class Player : MonoBehaviour {
     // Attributes
     [SerializeField] int gold = 100;
     [SerializeField] int politicalCapital = 0;
+    [SerializeField] int turnsInNegativePC = 0;
     [SerializeField] List<CityPlayerBuildConfig> cityPlayerBuildConfigs;
+
     [SerializeField] List<AgentBuildConfig> agentBuildConfigs;
     [SerializeField] List<CombatUnitBuildConfig> combatUnitBuildConfigs;
     private int colorID;
@@ -25,6 +27,9 @@ public abstract class Player : MonoBehaviour {
 
     public List<Agent> agents = new List<Agent>();
     public List<City> cities = new List<City>();
+    //public List<CityState> cityStatesWithLoyalPoliticians = new List<CityState>();
+    Dictionary<CityState, int> cityStatesWithLoyalPoliticians = new Dictionary<CityState, int>();
+
     public Dictionary<HexCell, int> visibleCells = new Dictionary<HexCell, int>();
     public List<HexCell> exploredCells = new List<HexCell>();
     List<City> visibleCities = new List<City>();
@@ -134,6 +139,25 @@ public abstract class Player : MonoBehaviour {
         }
     }
 
+    public void LosePolitician(CityState cs)
+    {
+        cityStatesWithLoyalPoliticians[cs] -= 1;
+    }
+
+    public void GainPolitician(CityState cs)
+    {
+        if(cityStatesWithLoyalPoliticians.Keys.Contains(cs) == false)
+        {
+            cityStatesWithLoyalPoliticians[cs] = 1;
+        }
+        else
+        {
+            cityStatesWithLoyalPoliticians[cs] += 1;
+
+        }
+
+    }
+
     private int CalculateGoldPerTurn()
     {
         int goldPerTurn = GameConsts.HQGold;
@@ -232,7 +256,6 @@ public abstract class Player : MonoBehaviour {
     {
         return agents;
     }
-
 
     public virtual void AddAgent(Agent agent)
     {
@@ -358,11 +381,7 @@ public abstract class Player : MonoBehaviour {
     public void StartTurn()
     {
 
-        agents.RemoveAll(c => c.Alive == false);
-        foreach (Agent agent in agents)
-        {
-            agent.StartTurn();
-        }
+
 
         foreach (City city in cities)
         {
@@ -370,8 +389,31 @@ public abstract class Player : MonoBehaviour {
         }
         gold += GoldPerTurn;
         politicalCapital += PCPerTurn;
+        if(politicalCapital < 0)
+        {
+            NegativePC();
+            politicalCapital = 0;
+        }
         ScienceController.StartTurn();
+
+        agents.RemoveAll(c => c.Alive == false);
+        foreach (Agent agent in agents)
+        {
+            agent.StartTurn();
+        }
+
         NotifyInfoChange();
+    }
+
+    private void NegativePC()
+    {
+        int lowerLoyalty = 1;
+        List<CityState> keys = cityStatesWithLoyalPoliticians.Keys.ToList();
+        foreach (CityState cityState in keys)
+        {
+            cityState.LowerLoyalty(lowerLoyalty, this);
+            cityState.UpdateCityState();
+        }
     }
 
     public abstract void PlayerDefeated();
