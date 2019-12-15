@@ -104,7 +104,7 @@ public class Abilities : MonoBehaviour
 
     private void ShowAbility(int index, HexCell hexCell)
     {
-        AbilitiesList[index].Show(AbilitiesList[index].GetEnergyCost(), hexCell);
+        AbilitiesList[index].Show(hexCell);
     }
 
     private void FinishAbility(int index, HexCell hexCell)
@@ -120,10 +120,10 @@ public class Abilities : MonoBehaviour
             action.ActionsUnit = unit.HexUnit;
             action.AddAction(hexCell, AbilitiesList[index]);
             action.EnergyCost = AbilitiesList[index].GetEnergyCost();
-            unit.AddAction(action);
+            unit.HexUnit.AddAction(action);
             if(immediateMode)
             {
-                unit.DoActions();
+                unit.HexUnit.DoActions();
             }
             return true;
         }

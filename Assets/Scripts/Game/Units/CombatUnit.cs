@@ -7,85 +7,85 @@ public class CombatUnit : Unit
 {
     [SerializeField] Texture mercBackground;
 
-    public enum Stance
-    {
-        UNASSIGNED,
-        OFFENCE,
-        DEFENCE,
-        EXPLORE
-    }
-
-    Stance currentStance = Stance.UNASSIGNED;
     CombatUnitConfig combatUnitConfig;
-    bool mercenary;
     City cityOwner;
     Player player;
 
-    public Stance CurrentStance
+
+    public enum CombatUnitType
     {
-        get { return currentStance; }
-        set { currentStance = value; }
+        MELEE,
+        SUPPORT,
+        SIEGE
     }
 
-    public bool Mercenary
+    public enum CombatClassification
+    {
+        LIGHTCAVALRY,
+        HEAVYCAVALRY,
+        SPEARMEN,
+        SWORDSMAN,
+        AXEMEN,
+        SUPPORT,
+        SIEGE
+        
+    }
+
+    CombatUnitType combatUnitType;
+
+    public CombatUnitType CombatType
     {
         get
         {
-            return mercenary;
+            return combatUnitType;
         }
 
         set
         {
-            mercenary = value;
-            if(mercenary == true)
-            {
-                BackGround = mercBackground;
-            }
+            combatUnitType = value;
         }
     }
 
-    public City CityOwner
-    {
-        get
-        {
-            return cityOwner;
-        }
-
-        set
-        {
-            if (cityOwner)
-            {
-                UpdateOwnerVisiblity(HexUnit.Location, false);
-            }
-
-            cityOwner = value;
-            UpdateOwnerVisiblity(HexUnit.Location, true);
-            if (unitUI)
-            {
-                if (GetCityState())
-                {
-                    unitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(GetCityState().SymbolID));
-
-                }
-                else
-                {
-                    unitUI.SetCityStateSymbolToDefault();
-                }
-            }
-            UpdateColours();
-        }
-    }
-
-    public void SetPlayer(Player player)
+    public void SetPlayer(Player ply)
     {
         if (player)
         {
+
             UpdateOwnerVisiblity(HexUnit.Location, false);
         }
-        this.player = player;
 
-        UpdateOwnerVisiblity(HexUnit.Location, true);
-        UpdateColours();
+        if (ply)
+        {
+            player = ply;
+            if (ply.IsHuman)
+            {
+                HexUnit.Controllable = true;
+            }
+            else
+            {
+                HexUnit.Controllable = false;
+            }
+
+            UpdateOwnerVisiblity(HexUnit.Location, true);
+            if (UnitUI)
+            {
+                UnitUI.SetColour(ply.GetColour().Colour);
+            }
+            MaterialColourChanger changer = HexUnit.MaterialColourChanger;
+            changer.ChangeMaterial(ply.GetColour());
+        }
+        else
+        {
+            if (UnitUI)
+            {
+                UnitUI.SetColour(Color.white);
+            }
+            MaterialColourChanger changer = HexUnit.MaterialColourChanger;
+            changer.ChangeMaterial(gameController.DefaultColour);
+        }
+
+
+
 
     }
     public override Player GetPlayer()
@@ -93,10 +93,6 @@ public class CombatUnit : Unit
         return player;
     }
 
-    public override City GetCityOwner()
-    {
-        return cityOwner;
-    }
 
     public void SetCombatUnitConfig(CombatUnitConfig config)
     {
@@ -105,25 +101,17 @@ public class CombatUnit : Unit
         HexVision.AddVisibleObject(HexUnit.GetMesh());
         BaseMovement = config.BaseMovement;
         BaseStrength = config.BaseStrength;
-        BaseRangeStrength = config.BaseRangeStrength;
-        Range = config.Range;
-        Symbol = config.Symbol;
-        foreach (AbilityConfig abilityConfig in config.GetAbilityConfigs())
-        {
-            abilities.AbilitiesList.Add(abilityConfig);
-        }
+        CombatType = config.CombatUnitType;
+        UnitUI.SetUnitSymbol(config.Symbol);
+        // TODO
+        //Symbol = config.Symbol;
+
 
     }
 
-    public override void Setup()
+    public override void UpdateUI(int healthChange)
     {
-        if (CityOwner)
-        {
-            
-            unitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(GetCityState().SymbolID));
-            UpdateColours();
-        }
-
+        base.UpdateUI(healthChange);
     }
     public CombatUnitConfig GetCombatUnitConfig()
     {
@@ -132,7 +120,7 @@ public class CombatUnit : Unit
 
     public override bool CanAttack(Unit unit)
     {
-        if(unit.GetCityState() && unit.GetCityState() != GetCityState())
+        if(unit.CityStateOwner && unit.CityStateOwner != CityStateOwner)
         {
             return true;
         }
@@ -153,27 +141,19 @@ public class CombatUnit : Unit
         float orientation = reader.ReadSingle();
         int hitPoints = 100;
         int movementLeft = 2;
-        string unitName = reader.ReadString();
-        if (header >= 3)
-        {
-            hitPoints = reader.ReadInt32();
-            movementLeft = reader.ReadInt32();
-        }
+        //string unitName = reader.ReadString();
+
+        hitPoints = reader.ReadInt32();
+        movementLeft = reader.ReadInt32();
 
         string combatUnitConfig = "Swordsman";
-        if (header >= 4)
-        {
-            combatUnitConfig = reader.ReadString();
-        }
-
+        combatUnitConfig = reader.ReadString();
 
         HexUnit hexUnit = gameController.CreateCityStateUnit(combatUnitConfig, grid.GetCell(coordinates), city);
         CombatUnit combatUnit = hexUnit.GetComponent<CombatUnit>();
-        if (header >= 3)
-        {
-            combatUnit.HitPoints = hitPoints;
-            combatUnit.SetMovementLeft(movementLeft);
-        }
+
+        combatUnit.HitPoints = hitPoints;
+        combatUnit.SetMovementLeft(movementLeft);
         return combatUnit;
     }
 }

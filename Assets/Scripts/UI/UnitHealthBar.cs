@@ -5,7 +5,7 @@ using UnityEngine.UI;
 
 public class UnitHealthBar : MonoBehaviour
 {
-    RawImage healthBarRawImage = null;
+    [SerializeField] RawImage healthBarRawImage;
     Unit unit = null;
     int currentHealth;
     int maxHealth;
@@ -25,11 +25,6 @@ public class UnitHealthBar : MonoBehaviour
         }
     }
 
-    // Use this for initialization
-    void Awake()
-    {
-        healthBarRawImage = GetComponent<RawImage>();
-    }
 
     // Update is called once per frame
     public void UpdateHealth(int healthChange)

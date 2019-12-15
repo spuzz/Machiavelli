@@ -15,7 +15,6 @@ public class HexMapEditor : MonoBehaviour {
     [SerializeField] Dropdown players;
     [SerializeField] Dropdown cityStateUnits;
     [SerializeField] Dropdown cityStates;
-    [SerializeField] Dropdown cities;
     [SerializeField] Toggle editModeToggle;
     [SerializeField] Toggle animationsToggle;
     public HexGrid hexGrid;
@@ -177,7 +176,6 @@ public class HexMapEditor : MonoBehaviour {
 
         cityStates.ClearOptions();
 
-        cities.ClearOptions();
 
         GameConsts.playAnimations = false;
     }
@@ -213,19 +211,13 @@ public class HexMapEditor : MonoBehaviour {
         if(cityStates.options.Count != gameController.CityStateCount())
         {
             cityStates.ClearOptions();
-            cityStates.AddOptions(gameController.CityStateNames());
+            cityStates.AddOptions(gameController.GetCityNames());
         }
 
         if (players.options.Count != gameController.PlayerCount() || gameController.PlayerCount() == 3)
         {
             players.ClearOptions();
             players.AddOptions(gameController.PlayerNames());
-        }
-
-        if (cities.options.Count != gameController.GetCityCount() || gameController.GetCityCount() == 3)
-        {
-            cities.ClearOptions();
-            cities.AddOptions(gameController.GetCityNames());
         }
 
         previousCell = null;
@@ -249,7 +241,7 @@ public class HexMapEditor : MonoBehaviour {
 
 	void CreateUnit () {
 		HexCell cell = GetCellUnderCursor();
-		if (players.options.Count > 0 && cell && cell.CanUnitMoveToCell(HexUnit.UnitType.AGENT)) {
+		if (players.options.Count > 0 && cell && cell.CanUnitMoveToCell(Unit.UnitType.AGENT)) {
             string name = playerUnits.options[playerUnits.value].text;
             string playerName = players.options[players.value].text;
             Player player;
@@ -284,9 +276,9 @@ public class HexMapEditor : MonoBehaviour {
     void CreateCityStateUnit()
     {
         HexCell cell = GetCellUnderCursor();
-        if (cities.options.Count > 0 && cell && cell.CanUnitMoveToCell(HexUnit.UnitType.COMBAT))
+        if (cityStates.options.Count > 0 && cell && cell.CanUnitMoveToCell(Unit.UnitType.COMBAT))
         {
-            int cityID = System.Convert.ToInt32(cities.options[players.value].text);
+            int cityID = System.Convert.ToInt32(cityStates.options[cityStates.value].text);
             City city = gameController.GetCity(cityID);
             if(city)
             {
@@ -313,9 +305,10 @@ public class HexMapEditor : MonoBehaviour {
         }
 
 
-        if(player && city.Player != player)
+        if(player && city.GetCityState().Player != player)
         {
-            city.Player = player;
+            city.GetCityState().SetAllPoliticians(player);
+            city.GetCityState().UpdateCityState();
         }
     }
 
@@ -343,12 +336,6 @@ public class HexMapEditor : MonoBehaviour {
         {
             if (currentCell.City)
             {
-                int cityStateID = System.Convert.ToInt32(cityStates.options[cityStates.value].text);
-                CityState cityState = gameController.GetCityState(cityStateID);
-                if (applyCityState && currentCell.City.GetCityState() != cityState)
-                {
-                    currentCell.City.SetCityState(cityState);
-                }
                 if(applyCityStatePlayer)
                 {
                     SetCityPlayer(currentCell.City);
@@ -411,25 +398,6 @@ public class HexMapEditor : MonoBehaviour {
                         hexGrid.DestroyCity(cell.City);
                     }
                     
-                }
-                if (activeSpecialIndex == 3)
-                {
-                    string playerName = players.options[players.value].text;
-                    Player player;
-                    if (playerName == "Human Player")
-                    {
-                        player = gameController.HumanPlayer;
-                    }
-                    else
-                    {
-                        int playerID = System.Convert.ToInt32(players.options[players.value].text);
-                        player = gameController.GetPlayer(playerID);
-                    }
-                    hexGrid.CreateOperationCentre(cell, player);
-                }
-                else
-                {
-                    hexGrid.DestroyOperationCentre(cell);
                 }
 
                 cell.SpecialIndex = activeSpecialIndex;

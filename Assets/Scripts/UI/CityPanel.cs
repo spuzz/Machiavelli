@@ -11,27 +11,28 @@ public class CityPanel : MonoBehaviour {
     {
         city = cityToWatch;
         gameObject.SetActive(true);
-        SetActiveInfoPanel(0);
+        ActivatePanels();
     }
 
     public void SetInactive()
     {
-        SetActiveInfoPanel(-1);
+        DeactivePanels();
         gameObject.SetActive(false); 
     }
 
-    public void SetActiveInfoPanel(int panelNumber)
+    public void ActivatePanels()
     {
         for (int a = 0; a < infoPanels.Count; a++)
         {
-            if (a == panelNumber)
-            {
-                infoPanels[a].SetActive(city);
-            }
-            else
-            {
-                infoPanels[a].SetInactive();
-            }
+            infoPanels[a].SetActive(city);
+        }
+    }
+
+    public void DeactivePanels()
+    {
+        for (int a = 0; a < infoPanels.Count; a++)
+        {
+            infoPanels[a].SetInactive();
         }
     }
 }

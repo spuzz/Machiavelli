@@ -2,6 +2,40 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+
+[System.Serializable]
+public class CombatClassModifier
+{
+    [SerializeField] CombatUnit.CombatClassification classification;
+    [SerializeField] [Range(-100, 1000)] int modifier;
+
+    public CombatUnit.CombatClassification Classification
+    {
+        get
+        {
+            return classification;
+        }
+
+        set
+        {
+            classification = value;
+        }
+    }
+
+    public int Modifier
+    {
+        get
+        {
+            return modifier;
+        }
+
+        set
+        {
+            modifier = value;
+        }
+    }
+}
+
 [CreateAssetMenu(menuName = ("Units/CombatUnit"))]
 public class CombatUnitConfig : ScriptableObject {
 
@@ -9,13 +43,17 @@ public class CombatUnitConfig : ScriptableObject {
     [SerializeField] string name;
     [SerializeField] int baseMovement = 2;
     [SerializeField] int baseStrength = 25;
-    [SerializeField] int baseRangeStrength = 0;
-    [SerializeField] int range = 0;
     [SerializeField] Texture symbol;
     [SerializeField] Sprite portrait;
     [SerializeField] GameObject meshChild;
     [SerializeField] List<AbilityConfig> abilityConfigs;
-
+    [SerializeField] CombatUnit.CombatUnitType combatUnitType;
+    [SerializeField] CombatUnit.CombatClassification classification;
+    [SerializeField] [Range(-100, 1000)] int defenceModifier;
+    [SerializeField] [Range(-100, 1000)] int offenceModifier;
+    [SerializeField] [Range(-100, 1000)] int siegeModifier;
+    [SerializeField] [Range(-100, 1000)] int difficultTerrainModifier;
+    [SerializeField] List<CombatClassModifier> classModifers;
     public IEnumerable<AbilityConfig> GetAbilityConfigs()
     {
         return abilityConfigs;
@@ -98,29 +136,95 @@ public class CombatUnitConfig : ScriptableObject {
         }
     }
 
-    public int Range
+
+    public CombatUnit.CombatUnitType CombatUnitType
     {
         get
         {
-            return range;
+            return combatUnitType;
         }
 
         set
         {
-            range = value;
+            combatUnitType = value;
         }
     }
 
-    public int BaseRangeStrength
+    public int DefenceModifier
     {
         get
         {
-            return baseRangeStrength;
+            return defenceModifier;
         }
 
         set
         {
-            baseRangeStrength = value;
+            defenceModifier = value;
+        }
+    }
+
+    public int OffenceModifier
+    {
+        get
+        {
+            return offenceModifier;
+        }
+
+        set
+        {
+            offenceModifier = value;
+        }
+    }
+
+    public int SiegeModifier
+    {
+        get
+        {
+            return siegeModifier;
+        }
+
+        set
+        {
+            siegeModifier = value;
+        }
+    }
+
+    public int DifficultTerrainModifier
+    {
+        get
+        {
+            return difficultTerrainModifier;
+        }
+
+        set
+        {
+            difficultTerrainModifier = value;
+        }
+    }
+
+    public List<CombatClassModifier> ClassModifers
+    {
+        get
+        {
+            return classModifers;
+        }
+
+        set
+        {
+            classModifers = value;
+        }
+    }
+
+    public CombatUnit.CombatClassification Classification
+    {
+        get
+        {
+            return classification;
+        }
+
+        set
+        {
+            classification = value;
         }
     }
 }

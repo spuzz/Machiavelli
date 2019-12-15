@@ -1,0 +1,23 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: ea61b27dab4118a488e2ef2e7b6a504d, type: 3}
+  m_Name: Granary
+  m_EditorClassIdentifier: 
+  baseProductionCost: 100
+  basePurchaseCost: 0
+  prerequisites: []
+  focusType: 0
+  buildingImage: {fileID: 21300000, guid: ad7422f3b15dea7479689bba95e2aaab, type: 3}
+  name: Granary
+  displayName: Granary
+  toolTipText: Granary
+  buildPrefab: {fileID: 1084114713908218, guid: cbd1451849ebe9147838bf6d490267ac,
+    type: 2}

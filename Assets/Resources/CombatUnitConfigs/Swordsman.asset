@@ -13,7 +13,7 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   name: Swordsman
   baseMovement: 2
-  baseStrength: 25
+  baseStrength: 35
   baseRangeStrength: 0
   range: 0
   symbol: {fileID: 2800000, guid: 065f894ba24fad04b9f3937711e1ac5c, type: 3}

@@ -53,27 +53,29 @@ public class AgentPanel : MonoBehaviour {
             
             if(Unit)
             {
+                List<AbilityConfig> abilities = unit.GetComponent<Abilities>().AbilitiesList;
                 for (int count = 0; count < abilityButtons.Count; count++)
                 {
-                    if(count >= unit.GetNumberOfAbilities())
+
+                    if (count >= abilities.Count)
                     {
                         abilityButtons[count].gameObject.SetActive(false);
                     }
                     else
                     {
                         abilityButtons[count].gameObject.SetActive(true);
-                        abilityButtons[count].interactable = Unit.IsAbilityUsable(count);
-                        abilityButtons[count].image.sprite = Unit.GetAbility(count).DefaultIcon;
+                        abilityButtons[count].interactable = unit.GetComponent<Abilities>().ValidTargets(count, unit.HexUnit.Location).Count != 0;
+                        abilityButtons[count].image.sprite = abilities[count].DefaultIcon;
 
                         ToolTip tooltip = abilityButtons[count].GetComponent<ToolTip>();
                         if (tooltip)
                         {
                             tooltip.Clear();
-                            tooltip.SetHeader(Unit.GetAbility(count).DisplayName);
-                            tooltip.AddText(Unit.GetAbility(count).ToolTipText);
+                            tooltip.SetHeader(abilities[count].DisplayName);
+                            tooltip.AddText(abilities[count].ToolTipText);
                             tooltip.AddText("");
                             tooltip.AddText("Cost");
-                            tooltip.AddSymbolWithText(1, Unit.GetAbility(count).GetEnergyCost().ToString());
+                            tooltip.AddSymbolWithText(1, abilities[count].GetEnergyCost().ToString());
                         }
 
                     }

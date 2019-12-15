@@ -13,26 +13,41 @@ public class CityInfoUI : CityInfoPanel
     [SerializeField] Text food;
     [SerializeField] Text production;
     [SerializeField] Text science;
+    [SerializeField] Text population;
+    [SerializeField] Text unassignedPop;
+    [SerializeField] Text foodStored;
+    [SerializeField] Text turns;
+    [SerializeField] Text politicians;
     [SerializeField] Image currentBuildingImage;
+    [SerializeField] HumanPlayer player;
+
     public override void UpdateUI(City cityUpdated)
     {
         cityStateName.text = city.GetCityState().CityStateName;
         health.text = city.HitPoints.ToString() + "/" + city.BaseHitPoints.ToString();
         strength.text = city.Strength.ToString();
-        gold.text = city.GetIncome().ToString();
-        food.text = city.currentFood.ToString() + " (" + city.Food + "/" + city.foodForNextPop.ToString() + ")";
-        production.text = city.currentProduction.ToString();
-        science.text = city.currentScience.ToString();
-        BuildConfig config = city.BuildingManager.currentBuilding();
-        if (config)
-        {
-            currentBuildingImage.gameObject.SetActive(true);
-            currentBuildingImage.sprite = config.BuildingImage;
-        }
-        else
-        {
-            currentBuildingImage.gameObject.SetActive(false);
-        }
+        gold.text = city.CityResouceController.GetGold().ToString();
+        food.text = city.CityResouceController.GetFood().ToString();
+        production.text = city.CityResouceController.GetProduction().ToString();
+        science.text = city.CityResouceController.GetScience().ToString();
+
+        population.text = city.Population.ToString();
+        unassignedPop.text = city.UnassignedPopulation().ToString();
+        foodStored.text = city.Food + "/" + GameConsts.populationFoodReqirements[city.Population].ToString();
+        int foodRequired = (GameConsts.populationFoodReqirements[city.Population] - city.Food);
+        int turnsNeeded = (foodRequired + city.CityResouceController.GetFood() - 1) / city.CityResouceController.GetFood();
+        turns.text = turnsNeeded.ToString() + " Turns";
+        politicians.text = city.GetCityState().PoliticiansByPlayer(player) + "/" + city.GetCityState().TotalPoliticians();
+        //BuildConfig config = city.BuildingManager.currentBuilding();
+        //if (config)
+        //{
+        //    currentBuildingImage.gameObject.SetActive(true);
+        //    currentBuildingImage.sprite = config.BuildingImage;
+        //}
+        //else
+        //{
+        //    currentBuildingImage.gameObject.SetActive(false);
+        //}
 
     }
 }

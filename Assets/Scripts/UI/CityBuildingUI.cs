@@ -1,15 +1,20 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
+using TMPro;
 using UnityEngine;
 using UnityEngine.UI;
 
 public class CityBuildingUI : CityInfoPanel {
-    [SerializeField] Button outpost;
-    [SerializeField] Sprite defaultImage;
-    [SerializeField] List<Button> buildingButtons;
     [SerializeField] HumanPlayer humanPlayer;
-
-    int slotID;
+    [SerializeField] GameObject buildingsContent;
+    [SerializeField] GameObject unitsContent;
+    [SerializeField] BuildingOption buildingOptionPrefab;
+    List<BuildingOption> buildingOptions = new List<BuildingOption>();
+    [SerializeField] Image currentBuild;
+    [SerializeField] List<Image> buildQueue;
+    [SerializeField] Sprite defaultBuildImage;
+    [SerializeField] TextMeshProUGUI daysLeft;
 
     public HumanPlayer HumanPlayer
     {
@@ -26,61 +31,89 @@ public class CityBuildingUI : CityInfoPanel {
 
     private void Awake()
     {
-        outpost.GetComponentInChildren<Text>().gameObject.SetActive(false);
     }
     public override void UpdateUI(City cityToWatch)
     {
-        city = cityToWatch;
-        if (city.PlayerBuildingControl.HasOutpost(HumanPlayer))
+        foreach(BuildingOption option in buildingOptions)
         {
-            outpost.image.sprite = city.PlayerBuildingControl.OutpostConfig.BuildingImage;
-            outpost.interactable = true;
+            Destroy(option.gameObject);
+        }
+
+
+        buildingOptions.Clear();
+
+        foreach (BuildConfig config in city.GetBuildingOptions())
+        {
+            AddOption(config,buildingsContent);
+        }
+        foreach (BuildConfig config in city.GetCombatUnitTrainingOptions())
+        {
+            AddOption(config, unitsContent);
+        }
+        foreach (BuildConfig config in city.GetAgentTrainingOptions())
+        {
+            AddOption(config, unitsContent);
+        }
+
+        if (city.BuildingManager.BuildsInQueue() > 0)
+        {
+            currentBuild.sprite = city.BuildingManager.currentBuilding().BuildingImage;
+            daysLeft.text = city.BuildingManager.TimeLeftOnBuild(city.CityResouceController.GetProduction()).ToString();
+            currentBuild.GetComponent<ToolTip>().enabled = true;
         }
         else
         {
-            outpost.image.sprite = defaultImage;
-            outpost.interactable = false;
+            currentBuild.sprite = defaultBuildImage;
+            daysLeft.text = "";
+            currentBuild.GetComponent<ToolTip>().enabled = false;
         }
 
-        for (int a = 0; a < 5; a++)
+        int queueNumber = 1;
+        foreach(Image queueImage in buildQueue)
         {
-
-            if (city.PlayerBuildingControl.GetPlayerBuilding(a,HumanPlayer))
+            BuildConfig config = city.BuildingManager.GetConfigInQueue(queueNumber);
+            if (config)
             {
-                buildingButtons[a].image.sprite = city.PlayerBuildingControl.GetPlayerBuilding(a, HumanPlayer).BuildConfig.BuildingImage;
-                buildingButtons[a].interactable = false;
-                buildingButtons[a].GetComponentInChildren<Text>().text = "";
-            }
-            else if (city.PlayerBuildingControl.IsConstructingBuilding(a,HumanPlayer))
-            {
-                buildingButtons[a].image.sprite = defaultImage;
-                buildingButtons[a].interactable = false;
-                buildingButtons[a].GetComponentInChildren<Text>().text = city.PlayerBuildingControl.TimeLeftOnConstruction(a,HumanPlayer).ToString();
+                queueImage.sprite = config.BuildingImage;
+                queueImage.GetComponent<ToolTip>().enabled = true;
             }
             else
             {
-                buildingButtons[a].image.sprite = defaultImage;
-                buildingButtons[a].interactable = true;
-                buildingButtons[a].GetComponentInChildren<Text>().text = "";
+                queueImage.sprite = defaultBuildImage;
+                queueImage.GetComponent<ToolTip>().enabled = false;
             }
-
-            if (!city.PlayerBuildingControl.HasOutpost(HumanPlayer))
-            {
-                buildingButtons[a].interactable = false;
-            }
-
-
+            queueNumber++;
         }
+
+
     }
 
-    public void BuildingClicked(int id)
+    public void AddOption(BuildConfig config, GameObject content)
     {
-        slotID = id;
-        BuildingChoicePanel.SetActive(city);
+        BuildingOption option = Instantiate(buildingOptionPrefab, content.transform);
+        option.City = city;
+        option.BuildConfig = config;
+        option.OptionImage.sprite = config.BuildingImage;
+        option.OptionName.text = config.Name;
+        option.ConstructionTime.text = CalculateConstructionTime(option.BuildConfig);
+        buildingOptions.Add(option);
     }
 
-    public void Build(int buildingID)
+    private string CalculateConstructionTime(BuildConfig config)
     {
-        city.PlayerBuildingControl.BuildBuilding(buildingID, HumanPlayer, slotID);
+        int ConstructionTime = config.BaseBuildTime;
+        int production = city.CityResouceController.GetProduction(config.FocusType);
+        int days = 999;
+        if (production != 0)
+        {
+            days = (ConstructionTime + production - 1) / production;
+        }
+        return days.ToString();
+    }
+
+
+    public void RemoveFromQueue(int queueNumber)
+    {
+        city.RemoveBuild(queueNumber - 1);
     }
 }

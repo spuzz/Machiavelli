@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using System.Collections.Generic;
+using UnityEngine;
 using UnityEngine.UI;
 
 // Add a UI Socket transform to your enemy
@@ -11,15 +12,15 @@ public class UnitUI : MonoBehaviour {
     [SerializeField] Canvas canvas;
     [SerializeField] RawImage unitBackground;
     [SerializeField] UnitHealthBar unitHealthBar;
-    [SerializeField] UnitEnergyBar unitEnergyBar;
     [SerializeField] RawImage unitSymbol;
     [SerializeField] Image cityStateSymbol;
 
-    [SerializeField] Sprite defaultCityStateSymbol;
-    [SerializeField] Texture defaultSymbol;
-    [SerializeField] Texture defaultBackGround;
+    [SerializeField] Texture Symbol;
+    [SerializeField] Texture BackGround;
+    [SerializeField] HexCellTextEffect textEffect;
 
-    Unit unit;
+    [SerializeField] Unit unit;
+    [SerializeField] List<Button> unitStackButtons;
     Camera cameraToLookAt;
     bool visible = true;
 
@@ -34,20 +35,6 @@ public class UnitUI : MonoBehaviour {
         {
             unit = value;
             unitHealthBar.Unit = unit;
-            if(unitEnergyBar)
-            {
-                unitEnergyBar.Agent = unit.GetComponent<Agent>();
-            }
-            if (unit.BackGround)
-            {
-                SetBackground(unit.BackGround);
-            }
-
-            if (unit.Symbol)
-            {
-                SetUnitSymbol(unit.Symbol);
-            }
-            //unit.onInfoChange += UpdateUnit;
         }
     }
 
@@ -61,19 +48,24 @@ public class UnitUI : MonoBehaviour {
         set
         {
             visible = value;
-            canvas.enabled = value;
+            //canvas.enabled = value;
         }
     }
 
     public void SetColour(Color color)
     {
-        unitBackground.color = new Color(color.r, color.g, color.b, 0.6f);
+        unitBackground.color = new Color(color.r, color.g, color.b, 1.0f);
+        if(cityStateSymbol)
+        {
+            cityStateSymbol.color = new Color(color.r, color.g, color.b, 0.6f);
+        }
+
+        foreach(Button button in unitStackButtons)
+        {
+            button.image.color = new Color(color.r, color.g, color.b, 0.6f);
+        }
     }
 
-    public void SetUnitSymbol(Texture symbol)
-    {
-        unitSymbol.texture = symbol;
-    }
 
     public void SetCityStateSymbol(Sprite symbol)
     {
@@ -84,15 +76,6 @@ public class UnitUI : MonoBehaviour {
         
     }
 
-    public void SetCityStateSymbolToDefault()
-    {
-        if (cityStateSymbol)
-        {
-            cityStateSymbol.sprite = defaultCityStateSymbol;
-        }
-    }
-
-
     public void SetBackground(Texture background)
     {
         unitBackground.texture = background;
@@ -101,12 +84,7 @@ public class UnitUI : MonoBehaviour {
     private void Awake()
     {
         cameraToLookAt = Camera.main;
-        SetBackground(defaultBackGround);
-        SetUnitSymbol(defaultSymbol);
-        SetCityStateSymbolToDefault();
     }
-
-
 
     // Update is called once per frame 
     void LateUpdate()
@@ -118,6 +96,11 @@ public class UnitUI : MonoBehaviour {
         
     }
 
+    public void SetUnitSymbol(Texture symbol)
+    {
+        unitSymbol.texture = symbol;
+        Symbol = symbol;
+    }
     public void UpdateUnit(Unit unit, int healthChange)
     {
         UpdateHealthBar(healthChange);
@@ -131,21 +114,39 @@ public class UnitUI : MonoBehaviour {
         
     }
 
-    public void UpdateEnergyBar(int energyChange)
+    public void UpdateStackButtons()
     {
-        if (unitEnergyBar)
+        int unitCount = 0;
+        foreach(HexUnit hexUnit in unit.HexUnit.Location.hexUnits)
         {
-            unitEnergyBar.UpdateEnergy(energyChange);
+            if(hexUnit != unit.HexUnit)
+            {
+                unitStackButtons[unitCount].gameObject.SetActive(true);
+                unitStackButtons[unitCount].GetComponentInChildren<RawImage>().texture = hexUnit.unit.UnitUI.Symbol;
+                unitCount++;
+            }
+        }
+        for(int a= unitCount; a < unitStackButtons.Count;a++)
+        {
+            unitStackButtons[a].gameObject.SetActive(false);
+        }
+    }
+
+    public void SelectUnit(int buttonNumber)
+    {
+        int unitCount = 0;
+        foreach (HexUnit hexUnit in unit.HexUnit.Location.hexUnits)
+        {
+            if (hexUnit != unit.HexUnit)
+            {
+                if(unitCount == buttonNumber)
+                {
+                    FindObjectOfType<HexGameUI>().SelectUnit(hexUnit);
+                    return;
+                }
+                unitCount++;
+            }
         }
 
     }
-
-    public void SetEnergy(int energy)
-    {
-        if (unitEnergyBar)
-        {
-            unitEnergyBar.SetEnergy(energy);
-        }
-    }
-
 }

@@ -11,6 +11,21 @@ Prefab:
   m_SourcePrefab: {fileID: 0}
   m_RootGameObject: {fileID: 1778271005254408}
   m_IsPrefabAsset: 1
+--- !u!1 &1279140209826702
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4468231931161734}
+  m_Layer: 0
+  m_Name: Politicians
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1551131538717636
 GameObject:
   m_ObjectHideFlags: 1
@@ -56,8 +71,11 @@ GameObject:
   m_Component:
   - component: {fileID: 4363802538032816}
   - component: {fileID: 114574744724499650}
-  - component: {fileID: 114906063587015198}
-  - component: {fileID: 114169445554865684}
+  - component: {fileID: 114456317341596724}
+  - component: {fileID: 114315490007427326}
+  - component: {fileID: 114444115069094918}
+  - component: {fileID: 114991996797070884}
+  - component: {fileID: 114825669005962242}
   m_Layer: 0
   m_Name: City
   m_TagString: Untagged
@@ -76,7 +94,7 @@ GameObject:
   - component: {fileID: 222752763235432098}
   - component: {fileID: 114474624663275106}
   m_Layer: 0
-  m_Name: Influence
+  m_Name: Population
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -147,8 +165,22 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 224161211013340834}
+  - {fileID: 4468231931161734}
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4468231931161734
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1279140209826702}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4363802538032816}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &114003633487691406
 MonoBehaviour:
@@ -161,8 +193,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 5a33ddaa51232d14bb023e40668baa2f, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  text: City Test
-  header: City Test
+  text: <color=white></color><br>
+  header: City Info
   editModeOnly: 1
 --- !u!114 &114105987027955466
 MonoBehaviour:
@@ -215,31 +247,13 @@ MonoBehaviour:
       m_Calls: []
     m_TypeName: UnityEngine.UI.MaskableGraphic+CullStateChangedEvent, UnityEngine.UI,
       Version=1.0.0.0, Culture=neutral, PublicKeyToken=null
-  m_Texture: {fileID: 0}
+  m_Texture: {fileID: 2800000, guid: 43a7d98bd4222b64e933596512dc09ad, type: 3}
   m_UVRect:
     serializedVersion: 2
     x: 0
     y: 0
     width: 1
     height: 1
---- !u!114 &114169445554865684
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1778271005254408}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: c3c7c3fa92606d4469810bc4885e0ad9, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  production: {x: 0, y: 0}
-  gold: {x: 0, y: 0}
-  science: {x: 0, y: 0}
-  food: {x: 0, y: 0}
-  defence: {x: 0, y: 0}
-  playerGold: {x: 0, y: 0}
-  unitCap: 0
 --- !u!114 &114176040660542350
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -255,7 +269,7 @@ MonoBehaviour:
   cityHealthBar: {fileID: 114105987027955466}
   cityStateSymbol: {fileID: 114385817747930390}
   cityName: {fileID: 114252449335611880}
-  influence: {fileID: 114474624663275106}
+  population: {fileID: 114474624663275106}
   city: {fileID: 114574744724499650}
   backGround: {fileID: 114132559925525118}
   toolTip: {fileID: 114003633487691406}
@@ -318,6 +332,19 @@ MonoBehaviour:
     m_VerticalOverflow: 0
     m_LineSpacing: 1
   m_Text: City Name
+--- !u!114 &114315490007427326
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1778271005254408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: dcaf0983ce1ec5d4ba5408739439e6b3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cityState: {fileID: 114456317341596724}
+  buildConfigs: []
 --- !u!114 &114330631517215492
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -346,7 +373,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   m_Material: {fileID: 0}
-  m_Color: {r: 1, g: 1, b: 1, a: 1}
+  m_Color: {r: 1, g: 1, b: 1, a: 0.6}
   m_RaycastTarget: 1
   m_OnCullStateChanged:
     m_PersistentCalls:
@@ -361,6 +388,41 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114444115069094918
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1778271005254408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 47cf2a510ba492d40b3671a8767316ed, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  baseProduction: 5
+  baseFood: 0
+  baseScience: 2
+  baseGold: 5
+  city: {fileID: 114574744724499650}
+  resourceBenefits: {fileID: 114991996797070884}
+--- !u!114 &114456317341596724
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1778271005254408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e17c86a771d18a84ab6604944183ce45, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  cityStateAIController: {fileID: 114315490007427326}
+  cityStateName: City State
+  symbolID: 0
+  politicians: []
+  politicianPrefab: {fileID: 114411272746674006, guid: 1e84974061115674aa3d0fa98d7b82a1,
+    type: 2}
+  city: {fileID: 114574744724499650}
 --- !u!114 &114474624663275106
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -393,7 +455,7 @@ MonoBehaviour:
     m_HorizontalOverflow: 0
     m_VerticalOverflow: 0
     m_LineSpacing: 1
-  m_Text: 0
+  m_Text: 1
 --- !u!114 &114574744724499650
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -405,38 +467,13 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 7c6389f49267e934a97afbf983b8e38b, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  hexGrid: {fileID: 0}
+  cityUI: {fileID: 114176040660542350}
+  cityResouceController: {fileID: 114444115069094918}
+  visionRange: 1
   baseHitPoints: 100
   baseStrength: 25
-  baseProduction: 0
-  baseFood: 0
-  baseScience: 0
-  baseIncome: 0
-  cityUI: {fileID: 114176040660542350}
-  hexGrid: {fileID: 0}
   buildings: []
-  availableBuildings: []
-  availableUnits:
-  - {fileID: 11400000, guid: 7973809bfbff6bf48b631fa6acd585b9, type: 2}
-  - {fileID: 11400000, guid: b9fa9b4ce7313e24eabd7a40c6b71f37, type: 2}
-  - {fileID: 11400000, guid: 5d79ae666f4c039469c9033d500d14be, type: 2}
-  - {fileID: 11400000, guid: 6dc6daf6916e4f04eade2fae6d730d34, type: 2}
-  food: 0
-  population: 1
-  visionRange: 2
-  unitCap: 3
-  gold: 100
-  playerBuildingControl: {fileID: 114906063587015198}
-  playerCityBonus: {fileID: 11400000, guid: 0e8386496a6c0384aaee1c405638fae2, type: 2}
-  happiness: 100
-  textEffect: {fileID: 1096156621854288, guid: cbce99c46ef89c94f965d408ea4706c6, type: 2}
-  currentStrength: 0
-  currentProduction: 0
-  currentFood: 0
-  currentScience: 0
-  currentIncome: 0
-  currentPlayerIncome: 0
-  foodConsumption: 0
-  foodForNextPop: 0
 --- !u!114 &114592943687886820
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -489,7 +526,7 @@ MonoBehaviour:
         m_CallState: 2
     m_TypeName: UnityEngine.UI.Button+ButtonClickedEvent, UnityEngine.UI, Version=1.0.0.0,
       Culture=neutral, PublicKeyToken=null
---- !u!114 &114906063587015198
+--- !u!114 &114825669005962242
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
@@ -497,12 +534,26 @@ MonoBehaviour:
   m_GameObject: {fileID: 1778271005254408}
   m_Enabled: 1
   m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: fd0a438ef1b760e428e0f0fd31250d90, type: 3}
+  m_Script: {fileID: 11500000, guid: fdbb0a257b5b0f04f91ece61cabd1d55, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  outpostConfig: {fileID: 11400000, guid: 108a1a4beb8b044498d7f95ea06b1130, type: 2}
-  city: {fileID: 114574744724499650}
-  benefit: {fileID: 114169445554865684}
+--- !u!114 &114991996797070884
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1778271005254408}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a48d6aa49af84ac46993592628470096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  production: {x: 0, y: 0}
+  gold: {x: 0, y: 0}
+  science: {x: 0, y: 0}
+  food: {x: 0, y: 0}
+  defence: {x: 0, y: 0}
+  focusProductionBonus: []
 --- !u!222 &222038326183577680
 CanvasRenderer:
   m_ObjectHideFlags: 1
@@ -614,8 +665,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: 0.93, y: -0.84}
-  m_SizeDelta: {x: 283.1, y: 55}
+  m_AnchoredPosition: {x: 4.5, y: -0.84}
+  m_SizeDelta: {x: 261.33, y: 55}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224669045274125054
 RectTransform:
@@ -632,8 +683,8 @@ RectTransform:
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
   m_AnchorMin: {x: 0.5, y: 0.5}
   m_AnchorMax: {x: 0.5, y: 0.5}
-  m_AnchoredPosition: {x: -174.1, y: 0.00000053644}
-  m_SizeDelta: {x: 55, y: 55}
+  m_AnchoredPosition: {x: -164.27, y: 0.62}
+  m_SizeDelta: {x: 62.68, y: 61.3}
   m_Pivot: {x: 0.5, y: 0.5}
 --- !u!224 &224767272530332140
 RectTransform:

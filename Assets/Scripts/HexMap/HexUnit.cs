@@ -6,35 +6,38 @@ using System;
 
 public class HexUnit : MonoBehaviour {
 
-    public enum UnitType
-    {
-        COMBAT,
-        AGENT
-    }
 
+    // External Components
+    public HexGrid Grid { get; set; }
+    HexUnitActionController hexUnitActionController;
 
+    // Internal Components
+    [SerializeField] Transform meshChild;
+    public Unit unit;
+    HexVision hexVision;
+    MaterialColourChanger materialColourChanger;
+    Animator animator;
+    [SerializeField] AnimatorOverrideController animatorOverrideController;
+
+    // Attributes
+    [SerializeField] Projectile projectilePreFab;
     const float rotationSpeed = 540f;
 	const float travelSpeed = 3f;
-    const float fightSpeed = 1f;
 
-    [SerializeField] Transform meshChild;
 
-    HexCell location, currentTravelLocation;
-    Animator animator;
+    int visionRange = 0;
     bool controllable = false;
     float orientation;
-    private string unitPrefabName = "";
     private int speed = 0;
-    UnitType hexUnitType = UnitType.COMBAT;
+
+    HexCell location, currentTravelLocation;
+    float t;
+    Vector3 a, b, c = new Vector3();
+
     public List<HexCell> pathToTravel = null;
-    public HexGrid Grid { get; set; }
+    List<HexAction> actions = new List<HexAction>();
 
-    public Unit unit;
 
-    HexVision hexVision;
-
-    HexUnitActionController hexUnitActionController;
-    MaterialColourChanger materialColourChanger;
     public HexCell Location
     {
         get
@@ -71,15 +74,16 @@ public class HexUnit : MonoBehaviour {
         }
     }
 
-    public string UnitPrefabName
+    public Projectile ProjectilePreFab
     {
         get
         {
-            return unitPrefabName;
+            return projectilePreFab;
         }
+
         set
         {
-            unitPrefabName = value;
+            projectilePreFab = value;
         }
     }
 
@@ -112,7 +116,12 @@ public class HexUnit : MonoBehaviour {
     {
         get
         {
-            return 2;
+            return visionRange;
+        }
+
+        set
+        {
+            visionRange = value;
         }
 
     }
@@ -127,19 +136,6 @@ public class HexUnit : MonoBehaviour {
         set
         {
             controllable = value;
-        }
-    }
-
-    public UnitType HexUnitType
-    {
-        get
-        {
-            return hexUnitType;
-        }
-
-        set
-        {
-            hexUnitType = value;
         }
     }
 
@@ -214,47 +210,121 @@ public class HexUnit : MonoBehaviour {
         Animator = GetComponentInChildren<Animator>();
         MaterialColourChanger = GetComponentInChildren<MaterialColourChanger>();
     }
-    public void ValidateLocation () {
-		transform.localPosition = location.Position;
-	}
-
-	public bool IsValidDestination (HexCell cell, bool allowUnxplored = false) {
-		return (cell.IsExplored || allowUnxplored) && !cell.IsUnderwater && cell.CanUnitMoveToCell(this);
-	}
-
-
-    public bool IsValidAttackDestination(HexCell cell)
+    public IEnumerator MoveUnit(HexUnit unitToMove, HexCell currentTravelLocation, HexCell newTravelLocation, float t, float percOfFullDistance, bool startMove)
     {
-        if(cell.City && hexUnitType == UnitType.COMBAT && cell.City.GetCityState() != GetComponent<Unit>().GetCityState())
+        this.t = t;
+        if(startMove)
         {
-            return true;
+            a = currentTravelLocation.Position;
+            b = currentTravelLocation.Position;
+            c = currentTravelLocation.Position;
         }
-        if(cell.GetFightableUnit(this))
+
+
+        a = c;
+        b = currentTravelLocation.Position;
+        int currentColumn = currentTravelLocation.ColumnIndex;
+        int nextColumn;
+        nextColumn = newTravelLocation.ColumnIndex;
+        if (currentColumn != nextColumn)
         {
-            return true;
+            if (nextColumn < currentColumn - 1)
+            {
+                a.x -= HexMetrics.innerDiameter * HexMetrics.wrapSize;
+                b.x -= HexMetrics.innerDiameter * HexMetrics.wrapSize;
+            }
+            else if (nextColumn > currentColumn + 1)
+            {
+                a.x += HexMetrics.innerDiameter * HexMetrics.wrapSize;
+                b.x += HexMetrics.innerDiameter * HexMetrics.wrapSize;
+            }
+            unitToMove.Grid.MakeChildOfColumn(unitToMove.transform, nextColumn);
+            currentColumn = nextColumn;
         }
-        return false;
+
+        c = b + (( newTravelLocation.Position - b) * (0.5f * percOfFullDistance));
+
+
+        unitToMove.HexVision.AddCells(unitToMove.Grid.GetVisibleCells(newTravelLocation, unitToMove.VisionRange));
+
+        if (currentTravelLocation.IsVisible == true && GameConsts.playAnimations)
+        {
+            yield return unitToMove.LookAt(newTravelLocation.Position);
+            unitToMove.Animator.SetBool("Walking", true);
+            unitToMove.HexVision.Visible = true;
+            for (; t < 1f; t += Time.deltaTime * HexUnit.TravelSpeed)
+            {
+                unitToMove.transform.localPosition = Bezier.GetPoint(a, b, c, t);
+                Vector3 d = Bezier.GetDerivative(a, b, c, t);
+                d.y = 0f;
+                unitToMove.transform.localRotation = Quaternion.LookRotation(d);
+                yield return null;
+            }
+            unitToMove.Animator.SetBool("Walking", false);
+            t -= 1f;
+        }
+        else
+        {
+            unitToMove.HexVision.Visible = false;
+            unitToMove.transform.localPosition = c;
+            t = Time.deltaTime * HexUnit.TravelSpeed;
+        }
+        unitToMove.HexVision.ClearCells();
+        unitToMove.HexVision.AddCells(unitToMove.Grid.GetVisibleCells(newTravelLocation, unitToMove.VisionRange));
     }
 
-    public void SetLocationOnly(HexCell cell)
+    public IEnumerator MoveUnitEnd(HexUnit unitToMove, HexCell currentTravelLocation, HexCell newTravelLocation)
     {
-        location = cell;
-    }
+        a = c;
+        b = newTravelLocation.Position;
+        c = b;
+        int currentColumn = currentTravelLocation.ColumnIndex;
+        int nextColumn;
+        nextColumn = newTravelLocation.ColumnIndex;
 
-    public void AddUnitToLocation(HexCell cell)
-    {
-        location.AddUnit(this);
-    }
-
-    public void UpdateUnit(int healthChange, bool killUnit)
-    {
-        Unit unitComp = GetComponent<Unit>();
-        unitComp.ShowHealthChange(healthChange);
-        unitComp.UpdateUI(-healthChange);
-        if (unitComp.HitPoints <= 0 && killUnit)
+        if (currentColumn != nextColumn)
         {
-            DieAnimationAndRemove();
+            if (nextColumn < currentColumn - 1)
+            {
+                a.x -= HexMetrics.innerDiameter * HexMetrics.wrapSize;
+            }
+            else if (nextColumn > currentColumn + 1)
+            {
+                a.x += HexMetrics.innerDiameter * HexMetrics.wrapSize;
+            }
+            unitToMove.Grid.MakeChildOfColumn(unitToMove.transform, nextColumn);
+            currentColumn = nextColumn;
         }
+
+        unitToMove.HexVision.AddCells(unitToMove.Grid.GetVisibleCells(newTravelLocation, unitToMove.VisionRange));
+        t = Time.deltaTime * HexUnit.TravelSpeed;
+        if (newTravelLocation.IsVisible == true && GameConsts.playAnimations)
+        {
+            yield return unitToMove.LookAt(newTravelLocation.Position);
+            unitToMove.Animator.SetBool("Walking", true);
+            unitToMove.HexVision.Visible = true;
+            for (; t < 1f; t += Time.deltaTime * HexUnit.TravelSpeed)
+            {
+                unitToMove.transform.localPosition = Bezier.GetPoint(a, b, c, t);
+                Vector3 d = Bezier.GetDerivative(a, b, c, t);
+                d.y = 0f;
+                unitToMove.transform.localRotation = Quaternion.LookRotation(d);
+                yield return null;
+
+            }
+            unitToMove.Animator.SetBool("Walking", false);
+            t -= 1f;
+        }
+        else
+        {
+            unitToMove.HexVision.Visible = false;
+            unitToMove.transform.localPosition = c;
+            t = Time.deltaTime * HexUnit.TravelSpeed;
+        }
+
+
+        unitToMove.HexVision.ClearCells();
+        unitToMove.HexVision.AddCells(unitToMove.Grid.GetVisibleCells(newTravelLocation, unitToMove.VisionRange));
     }
 
     public IEnumerator LookAt (Vector3 point) {
@@ -291,98 +361,76 @@ public class HexUnit : MonoBehaviour {
 		Orientation = transform.localRotation.eulerAngles.y;
 	}
 
-    public IEnumerator FightCity(City city, bool killTarget, CityState cityState, HexUnit targetUnit)
+    public IEnumerator Fight(HexCell target)
     {
 
         float attackTime = 0;
-        if ((Location.IsVisible || city.GetHexCell().IsVisible) && GameConsts.playAnimations)
+        if ((Location.IsVisible || target.IsVisible) && GameConsts.playAnimations)
         {
-            LookAt(city.GetHexCell().Position);
+
+            LookAt(target.Position);
             Location.IncreaseVisibility(false);
             Animator.SetBool("Attacking", true);
-            for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
+            for (; attackTime < GameConsts.fightSpeed; attackTime += Time.deltaTime)
             {
                 yield return null;
             }
             Animator.SetBool("Attacking", false);
             Location.DecreaseVisibility();
         }
-
-
-        if (killTarget)
-        {
-            if(cityState.GetCityCount() == 0)
-            {
-                unit.GameController.DestroyCityState(cityState);
-            }
-
-            city.DestroyCityUnits();
-            if(targetUnit)
-            {
-                targetUnit.DestroyHexUnit();
-            }
-
-            city.UpdateCityBar();
-        }
-        city.UpdateHealthBar();
     }
 
-    public IEnumerator FightUnit(HexUnit targetUnit, int damageDone, bool killTarget)
+    public void Move(List<HexCell> moves)
     {
 
-        if (targetUnit)
+        HexAction action = hexUnitActionController.CreateAction();
+        action.ActionsUnit = this;
+        action.AddAction(moves);
+
+        Location.RemoveUnit(this);
+        SetLocationOnly(moves[moves.Count - 1]);
+        if (unit.Alive == true)
         {
-            Unit unitToFightUnitComp = targetUnit.GetComponent<Unit>();
-            if ((Location.IsVisible || targetUnit.Location.IsVisible) && GameConsts.playAnimations)
-            {
-                yield return targetUnit.LookAt(location.Position);
-                Location.IncreaseVisibility(false);
-                float attackTime = 0;
-                Animator.SetBool("Attacking", true);
-                if (unit.Range > 0)
-                {
-                    Projectile projectile = Instantiate(unit.ProjectilePreFab, gameObject.transform);
-                    projectile.StartLocation = gameObject;
-                    projectile.Target = targetUnit.gameObject;
-                    yield return StartCoroutine(projectile.FlyProjectile());
-                    targetUnit.Animator.SetTrigger("GetHit");
-                }
-                else
-                {
-                    targetUnit.Animator.SetBool("Attacking", true);
-                    for (; attackTime < fightSpeed; attackTime += Time.deltaTime)
-                    {
-                        yield return null;
-                    }
-                    targetUnit.Animator.SetBool("Attacking", false);
-                }
-
-                Animator.SetBool("Attacking", false);
-                unitToFightUnitComp.ShowHealthChange(damageDone);
-                Location.DecreaseVisibility();
-            }
-
-            unitToFightUnitComp.UpdateUI(-damageDone);
-            if (unitToFightUnitComp.HitPoints <= 0 && killTarget)
-            {
-                if(unitToFightUnitComp.HexUnit.Location.IsVisible)
-                {
-                    targetUnit.DieAnimationAndRemove();
-                }
-                else
-                {
-                    targetUnit.DestroyHexUnit();
-                }
-
-            }
-
-
+            AddUnitToLocation(moves[moves.Count - 1]);
         }
+
+        actions.Add(action);
     }
-	public int GetMoveCost (
-		HexCell fromCell, HexCell toCell, HexDirection direction, bool allowUnexplored = false)
+
+    public void Attack(HexCell target, List<FightResult> results)
+    {
+
+        HexAction action = hexUnitActionController.CreateAction();
+        action.ActionsUnit = this;
+        List<HexUnit> combatUnits = Location.hexUnits.FindAll(c => c != this && c.unit.HexUnitType != Unit.UnitType.AGENT);
+        List<HexUnit> enemyCombatUnits = target.hexUnits.FindAll(c => c != this && c.unit.HexUnitType != Unit.UnitType.AGENT);
+        foreach (HexUnit unit in combatUnits)
+        {
+            action.AddExtraUnit(unit);
+        }
+        action.AddAction(target,Location, enemyCombatUnits, results);
+        
+        actions.Add(action);
+    }
+
+    public void SetLocationOnly(HexCell cell)
+    {
+        location = cell;
+    }
+
+    public void AddUnitToLocation(HexCell cell)
+    {
+        location.AddUnit(this);
+    }
+
+    public int GetMoveCost (
+		HexCell fromCell, HexCell toCell, HexDirection direction, bool allowUnexplored = true)
 	{
-		if (!IsValidDestination(toCell, allowUnexplored) && !IsValidAttackDestination(toCell)) {
+		if (!IsValidDestination(toCell, allowUnexplored)) {
+            if(IsValidAttackDestination(toCell))
+            {
+                return 5;
+            }
 			return -1;
 		}
 		HexEdgeType edgeType = fromCell.GetEdgeType(toCell);
@@ -404,6 +452,91 @@ public class HexUnit : MonoBehaviour {
 		return moveCost;
 	}
 
+    public void UpdateUnit(int healthChange, bool killUnit)
+    {
+        unit.ShowHealthChange(healthChange);
+        unit.UpdateUI(-healthChange);
+        if (unit.HitPoints <= 0 && killUnit)
+        {
+            DieAnimationAndRemove();
+        }
+    }
+
+    public AnimatorOverrideController AnimatorOverrideController
+    {
+        get
+        {
+            return animatorOverrideController;
+        }
+
+        set
+        {
+            animatorOverrideController = value;
+        }
+    }
+
+    public void ValidateLocation()
+    {
+        transform.localPosition = location.Position;
+    }
+
+    public void DoActions()
+    {
+
+        hexUnitActionController.AddActions(actions, this);
+        actions.Clear();
+    }
+
+    public void AddAction(HexAction action)
+    {
+        if (actions.Count > 0)
+        {
+            if (actions[actions.Count - 1].Compare(action))
+            {
+                if (actions[actions.Count - 1].AddAction(action))
+                {
+                    Destroy(action.gameObject);
+                    return;
+                }
+            }
+        }
+        actions.Add(action);
+
+    }
+    public bool IsValidDestination(HexCell cell, bool allowUnxplored = false)
+    {
+        return (cell.IsExplored || allowUnxplored || NeighbourExplored(cell)) && !cell.IsUnderwater && cell.CanUnitMoveToCell(this);
+    }
+
+    private bool NeighbourExplored(HexCell cell)
+    {
+        for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+        {
+            HexCell neighbour = cell.GetNeighbor(d);
+            if (neighbour.IsExplored)
+            {
+                return true;
+            }
+
+        }
+        return false;
+    }
+
+    public bool IsValidAttackDestination(HexCell cell)
+    {
+        HexUnit enemyUnit = cell.hexUnits.Find(c => c.unit.HexUnitType == unit.HexUnitType);
+        if(enemyUnit)
+        {
+            if ((unit.GetCityOwner() && enemyUnit.unit.GetCityOwner() == unit.GetCityOwner()) || (unit.GetPlayer() && enemyUnit.unit.GetPlayer() == unit.GetPlayer()))
+            {
+                return false;
+            }
+            return true;
+        }
+        return false;
+
+
+    }
 
     public void KillUnit()
     {
@@ -425,7 +558,6 @@ public class HexUnit : MonoBehaviour {
 
     public void DestroyHexUnit()
     {
-        
         Location = null;
         Destroy(gameObject);
     }
@@ -445,8 +577,8 @@ public class HexUnit : MonoBehaviour {
     {
         location.coordinates.Save(writer);
         writer.Write(orientation);
-        writer.Write(UnitPrefabName);
     }
+
 
     public static void Load(BinaryReader reader, GameController gameController, HexGrid grid, int header)
     {

@@ -11,10 +11,10 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 00538d5d87873434b907c764de750305, type: 3}
   m_Name: Scout
   m_EditorClassIdentifier: 
-  baseProductionCost: 2
+  baseProductionCost: 30
   basePurchaseCost: 20
   prerequisites: []
-  focusType: 7
+  focusType: 13
   buildingImage: {fileID: 21300000, guid: 41e5cf88faac8004fb825e953ae630c3, type: 3}
   name: Scout
   displayName: Scout

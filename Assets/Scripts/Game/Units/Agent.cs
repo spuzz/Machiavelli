@@ -16,9 +16,10 @@ public class Agent : Unit {
 
     AgentConfig agentConfig;
     Player player;
-
+    
     int energy = 100;
     [SerializeField] int energyRegen = 5;
+
     public Stance CurrentStance
     {
         get
@@ -48,12 +49,6 @@ public class Agent : Unit {
     public override void StartTurn()
     {
         base.StartTurn();
-        energy += energyRegen;
-        if(energy > 100)
-        {
-            energy = 100;
-        }
-        unitUI.SetEnergy(energy);
     }
     public void SetAgentConfig(AgentConfig config)
     {
@@ -62,12 +57,14 @@ public class Agent : Unit {
         HexVision.AddVisibleObject(HexUnit.GetMesh());
         BaseMovement = config.BaseMovement;
         BaseStrength = config.BaseStrength;
-        Symbol = config.Symbol;
-        foreach(AbilityConfig abilityConfig in config.GetAbilityConfigs())
+        UnitUI.SetUnitSymbol(config.Symbol);
+        HexUnit.VisionRange = config.VisionRange;
+        
+        foreach (AbilityConfig abilityConfig in config.GetAbilityConfigs())
         {
             abilities.AbilitiesList.Add(abilityConfig);
         }
-        
+
     }
 
     public AgentConfig GetAgentConfig()
@@ -79,7 +76,7 @@ public class Agent : Unit {
     {
         if (player)
         {
-            unitUI.SetColour(player.GetColour().Colour);
+            UnitUI.SetColour(player.GetColour().Colour);
             HexUnit.MaterialColourChanger.ChangeMaterial(player.GetColour());
         }
 
@@ -94,9 +91,9 @@ public class Agent : Unit {
         this.player = player;
 
         UpdateOwnerVisiblity(HexUnit.Location, true);
-        if (unitUI)
+        if (UnitUI)
         {
-            unitUI.SetColour(player.GetColour().Colour);
+            UnitUI.SetColour(player.GetColour().Colour);
         }
         MaterialColourChanger changer = HexUnit.MaterialColourChanger;
         changer.ChangeMaterial(player.GetColour());
@@ -130,18 +127,13 @@ public class Agent : Unit {
 
     public override bool CanAttack(Unit unit)
     {
-        if (unit.HexUnit.HexUnitType == HexUnit.UnitType.AGENT && unit.GetComponent<Agent>().GetPlayer() != GetPlayer())
+        if (unit.HexUnitType == Unit.UnitType.AGENT && unit.GetComponent<Agent>().GetPlayer() != GetPlayer())
         {
             return true;
         }
 
         return false;
 
-    }
-
-    public void UpdateEnergy(int energyChange)
-    {
-        unitUI.UpdateEnergyBar(energyChange);
     }
 
     public void Save(BinaryWriter writer)
@@ -159,26 +151,16 @@ public class Agent : Unit {
         float orientation = reader.ReadSingle();
         int hitPoints = 100;
         int movementLeft = 2;
-        string unitName = reader.ReadString();
-        if (header >= 3)
-        {
-            hitPoints = reader.ReadInt32();
-            movementLeft = reader.ReadInt32();
-        }
         string agentConfig = "Builder";
-        if (header >= 4)
-        {
-            agentConfig = reader.ReadString();
-        }
+
+        hitPoints = reader.ReadInt32();
+        movementLeft = reader.ReadInt32();
+        agentConfig = reader.ReadString();
+
         HexUnit unit = gameController.CreateAgent(agentConfig,grid.GetCell(coordinates), player);
-
         Agent agent = unit.GetComponent<Agent>();
-
-        if (header >= 3)
-        {
-            agent.HitPoints = hitPoints;
-            agent.SetMovementLeft(movementLeft);
-        }
+        agent.HitPoints = hitPoints;
+        agent.SetMovementLeft(movementLeft);
 
         return agent;
     }

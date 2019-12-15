@@ -8,33 +8,37 @@ using UnityEngine;
 public abstract class Player : MonoBehaviour {
     public static int nextPlayerNumber = 1;
 
+    // External Components
+    protected GameController gameController;
+    // Internal Components
+    [SerializeField] ScienceController scienceController;
+    // Attributes
     [SerializeField] int gold = 100;
+    [SerializeField] int politicalCapital = 0;
+    [SerializeField] int turnsInNegativePC = 0;
     [SerializeField] List<CityPlayerBuildConfig> cityPlayerBuildConfigs;
-    [SerializeField] PlayerAgentTracker playerAgentTracker;
-    [SerializeField] GameObject textEffect;
+
+    [SerializeField] List<AgentBuildConfig> agentBuildConfigs;
+    [SerializeField] List<CombatUnitBuildConfig> combatUnitBuildConfigs;
     private int colorID;
-    public GameObject operationCenterTransformParent;
     int playerNumber = 0;
     bool isHuman = false;
     bool alive = true;
+
     public List<Agent> agents = new List<Agent>();
-    public List<CombatUnit> mercenaries = new List<CombatUnit>();
-    public List<CityState> cityStates = new List<CityState>();
     public List<City> cities = new List<City>();
-    public List<City> citiesWithOutposts = new List<City>();
-    public List<OperationCentre> opCentres = new List<OperationCentre>();
+    //public List<CityState> cityStatesWithLoyalPoliticians = new List<CityState>();
+    Dictionary<CityState, int> cityStatesWithLoyalPoliticians = new Dictionary<CityState, int>();
+
     public Dictionary<HexCell, int> visibleCells = new Dictionary<HexCell, int>();
     public List<HexCell> exploredCells = new List<HexCell>();
     List<City> visibleCities = new List<City>();
     protected List<CityState> cityStatesMet = new List<CityState>();
-    protected GameController gameController;
-    private int goldPerTurn = 5;
+
 
     public delegate void OnInfoChange(Player player);
     public event OnInfoChange onInfoChange;
 
-    protected Dictionary<City,CityBonus> cityBonuses = new Dictionary<City, CityBonus>();
-    protected Dictionary<City, AgentConfig> randomisedBonus = new Dictionary<City, AgentConfig>();
     public bool IsHuman
     {
         get { return isHuman; }
@@ -82,14 +86,18 @@ public abstract class Player : MonoBehaviour {
     {
         get
         {
-            return goldPerTurn;
+            return CalculateGoldPerTurn();
         }
 
-        set
+    }
+
+    public int PCPerTurn
+    {
+        get
         {
-            goldPerTurn = value;
-            NotifyInfoChange();
+            return CalculatePCPerTurn();
         }
+
     }
 
     public int ColorID
@@ -105,17 +113,69 @@ public abstract class Player : MonoBehaviour {
         }
     }
 
-    public PlayerAgentTracker PlayerAgentTracker
+    public ScienceController ScienceController
     {
         get
         {
-            return playerAgentTracker;
+            return scienceController;
         }
 
         set
         {
-            playerAgentTracker = value;
+            scienceController = value;
         }
+    }
+
+    public int PoliticalCapital
+    {
+        get
+        {
+            return politicalCapital;
+        }
+
+        set
+        {
+            politicalCapital = value;
+        }
+    }
+
+    public void LosePolitician(CityState cs)
+    {
+        cityStatesWithLoyalPoliticians[cs] -= 1;
+    }
+
+    public void GainPolitician(CityState cs)
+    {
+        if(cityStatesWithLoyalPoliticians.Keys.Contains(cs) == false)
+        {
+            cityStatesWithLoyalPoliticians[cs] = 1;
+        }
+        else
+        {
+            cityStatesWithLoyalPoliticians[cs] += 1;
+
+        }
+
+    }
+
+    private int CalculateGoldPerTurn()
+    {
+        int goldPerTurn = GameConsts.HQGold;
+        foreach(City city in cities)
+        {
+            goldPerTurn += city.GetIncomePerTurn();
+        }
+        return goldPerTurn;
+    }
+
+    private int CalculatePCPerTurn()
+    {
+        int pcPerTurn = GameConsts.HQPC;
+        foreach (City city in cities)
+        {
+            pcPerTurn += city.GetPoliticalCapitalPerTurn();
+        }
+        return pcPerTurn;
     }
 
 
@@ -149,12 +209,12 @@ public abstract class Player : MonoBehaviour {
     }
     public List<City> GetEnemyCitiesOrderByDistance(HexCoordinates unitCoordinates)
     {
-        return visibleCities.FindAll(c => !IsCityStateFriendly(c.GetCityState())).OrderBy(c => c.GetHexCell().coordinates.DistanceTo(unitCoordinates)).ToList();
+        return visibleCities.FindAll(c => !c.GetCityState()).OrderBy(c => c.GetHexCell().coordinates.DistanceTo(unitCoordinates)).ToList();
     }
 
     public List<City> GetFriendlyCitiesOrderByDistance(HexCoordinates unitCoordinates)
     {
-        return visibleCities.FindAll(c => IsCityStateFriendly(c.GetCityState())).OrderBy(c => c.GetHexCell().coordinates.DistanceTo(unitCoordinates)).ToList();
+        return visibleCities.FindAll(c => c.GetCityState()).OrderBy(c => c.GetHexCell().coordinates.DistanceTo(unitCoordinates)).ToList();
     }
 
     public void RemoveVisibleCell(HexCell cell)
@@ -170,110 +230,31 @@ public abstract class Player : MonoBehaviour {
 
     }
 
-    public void AddCityState(CityState cityState)
-    {
-        cityStates.Add(cityState);
-        UpdateResources();
-        cityState.onInfoChange += cityStateChange;
-    }
-
-    private void cityStateChange(CityState cityState)
-    {
-        UpdateResources();
-    }
-
-    public void AddCityWithOutpost(City city)
-    {
-        citiesWithOutposts.Add(city);
-    }
     public void AddCity(City city)
     {
         cities.Add(city);
-        cityBonuses.Add(city,city.PlayerCityBonus);
-        AgentConfig bonusConfig;
-        if(city.PlayerCityBonus.AgentCapIncrease == null)
-        {
-            bonusConfig = PlayerAgentTracker.GetRandomCappedAgent();
-            randomisedBonus.Add(city, bonusConfig);
-            PlayerAgentTracker.IncreaseCap(bonusConfig);
-        }
-        else
-        {
-            bonusConfig = city.PlayerCityBonus.AgentCapIncrease;
-            PlayerAgentTracker.IncreaseCap(bonusConfig);
-        }
-        if (isHuman)
-        {
-            ShowBonusText(city.PlayerCityBonus, bonusConfig, city.GetHexCell());
-        }
-        UpdateResources();
-    }
-    public void RemoveCity(City city)
-    {
-        cities.Remove(city);
-        cityBonuses.Remove(city);
-        AgentConfig bonusConfig;
-        if (city.PlayerCityBonus.AgentCapIncrease == null)
-        {
-            bonusConfig = randomisedBonus[city];
-            randomisedBonus.Remove(city);
-            PlayerAgentTracker.DecreaseCap(bonusConfig);
-        }
-        else
-        {
-            bonusConfig = city.PlayerCityBonus.AgentCapIncrease;
-            PlayerAgentTracker.DecreaseCap(bonusConfig);
-        }
-        if(isHuman)
-        {
-            ShowBonusText(city.PlayerCityBonus, bonusConfig, city.GetHexCell());
-        }
-
-        UpdateResources();
+        NotifyInfoChange();
     }
 
     public virtual bool IsFriend(CityState city)
     {
         return false;
     }
-    private void ShowBonusText(CityBonus bonus, AgentConfig bonusConfig, HexCell cell)
-    {
 
-        cell.TextEffectHandler.AddTextEffect("+1 " + bonusConfig.Name, cell.transform, Color.yellow);
-        cell.TextEffectHandler.AddTextEffect("+" + bonus.GoldBonus + " Gold ", cell.transform, Color.yellow);
+    public void RemoveCity(City city)
+    {
+        cities.Remove(city);
+        NotifyInfoChange();
     }
 
-    private void ShowRemoveBonusText(CityBonus bonus, AgentConfig bonusConfig, HexCell cell)
+    public IEnumerable<City> GetCities()
     {
-        cell.TextEffectHandler.AddTextEffect("-1 " + bonusConfig.Name, cell.transform, Color.yellow);
-        cell.TextEffectHandler.AddTextEffect("-" + bonus.GoldBonus + " Gold ", cell.transform, Color.yellow);
-    }
-
-    public void RemoveCityState(CityState cityState)
-    {
-        cityStates.Remove(cityState);
-        cityState.onInfoChange -= cityStateChange;
-        UpdateResources();
-    }
-
-    public IEnumerable<CityState> GetCityStates()
-    {
-        return cityStates;
+        return cities;
     }
 
     public IEnumerable<Agent> GetAgents()
     {
         return agents;
-    }
-
-    public void UseAgentSpace(AgentConfig config)
-    {
-        PlayerAgentTracker.AddAgent(config);
-    }
-
-    public void RemoveAgentSpace(AgentConfig config)
-    {
-        PlayerAgentTracker.AddAgent(config);
     }
 
     public virtual void AddAgent(Agent agent)
@@ -290,7 +271,6 @@ public abstract class Player : MonoBehaviour {
 
     public void RemoveAgent(Agent agent)
     {
-        PlayerAgentTracker.RemoveAgent(agent.GetAgentConfig());
         agents.Remove(agent);
         NotifyInfoChange();
     }
@@ -301,67 +281,7 @@ public abstract class Player : MonoBehaviour {
         NotifyInfoChange();
     }
 
-    public IEnumerable<CombatUnit> GetMercenaries()
-    {
-        return mercenaries;
-    }
 
-    public void AddMercenary(CombatUnit mercenary)
-    {
-        if (isHuman)
-        {
-            mercenary.HexVision.HasVision = true;
-        }
-
-        mercenary.SetPlayer(this);
-        mercenaries.Add(mercenary);
-        NotifyInfoChange();
-    }
-
-    public void RemoveMercenary(CombatUnit mercenary)
-    {
-        mercenary.HexVision.HasVision = false;
-        mercenaries.Remove(mercenary);
-        NotifyInfoChange();
-    }
-
-    public void ClearMercenaries()
-    {
-        mercenaries.Clear();
-        NotifyInfoChange();
-    }
-
-    public IEnumerable<OperationCentre> GetOperationCentres()
-    {
-        return opCentres;
-    }
-
-    public void CreateOperationCentre(HexCell cell)
-    {
-        gameController.CreateOperationCentre(cell, this);
-    }
-    public void AddOperationCentre(OperationCentre operationCentre)
-    {
-        opCentres.Add(operationCentre);
-        if (isHuman)
-        {
-            operationCentre.HexVision.HasVision = true;
-        }
-    }
-
-    public void RemoveOperationCentre(OperationCentre operationCentre)
-    {
-        opCentres.Remove(operationCentre);
-    }
-
-    public void ClearOperationCentres()
-    {
-        foreach (OperationCentre opCentre in opCentres)
-        {
-            opCentre.DestroyOperationCentre();
-        }
-        opCentres.Clear();
-    }
     public void ClearExploredCells()
     {
         exploredCells.Clear();
@@ -370,10 +290,6 @@ public abstract class Player : MonoBehaviour {
     public IEnumerable<CityPlayerBuildConfig> GetCityPlayerBuildConfigs()
     {
         return cityPlayerBuildConfigs;
-    }
-    public CityPlayerBuildConfig GetRandomCityPlayerBuildConfigs()
-    {
-        return cityPlayerBuildConfigs[UnityEngine.Random.Range(0, cityPlayerBuildConfigs.Count)];
     }
 
     public CityPlayerBuildConfig GetCityPlayerBuildConfig(int id)
@@ -385,6 +301,58 @@ public abstract class Player : MonoBehaviour {
     {
         return cityPlayerBuildConfigs.Find(c => c.Name.CompareTo(name) ==0);
     }
+
+    public IEnumerable<AgentBuildConfig> GetAgentBuildConfigs()
+    {
+        return agentBuildConfigs;
+    }
+
+    public AgentBuildConfig GetAgentBuildConfig(int id)
+    {
+        return agentBuildConfigs[id];
+    }
+
+    public AgentBuildConfig GetAgentBuildConfig(string name)
+    {
+        return agentBuildConfigs.Find(c => c.Name.CompareTo(name) == 0);
+    }
+
+    public IEnumerable<CombatUnitBuildConfig> GetCombatUnitBuildConfigs()
+    {
+        return combatUnitBuildConfigs;
+    }
+
+    public CombatUnitBuildConfig GetCombatUnitBuildConfig(int id)
+    {
+        return combatUnitBuildConfigs[id];
+    }
+
+    public CombatUnitBuildConfig GetCombatUnitBuildConfig(string name)
+    {
+        return combatUnitBuildConfigs.Find(c => c.Name.CompareTo(name) == 0);
+    }
+
+    private void SortBuildOptions()
+    {
+        cityPlayerBuildConfigs.Sort(delegate (CityPlayerBuildConfig x, CityPlayerBuildConfig y)
+        {
+            int a = x.Name.CompareTo(y.Name);
+            return a;
+        });
+
+        combatUnitBuildConfigs.Sort(delegate (CombatUnitBuildConfig x, CombatUnitBuildConfig y)
+        {
+            int a = x.Name.CompareTo(y.Name);
+            return a;
+        });
+
+        agentBuildConfigs.Sort(delegate (AgentBuildConfig x, AgentBuildConfig y)
+        {
+            int a = x.Name.CompareTo(y.Name);
+            return a;
+        });
+    }
+
     private void Awake()
     {
         gameController = FindObjectOfType<GameController>();
@@ -392,32 +360,60 @@ public abstract class Player : MonoBehaviour {
         nextPlayerNumber++;
     }
 
+    private void Start()
+    {
+        foreach(CityPlayerBuildConfig config in gameController.DefaultBuildings)
+        {
+            cityPlayerBuildConfigs.Add(config);
+        }
+
+        foreach (AgentBuildConfig config in gameController.DefaultAgents)
+        {
+            agentBuildConfigs.Add(config);
+        }
+
+        foreach (CombatUnitBuildConfig config in gameController.DefaultCombatUnits)
+        {
+            combatUnitBuildConfigs.Add(config);
+        }
+    }
 
     public void StartTurn()
     {
-        if(opCentres.Count == 0)
+
+
+
+        foreach (City city in cities)
         {
-            PlayerDefeated();
+            city.StartTurn();
         }
+        gold += GoldPerTurn;
+        politicalCapital += PCPerTurn;
+        if(politicalCapital < 0)
+        {
+            NegativePC();
+            politicalCapital = 0;
+        }
+        ScienceController.StartTurn();
+
         agents.RemoveAll(c => c.Alive == false);
         foreach (Agent agent in agents)
         {
             agent.StartTurn();
         }
 
-        foreach (CombatUnit merc in mercenaries)
-        {
-            merc.StartTurn();
-        }
-
-        foreach (OperationCentre opCentre in opCentres)
-        {
-            opCentre.StartTurn();
-        }
-
-        UpdateResources();
-        gold += goldPerTurn;
         NotifyInfoChange();
+    }
+
+    private void NegativePC()
+    {
+        int lowerLoyalty = 1;
+        List<CityState> keys = cityStatesWithLoyalPoliticians.Keys.ToList();
+        foreach (CityState cityState in keys)
+        {
+            cityState.LowerLoyalty(lowerLoyalty, this);
+            cityState.UpdateCityState();
+        }
     }
 
     public abstract void PlayerDefeated();
@@ -429,99 +425,66 @@ public abstract class Player : MonoBehaviour {
             if(agent.CheckPath())
             {
                 agent.MoveUnit();
-                agent.DoActions();
             }
             
         }
         agents.RemoveAll(c => c.Alive == false);
 
-        foreach (CombatUnit merc in mercenaries)
-        {
-            if (merc.CheckPath())
-            {
-                merc.MoveUnit();
-            }
-
-        }
-        mercenaries.RemoveAll(c => c.Alive == false);
     }
 
-    private void UpdateResources()
+    public int GetScience()
     {
-        goldPerTurn = 5;
-        foreach (City city in cities)
+        int science = 0;
+        foreach(City city in cities)
         {
-            goldPerTurn += city.GetPlayerIncome();
+            science += city.CityResouceController.GetScience();
+        }
+        return science;
+    }
+
+    public void AddResearch(Research research)
+    {
+        foreach(CityPlayerBuildConfig config in research.GetBuildingConfigs())
+        {
+            cityPlayerBuildConfigs.Add(config);
         }
 
-        foreach (CityBonus bonus in cityBonuses.Values)
+        foreach (AgentBuildConfig config in research.GetAgentConfigs())
         {
-            goldPerTurn += bonus.GoldBonus;
+            agentBuildConfigs.Add(config);
         }
-        foreach(CityState cityState in cityStates)
+
+        foreach (CombatUnitBuildConfig config in research.GetCombatUnitConfigs())
         {
-            cityState.GetPlayerIncome();
+            combatUnitBuildConfigs.Add(config);
         }
         NotifyInfoChange();
     }
-
-    public bool CanHireAgent(AgentConfig agentConfig)
-    {
-        return PlayerAgentTracker.CanRecruit(agentConfig);
-    }
-
-    public IEnumerable<AgentConfig> GetCappedAgents()
-    {
-        return PlayerAgentTracker.GetCappedAgents();
-    }
-
-    public virtual bool IsCityStateFriendly(CityState state)
-    {
-        return true;
-    }
-
     public void SavePlayer(BinaryWriter writer)
     {
-        writer.Write(opCentres.Count);
-        foreach (OperationCentre opCentre in opCentres)
-        {
-            opCentre.Save(writer);
-        }
 
         writer.Write(gold);
+        writer.Write(politicalCapital);
     }
 
     public void LoadPlayer(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
     {
-        if (header >= 3)
-        {
-            int exploredCellCount = reader.ReadInt32();
-            for (int i = 0; i < exploredCellCount; i++)
-            {
-                HexCell cell = hexGrid.GetCell(reader.ReadInt32());
-                if (!exploredCells.Contains(cell))
-                {
-                    exploredCells.Add(cell);
-                }
 
-            }
-            if (header < 6)
+        int exploredCellCount = reader.ReadInt32();
+        for (int i = 0; i < exploredCellCount; i++)
+        {
+            HexCell cell = hexGrid.GetCell(reader.ReadInt32());
+            if (!exploredCells.Contains(cell))
             {
-                Color playerColor = new Color(reader.ReadSingle(), reader.ReadSingle(), reader.ReadSingle(), 1.0f);
+                exploredCells.Add(cell);
             }
 
         }
 
-        if (header >= 5)
+        Gold = reader.ReadInt32();
+        if(header >= 2)
         {
-            int opCentreCount = reader.ReadInt32();
-            for (int i = 0; i < opCentreCount; i++)
-            {
-                OperationCentre.Load(reader,gameController,hexGrid,this,header);
-            }
-
-            Gold = reader.ReadInt32();
-
+            politicalCapital = reader.ReadInt32();
         }
 
     }
@@ -534,10 +497,6 @@ public abstract class Player : MonoBehaviour {
             Destroy(agent.gameObject);
         }
 
-        foreach (CombatUnit merc in mercenaries)
-        {
-            Destroy(merc.gameObject);
-        }
         Destroy(gameObject);
 
     }

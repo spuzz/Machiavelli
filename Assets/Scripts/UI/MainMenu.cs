@@ -10,10 +10,10 @@ public class MainMenu : MonoBehaviour {
 
     private void Update()
     {
-        if (Input.GetKeyUp(KeyCode.Escape))
-        {
-            Toggle();
-        }
+        //if (Input.GetKeyUp(KeyCode.Escape))
+        //{
+        //    Toggle();
+        //}
     }
 
     public void Toggle()

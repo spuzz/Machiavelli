@@ -34,38 +34,6 @@ public class AgentBehaviourTree : MonoBehaviour {
                                 new HasMovementLeft("Test"),
                                     new Selector(
                                         new Sequence(
-                                            new HasAbility("ability", "BuildOutpost"),
-                                            new FindCellToBuildOutpost(""),
-                                            new Selector(
-                                                new Sequence(
-                                                    new ReachedTarget("ReachedTarget"),
-                                                    new UseAbility("", "BuildOutpost")
-                                                ),
-                                                new MoveToTarget("")
-                                            )
-                                        ),
-                                        new Sequence(
-                                            new HasAbility("ability", "BuildOperationCentre"),
-                                            new FindCellToBuildOperationCentre(""),
-                                            new Selector(
-                                                new Sequence(
-                                                    new ReachedTarget("ReachedTarget"),
-                                                    new UseAbility("", "BuildOperationCentre")
-                                                ),
-                                                new MoveToTarget("")
-                                            )
-                                        ),
-                                                                                            //new Sequence(
-                                                                                            //    new FindNearbyEnemyAgent("FindNearbyEnemyAgent"),
-                                                                                            //    new Selector(
-                                                                                            //        new Sequence(
-                                                                                            //            new ReachedTarget("ReachedTarget"),
-                                                                                            //            new AttackAgent(""),
-                                                                                            //        ),
-                                                                                            //        new MoveToTarget("")
-                                                                                            //    )
-                                                                                            //),
-                                        new Sequence(
                                             new FindNearbyEnemyPlayerCity("FindNearbyEnemyPlayerCity"),
                                             new PickAbility("PickEnemyCityAbility", new List<AbilityConfig.AbilityType>() { AbilityConfig.AbilityType.EnemyPlayerCity}),
                                             new Selector(
@@ -348,12 +316,13 @@ public class AgentBehaviourTree : MonoBehaviour {
         }
         protected override void DoStart()
         {
-            Agent agent = (Blackboard["agent"] as Agent);
-            if (agent.HasAbility(abilityName))
-            {
-                Stopped(true);
-                return;
-            }
+            // TODO
+            //Agent agent = (Blackboard["agent"] as Agent);
+            //if (agent.HasAbility(abilityName))
+            //{
+            //    Stopped(true);
+            //    return;
+            //}
             Stopped(false);
         }
 
@@ -384,140 +353,16 @@ public class AgentBehaviourTree : MonoBehaviour {
             }
             Agent agent = (Blackboard["agent"] as Agent);
             HexCell targetCell = (Blackboard["targetCell"] as HexCell);
-            if(agent.RunAbility(abilityToUse, targetCell))
-            {
-                Stopped(true);
-            }
-            else
-            {
-                Stopped(false);
-            }
+            // TODO
+            //if(agent.RunAbility(abilityToUse, targetCell))
+            //{
+            //    Stopped(true);
+            //}
+            //else
+            //{
+            //    Stopped(false);
+            //}
         }
-        protected override void DoStop()
-        {
-            Stopped(true);
-        }
-    }
-
-    public class FindCellToBuildOutpost : Task
-    {
-        public FindCellToBuildOutpost(string name) : base(name)
-        {
-
-        }
-
-        protected override void DoStart()
-        {
-            Agent agent = (Blackboard["agent"] as Agent);
-            AbilityConfig config = agent.GetAbility("BuildOutpost");
-            List<City> cities = PathFindingUtilities.FindAllSeenCities(agent.GetPlayer().exploredCells);
-            cities = cities.FindAll(c => !c.PlayerBuildingControl.HasOutpost(agent.GetPlayer()) && agent.GetPlayer().IsCityStateFriendly(c.GetCityState()));
-            if (cities.Count > 0)
-            {
-                cities = cities.OrderBy(c => c.GetHexCell().coordinates.DistanceTo(agent.HexUnit.Location.coordinates)).ToList();
-                foreach (City cityToBuildOutpost in cities)
-                {
-
-                    if (config.IsValidTarget(cityToBuildOutpost.GetHexCell()))
-                    {
-                        Blackboard["targetCell"] = cityToBuildOutpost.GetHexCell();
-                        Blackboard["range"] = config.Range;
-                        Stopped(true);
-                        return;
-                    }
-
-                }
-
-            }
-
-            Stopped(false);
-        }
-
-        protected override void DoStop()
-        {
-            Stopped(true);
-        }
-    }
-
-    public class FindCellToBuildOperationCentre : Task
-    {
-        public FindCellToBuildOperationCentre(string name) : base(name)
-        {
-
-        }
-
-        protected override void DoStart()
-        {
-            Agent agent = (Blackboard["agent"] as Agent);
-            AbilityConfig config = agent.GetAbility("BuildOperationCentre");
-            List<City> cities = PathFindingUtilities.FindAllSeenCities(agent.GetPlayer().exploredCells);
-            cities = cities.FindAll(c => !c.PlayerBuildingControl.HasOutpost(agent.GetPlayer()));
-            if(cities.Count > 0)
-            {
-                cities = cities.OrderBy(c => c.GetHexCell().coordinates.DistanceTo(agent.HexUnit.Location.coordinates)).ToList();
-                foreach(City cityToBuildOpCentre in cities)
-                {
-                    List<HexCell> cells = PathFindingUtilities.GetCellsInRange(cityToBuildOpCentre.GetHexCell(), 2);
-                    cells = cells.OrderBy(c => c.coordinates.DistanceTo(agent.HexUnit.Location.coordinates)).ToList();
-                    foreach(HexCell targetCell in cells)
-                    {
-                        if (config.IsValidTarget(targetCell))
-                        {
-                            Blackboard["targetCell"] = targetCell;
-                            Blackboard["range"] = config.Range;
-                            Stopped(true);
-                            return;
-                        }
-                    }
-
-                }
-                
-            }
-
-            Stopped(false);
-        }
-
-        protected override void DoStop()
-        {
-            Stopped(true);
-        }
-    }
-
-    public class FindCellToAssassinate : Task
-    {
-        public FindCellToAssassinate(string name) : base(name)
-        {
-
-        }
-
-        protected override void DoStart()
-        {
-            Agent agent = (Blackboard["agent"] as Agent);
-            HexGrid grid = (Blackboard["hexgrid"] as HexGrid);
-            AbilityConfig config = agent.GetAbility("AssassinateAgent");
-            List<HexCell> cells = grid.GetVisibleCells(agent.HexUnit.Location, agent.HexUnit.VisionRange);
-            List<Agent> targets = new List<Agent>();
-            foreach (HexCell cell in cells)
-            {
-                Agent possibleTarget = cell.GetAgent(agent.HexUnit);
-                if (possibleTarget && possibleTarget.GetPlayer() != agent.GetPlayer())
-                {
-                    targets.Add(possibleTarget);
-                }
-
-            }
-            
-            if(targets.Count > 0)
-            {
-                targets = targets.OrderBy(c => c.HexUnit.Location.coordinates.DistanceTo(agent.HexUnit.Location.coordinates)).ToList();
-                Blackboard["targetCell"] = targets[0].HexUnit.Location;
-                Blackboard["range"] = config.Range;
-                Stopped(true);
-                return;
-            }
-            Stopped(false);
-        }
-
         protected override void DoStop()
         {
             Stopped(true);
@@ -539,7 +384,7 @@ public class AgentBehaviourTree : MonoBehaviour {
             List<City> targets = new List<City>();
             foreach (HexCell cell in cells)
             {
-                if(cell.City && cell.City.Player && cell.City.Player != agent.GetPlayer() && agent.GetPlayer().exploredCells.Contains(cell))
+                if(cell.City && cell.City.GetCityState().Player && cell.City.GetCityState().Player != agent.GetPlayer() && agent.GetPlayer().exploredCells.Contains(cell))
                 {
                     targets.Add(cell.City);
                 }
@@ -576,7 +421,7 @@ public class AgentBehaviourTree : MonoBehaviour {
             List<City> targets = new List<City>();
             foreach (HexCell cell in cells)
             {
-                if (cell.City && !agent.GetPlayer().IsCityStateFriendly(cell.City.GetCityState()) && agent.GetPlayer().exploredCells.Contains(cell))
+                if (cell.City && agent.GetPlayer().exploredCells.Contains(cell))
                 {
                     targets.Add(cell.City);
                 }
@@ -650,7 +495,7 @@ public class AgentBehaviourTree : MonoBehaviour {
                 {
                     foreach (HexUnit unit in cell.hexUnits)
                     {
-                        if (unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.unit.GetCityOwner() && !agent.GetPlayer().IsCityStateFriendly(unit.unit.GetCityOwner().GetCityState()))
+                        if (unit.unit.HexUnitType == Unit.UnitType.COMBAT && unit.unit.GetCityOwner())
                         {
                             targets.Add(cell);
                         }
@@ -694,7 +539,7 @@ public class AgentBehaviourTree : MonoBehaviour {
                 {
                     foreach (HexUnit unit in cell.hexUnits)
                     {
-                        if (unit.HexUnitType == HexUnit.UnitType.AGENT && unit.unit.GetPlayer() && unit.unit.GetPlayer() != agent.GetPlayer())
+                        if (unit.unit.HexUnitType == Unit.UnitType.AGENT && unit.unit.GetPlayer() && unit.unit.GetPlayer() != agent.GetPlayer())
                         {
                             targets.Add(cell);
                         }
@@ -740,7 +585,7 @@ public class AgentBehaviourTree : MonoBehaviour {
                 {
                     foreach (HexUnit unit in cell.hexUnits)
                     {
-                        if (unit.HexUnitType == HexUnit.UnitType.COMBAT && unit.unit.GetCityOwner() && agent.GetPlayer().IsCityStateFriendly(unit.unit.GetCityOwner().GetCityState()))
+                        if (unit.unit.HexUnitType == Unit.UnitType.COMBAT && unit.unit.GetCityOwner())
                         {
                             targets.Add(cell);
                         }
@@ -807,19 +652,20 @@ public class AgentBehaviourTree : MonoBehaviour {
 
     public static AbilityConfig FindAbility(List<AbilityConfig.AbilityType> abilityTypes, HexCell targetCell, Agent agent)
     {
-        List<AbilityConfig> configs = agent.GetAbilities(abilityTypes);
-        IListExtensions.Shuffle(configs);
-        foreach (AbilityConfig config in configs)
-        {
-            if (config.IsValidTarget(targetCell))
-            {
-                if (config.IsGoodTarget(targetCell))
-                {
-                    return config;
-                }
+        // TODO
+        //List<AbilityConfig> configs = agent.GetAbilities(abilityTypes);
+        //IListExtensions.Shuffle(configs);
+        //foreach (AbilityConfig config in configs)
+        //{
+        //    if (config.IsValidTarget(targetCell))
+        //    {
+        //        if (config.IsGoodTarget(targetCell))
+        //        {
+        //            return config;
+        //        }
 
-            }
-        }
+        //    }
+        //}
         return null;
     }
 }

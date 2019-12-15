@@ -62,11 +62,19 @@ public class HexGameUI : MonoBehaviour {
 
     private void DoSelectionInput()
     {
-        if (gameController.TurnOver == false && !EventSystem.current.IsPointerOverGameObject())
+        if (Input.GetKeyDown(KeyCode.Escape) && HUD.City)
+        {
+            ClearSelection();
+        }
+        if (gameController.TurnOver == false)
         {
             if (Input.GetMouseButtonDown(0))
             {
-                DoSelection();
+                if (!EventSystem.current.IsPointerOverGameObject())
+                {
+                    DoSelection();
+                }
+
             }
             else if (selectedUnit)
             {
@@ -76,7 +84,10 @@ public class HexGameUI : MonoBehaviour {
                 }
                 else
                 {
-                    DoPathfinding();
+                    //if (!EventSystem.current.IsPointerOverGameObject())
+                    //{
+                        DoPathfinding();
+                    //}
                 }
             }
         }
@@ -106,50 +117,66 @@ public class HexGameUI : MonoBehaviour {
 	void DoSelection () {
 		grid.ClearPath();
 		UpdateCurrentCell();
-		if (currentCell) {
-            if(currentCell.GetTopUnit() && currentCell.GetTopUnit().Controllable)
+		if (currentCell)
+        {
+            if (currentCell.GetTopUnit() && currentCell.GetTopUnit().Controllable)
             {
-                if(selectedUnit)
-                {
-                    SetLayerRecursively(selectedUnit.gameObject,0);
-                }
-                selectedUnit = currentCell.GetTopUnit();
-                SetLayerRecursively(selectedUnit.gameObject, 9);
-                HUD.Unit = selectedUnit.GetComponent<Unit>();
+                SelectUnit(currentCell.GetTopUnit());
             }
             else if (currentCell.City)
             {
+                ClearSelection();
                 if (selectedUnit)
                 {
                     SetLayerRecursively(selectedUnit.gameObject, 0);
                 }
-                selectedUnit = null;
-                HUD.City  = currentCell.City;
-            }
-            else if(currentCell.OpCentre)
-            {
-                if (selectedUnit)
-                {
-                    SetLayerRecursively(selectedUnit.gameObject, 0);
-                }
-                selectedUnit = null;
-                HUD.OpCentre = currentCell.OpCentre;
+                SelectCity(currentCell.City);
             }
         }
-	}
+    }
 
-    public void SelectOpCentre(OperationCentre opCentre)
+    public void SelectUnit(HexUnit hexUnit)
     {
-        grid.ClearPath();
-        selectedUnit = null;
-        HUD.OpCentre = opCentre;
+        ClearSelection();
+        if (selectedUnit)
+        {
+            SetLayerRecursively(selectedUnit.gameObject, 0);
+        }
+        selectedUnit = hexUnit;
+        SetLayerRecursively(selectedUnit.gameObject, 9);
+        HUD.Unit = selectedUnit.GetComponent<Unit>();
+        selectedUnit.Location.ReOrderUnit(selectedUnit);
+        selectedUnit.unit.UpdateUI(0);
+    }
+
+    private void ClearSelection()
+    {
+        if (HUD.City)
+        {
+            HUD.City.GetHexCell().HexCellUI.EnableCanvas(false);
+            foreach (HexCell cell in HUD.City.GetOwnedCells())
+            {
+                cell.HexCellUI.EnableCanvas(false);
+            }
+            HUD.City = null;
+        }
     }
 
     public void SelectCity(City city)
     {
+
         grid.ClearPath();
         selectedUnit = null;
         HUD.City = city;
+        city.GetHexCell().HexCellUI.EnableCanvas(true);
+        city.GetHexCell().HexCellUI.CurrentCityOwner = city;
+        city.GetHexCell().HexCellUI.SetToggleLocked(true);
+        foreach (HexCell cell in city.GetOwnedCells())
+        {
+            cell.HexCellUI.EnableCanvas(true);
+            cell.HexCellUI.CurrentCityOwner = city;
+            cell.HexCellUI.SetToggleLocked(false);
+        }
     }
 
     public void SelectUnit(Unit unit)
@@ -161,7 +188,7 @@ public class HexGameUI : MonoBehaviour {
 
     void DoPathfinding () {
 		if (UpdateCurrentCell()) {
-            if (currentCell && (selectedUnit.IsValidDestination(currentCell) || selectedUnit.IsValidAttackDestination(currentCell))) {
+            if (currentCell && (selectedUnit.IsValidDestination(currentCell) || selectedUnit.IsValidAttackDestination(currentCell))) { //) {
 				grid.FindPath(selectedUnit.Location, currentCell, selectedUnit);
 			}
 			else {
@@ -173,17 +200,18 @@ public class HexGameUI : MonoBehaviour {
 	void DoMove () {
 		if (grid.HasPath) {
             List<HexCell> path = grid.GetPath();
-            if (path[path.Count - 1].GetFightableUnit(selectedUnit))
+            // TODO
+            if (path[path.Count - 1].GetFightableUnit(selectedUnit) || (path[path.Count - 1].City && !path[path.Count - 1].City.GetCityState().Player.IsHuman))
             {
-                selectedUnit.GetComponent<Unit>().SetPath(path.GetRange(0,path.Count - 1));
-                selectedUnit.GetComponent<Unit>().AttackCell(path[path.Count -1]);
+                selectedUnit.GetComponent<Unit>().SetPath(path.GetRange(0, path.Count - 1));
+                selectedUnit.GetComponent<Unit>().AttackCell(path[path.Count - 1]);
             }
             else
             {
                 selectedUnit.GetComponent<Unit>().SetPath(grid.GetPath());
             }
 			
-            selectedUnit.GetComponent<Unit>().DoActions();
+            selectedUnit.DoActions();
             grid.ClearPath();
             HUD.UpdateUI();
 		}
@@ -203,7 +231,7 @@ public class HexGameUI : MonoBehaviour {
         HexCell target = grid.GetCell(Camera.main.ScreenPointToRay(Input.mousePosition));
         if (selectedUnit && target && abilityTargetOptions.Contains(target))
         {
-            selectedUnit.GetComponent<Unit>().RunAbility(abilityIndex, target,true);
+            selectedUnit.GetComponent<Abilities>().RunAbility(abilityIndex, target, true);
         }
         grid.ClearHighlightedCells(abilityTargetOptions);
         abilitySelection = false;

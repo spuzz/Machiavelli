@@ -37,21 +37,14 @@ public class HumanPlayer : Player {
     public void Load(BinaryReader reader, GameController gameController, HexGrid hexGrid, int header)
     {
         ClearAgents();
-        if (header >= 6)
-        {
-            ColorID = gameController.GetNewPlayerColor(reader.ReadInt32());
-        }
-        else
-        {
-            ColorID = gameController.GetNewPlayerColor();
-        }
+
+        ColorID = gameController.GetNewPlayerColor(reader.ReadInt32());
         int unitCount = reader.ReadInt32();
         for (int i = 0; i < unitCount; i++)
         {
             Agent agent = Agent.Load(reader, gameController, hexGrid, header, this);
         }
         ClearExploredCells();
-        ClearOperationCentres();
         LoadPlayer(reader, gameController, hexGrid, header);
     }
 

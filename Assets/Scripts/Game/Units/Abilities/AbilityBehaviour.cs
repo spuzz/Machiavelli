@@ -9,42 +9,28 @@ public abstract class AbilityBehaviour : MonoBehaviour
     protected AbilityConfig config;
     protected string abilityText;
     const float PARTICLE_CLEAN_UP_DELAY = 20;
-    List<int> energyCosts = new List<int>();
     public abstract void Use(HexCell target = null);
 
-    public virtual void ShowAbility(int energyCost, HexCell target = null)
+    public virtual void ShowAbility(HexCell target = null)
     {
 
         PlayParticleEffect();
         PlayAbilitySound();
         PlayAnimation(target);
-        UpdateEnergy(-energyCost);
         target.TextEffectHandler.AddTextEffect(abilityText, target.transform, Color.red);
     }
 
-    protected void UpdateEnergy(int energy)
-    {
-        GetComponent<Agent>().UpdateEnergy(energy);
-    }
 
     public abstract void FinishAbility(HexCell target = null);
 
     public abstract bool IsValidTarget(HexCell target);
 
-    public bool HasEnoughEnergy()
-    {
-        if(GetComponent<Agent>().Energy < config.GetEnergyCost())
-        {
-            return false;
-        }
-        return true;
-    }
     public virtual bool IsGoodTarget(HexCell target) { return true; }
 
-    public void RunAll(int energyCost, HexCell target = null)
+    public void RunAll(HexCell target = null)
     {
         Use(target);
-        ShowAbility(energyCost, target);
+        ShowAbility(target);
         FinishAbility(target);
     }
     public List<HexCell> GetValidTargets(HexCell location)
@@ -94,7 +80,7 @@ public abstract class AbilityBehaviour : MonoBehaviour
     {
         StartCoroutine(gameObject.GetComponent<Unit>().HexUnit.LookAt(target.transform.position));
         var abilityAnimation = config.GetAbilityAnimation();
-        var overrideController = GetComponent<Unit>().AnimatorOverrideController;
+        var overrideController = GetComponent<HexUnit>().AnimatorOverrideController;
         var animator = GetComponentInChildren<Animator>();
 
         overrideController["Ability"] = abilityAnimation;

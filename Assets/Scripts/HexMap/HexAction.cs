@@ -27,20 +27,18 @@ public class HexAction : MonoBehaviour
     HexAction child;
     HexAction parent;
     HexUnit actionsUnit;
+    List<HexUnit> extraUnits = new List<HexUnit>();
     City cityTarget;
-    HexUnit unitTarget;
+    List<HexUnit> unitTarget = new List<HexUnit>();
     CityState cityStateTarget;
     AbilityConfig abilityConfigToShow;
     bool meleeAction = true;
-    bool killTarget = false;
-    bool killSelf = false;
-    int damageToSelf = 0;
-    int damageToTarget = 0;
+    List<FightResult> actionResults;
     int energyCost = 0;
-    Vector3 a, b, c = new Vector3();
+    int finishedActions = 0;
     Status actionStatus = Status.WAITING;
     float t;
-
+    List<HexUnit> temporaryVisibleUnits = new List<HexUnit>();
     public IEnumerable<HexCell> GetPath()
     {
         return path;
@@ -58,6 +56,10 @@ public class HexAction : MonoBehaviour
         }
     }
 
+    public void AddExtraUnit(HexUnit unit)
+    {
+        extraUnits.Add(unit);
+    }
     public HexAction Parent
     {
         get
@@ -131,7 +133,7 @@ public class HexAction : MonoBehaviour
         }
     }
 
-    public HexUnit UnitTarget
+    public List<HexUnit> UnitTarget
     {
         get
         {
@@ -156,33 +158,6 @@ public class HexAction : MonoBehaviour
             cityTarget = value;
         }
     }
-
-    public bool KillTarget
-    {
-        get
-        {
-            return killTarget;
-        }
-
-        set
-        {
-            killTarget = value;
-        }
-    }
-
-    public bool KillSelf
-    {
-        get
-        {
-            return killSelf;
-        }
-
-        set
-        {
-            killSelf = value;
-        }
-    }
-
     public CityState CityStateTarget
     {
         get
@@ -220,16 +195,6 @@ public class HexAction : MonoBehaviour
         {
             energyCost = value;
         }
-    }
-
-    public void SetKillTarget()
-    {
-        KillTarget = true;
-    }
-
-    public void SetKillSelf()
-    {
-        KillSelf = true;
     }
 
     public bool Compare(HexAction action)
@@ -292,21 +257,20 @@ public class HexAction : MonoBehaviour
         this.CityStateTarget = cityState;
         this.CityTarget = cityTarget;
         this.actionCell = actionCell;
-        this.damageToSelf = damageToSelf;
-        this.damageToTarget = damageToTarget;
+        //this.damageToSelf = damageToSelf;
+        //this.damageToTarget = damageToTarget;
         this.FinalMove = finalMove;
-        this.UnitTarget = cityTarget.GetHexCell().hexUnits.Find(c => c.HexUnitType == HexUnit.UnitType.COMBAT);
+        this.UnitTarget = cityTarget.GetHexCell().hexUnits.FindAll(c => c.unit.HexUnitType == Unit.UnitType.COMBAT);
     }
 
-    public void AddAction(HexCell actionCell, HexCell finalMove, HexUnit unitTarget, int damageToSelf, int damageToTarget)
+    public void AddAction(HexCell actionCell, HexCell finalMove, List<HexUnit> unitTarget, List<FightResult> result)
     {
         path.Add(actionsUnit.Location);
         path.Add(actionCell);
         HexActionType = ActionType.ATTACKUNIT;
         this.UnitTarget = unitTarget;
         this.actionCell = actionCell;
-        this.damageToSelf = damageToSelf;
-        this.damageToTarget = damageToTarget;
+        actionResults = result;
         this.FinalMove = finalMove;
     }
 
@@ -326,11 +290,54 @@ public class HexAction : MonoBehaviour
         {
             yield return StartCoroutine(DoMove());
         }
+        int actionsToComplete = 0;
+        finishedActions = 0;
+        bool tempVisibility = false;
         if (HexActionType == ActionType.ATTACKCITY || HexActionType == ActionType.ATTACKUNIT)
         {
-            yield return StartCoroutine(DoAction());
+            if (!ActionCell.IsVisible && path[0].IsVisible)
+            {
+                if(ActionCell.IsVisible == false)
+                {
+                    tempVisibility = true;
+                    ActionCell.IncreaseVisibility(false);
+                }
+            }
+            foreach (HexUnit unit in extraUnits)
+            {
+                actionsToComplete++;
+                StartCoroutine(DoAction(unit, ActionCell, finalMove));
+            }
+            if(ActionCell.City)
+            {
+                StartCoroutine(DoCityUpdate(ActionCell.City));
+            }
+            else
+            {
+                foreach (HexUnit unit in UnitTarget)
+                {
+                    actionsToComplete++;
+                    StartCoroutine(DoAction(unit, path[0], ActionCell));
+                }
+            }
+
+            actionsToComplete++;
+            StartCoroutine(DoAction(actionsUnit, ActionCell, finalMove, true));
         }
 
+        while(finishedActions != actionsToComplete)
+        {
+            yield return new WaitForEndOfFrame();
+        }
+        foreach(HexUnit hexUnit in temporaryVisibleUnits)
+        {
+            hexUnit.HexVision.Visible = false;
+        }
+        if(tempVisibility)
+        {
+            ActionCell.DecreaseVisibility();
+        }
+        temporaryVisibleUnits.Clear();
         if (HexActionType == ActionType.USEABILITY)
         {
             yield return StartCoroutine(DoAbility());
@@ -342,48 +349,85 @@ public class HexAction : MonoBehaviour
     private IEnumerator DoMove()
     {
         HexCell currentTravelLocation = path[0];
-        a = currentTravelLocation.Position;
-        b = currentTravelLocation.Position;
-        c = currentTravelLocation.Position;
 
 
+        bool startMove = true;
         for (int i = 1; i < path.Count; i++)
         {
-            yield return StartCoroutine(MoveUnit(currentTravelLocation, path[i]));
+            yield return StartCoroutine(actionsUnit.MoveUnit(actionsUnit, currentTravelLocation, path[i], t, 1, startMove));
             currentTravelLocation = path[i];
+            startMove = false;
 
         }
-        yield return StartCoroutine(MoveUnitEnd(currentTravelLocation, path[path.Count - 1]));
+        yield return StartCoroutine(actionsUnit.MoveUnitEnd(actionsUnit, currentTravelLocation, path[path.Count - 1]));
         actionsUnit.Location.UpdateVision();
     }
 
-    private IEnumerator DoAction()
+    private IEnumerator DoAction(HexUnit unitToDoAction, HexCell targetCell, HexCell endActionCell, bool mainUnit = false)
     {
-        HexCell currentTravelLocation = actionsUnit.Location;
-        if (meleeAction)
+
+        
+        if (unitToDoAction.HexVision.Visible == false && (ActionCell.IsVisible || path[0].IsVisible) )
         {
-            a = currentTravelLocation.Position;
-            b = currentTravelLocation.Position;
-            c = currentTravelLocation.Position;
-            
-            yield return StartCoroutine(MoveUnit(currentTravelLocation, ActionCell));
+            temporaryVisibleUnits.Add(unitToDoAction);
+            unitToDoAction.HexVision.Visible = true;
+        }
+        unitToDoAction.unit.UnitUI.gameObject.SetActive(false);
+        HexCell currentTravelLocation = unitToDoAction.Location;
+        if ((unitToDoAction.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.MELEE)
+        {
+            //a = currentTravelLocation.Position;
+            //b = currentTravelLocation.Position;
+            //c = currentTravelLocation.Position;
+            float percOfDistanceToTarget = 1;
+            if(targetCell.ContainsCombatType(CombatUnit.CombatUnitType.MELEE))
+            {
+                percOfDistanceToTarget = 0.66f;
+            }
+            else
+            {
+                percOfDistanceToTarget = 1.33f;
+            }
+            yield return StartCoroutine(unitToDoAction.MoveUnit(unitToDoAction, currentTravelLocation, targetCell,t, percOfDistanceToTarget, true ));
+        }
+        else
+        {
+            yield return StartCoroutine(unitToDoAction.LookAt(targetCell.Position));
         }
 
 
-        if (CityTarget)
+        if (mainUnit && actionResults.FindAll(c => c.ambush == true).Count > 0)
         {
-            yield return StartCoroutine(actionsUnit.FightCity(ActionCell.City, KillTarget, CityStateTarget, UnitTarget));
+            targetCell.TextEffectHandler.AddTextEffect("AMBUSH!", unitToDoAction.transform, Color.red);
         }
-        else if (UnitTarget)
-        {
-            yield return StartCoroutine(actionsUnit.FightUnit(UnitTarget, damageToTarget, KillTarget));
-        }
-        actionsUnit.UpdateUnit(damageToSelf, KillSelf);
+        yield return StartCoroutine(unitToDoAction.Fight(targetCell));
 
-        if (meleeAction && KillSelf == false)
+        List<FightResult> results = actionResults.FindAll(c => c.unit == unitToDoAction);
+        
+        if (results.Count != 0)
         {
-            yield return StartCoroutine(MoveUnitEnd(currentTravelLocation, finalMove));
+            FightResult result = results[0];
+            unitToDoAction.UpdateUnit(result.damageReceived, result.isKilled);
+
+            if ((unitToDoAction.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.MELEE && !result.isKilled)
+            {
+                yield return StartCoroutine(unitToDoAction.MoveUnitEnd(unitToDoAction, currentTravelLocation, endActionCell));
+                yield return StartCoroutine(unitToDoAction.LookAt(targetCell.Position));
+            }
+
         }
+
+        finishedActions++;
+        unitToDoAction.unit.UnitUI.gameObject.SetActive(true);
+    }
+
+    public IEnumerator DoCityUpdate(City city)
+    {
+        yield return new WaitForSeconds(GameConsts.fightSpeed);
+        FightResult result = actionResults.Find(c => c.unit == null);
+        city.GetHexCell().TextEffectHandler.AddTextEffect(result.damageReceived.ToString(), city.GetHexCell().transform, Color.red);
+        city.UpdateHealthBar();
+        city.UpdateCity();
     }
 
     public IEnumerator DoAbility()
@@ -392,7 +436,7 @@ public class HexAction : MonoBehaviour
         if ((cell.IsVisible || actionCell.IsVisible) && GameConsts.playAnimations)
         {
             cell.IncreaseVisibility(false);
-            abilityConfigToShow.Show(energyCost, actionCell);
+            abilityConfigToShow.Show(actionCell);
             t = Time.deltaTime * HexUnit.TravelSpeed;
             for (; t < 1f; t += Time.deltaTime * 1)
             {
@@ -404,112 +448,5 @@ public class HexAction : MonoBehaviour
 
     }
 
-    public IEnumerator MoveUnit(HexCell currentTravelLocation, HexCell newTravelLocation)
-    {
-        a = c;
-        b = currentTravelLocation.Position;
-        int currentColumn = currentTravelLocation.ColumnIndex;
-        int nextColumn;
-        nextColumn = newTravelLocation.ColumnIndex;
-        if (currentColumn != nextColumn)
-        {
-            if (nextColumn < currentColumn - 1)
-            {
-                a.x -= HexMetrics.innerDiameter * HexMetrics.wrapSize;
-                b.x -= HexMetrics.innerDiameter * HexMetrics.wrapSize;
-            }
-            else if (nextColumn > currentColumn + 1)
-            {
-                a.x += HexMetrics.innerDiameter * HexMetrics.wrapSize;
-                b.x += HexMetrics.innerDiameter * HexMetrics.wrapSize;
-            }
-            actionsUnit.Grid.MakeChildOfColumn(actionsUnit.transform, nextColumn);
-            currentColumn = nextColumn;
-        }
 
-        c = (b + newTravelLocation.Position) * 0.5f;
-
-        
-        actionsUnit.HexVision.AddCells(actionsUnit.Grid.GetVisibleCells(newTravelLocation, actionsUnit.VisionRange));
-
-        if (currentTravelLocation.IsVisible == true && GameConsts.playAnimations)
-        {
-            yield return actionsUnit.LookAt(newTravelLocation.Position);
-            actionsUnit.Animator.SetBool("Walking", true);
-            actionsUnit.HexVision.Visible = true;
-            for (; t < 1f; t += Time.deltaTime * HexUnit.TravelSpeed)
-            {
-                actionsUnit.transform.localPosition = Bezier.GetPoint(a, b, c, t);
-                Vector3 d = Bezier.GetDerivative(a, b, c, t);
-                d.y = 0f;
-                actionsUnit.transform.localRotation = Quaternion.LookRotation(d);
-                yield return null;
-            }
-            actionsUnit.Animator.SetBool("Walking", false);
-            t -= 1f;
-        }
-        else
-        {
-            actionsUnit.HexVision.Visible = false;
-            actionsUnit.transform.localPosition = c;
-            t = Time.deltaTime * HexUnit.TravelSpeed;
-        }
-        actionsUnit.HexVision.ClearCells();
-        actionsUnit.HexVision.AddCells(actionsUnit.Grid.GetVisibleCells(newTravelLocation, actionsUnit.VisionRange));
-
-    }
-
-    public IEnumerator MoveUnitEnd(HexCell currentTravelLocation, HexCell newTravelLocation)
-    {
-        a = c;
-        b = newTravelLocation.Position;
-        c = b;
-        int currentColumn = currentTravelLocation.ColumnIndex;
-        int nextColumn;
-        nextColumn = newTravelLocation.ColumnIndex;
-
-        if (currentColumn != nextColumn)
-        {
-            if (nextColumn < currentColumn - 1)
-            {
-                a.x -= HexMetrics.innerDiameter * HexMetrics.wrapSize;
-            }
-            else if (nextColumn > currentColumn + 1)
-            {
-                a.x += HexMetrics.innerDiameter * HexMetrics.wrapSize;
-            }
-            actionsUnit.Grid.MakeChildOfColumn(actionsUnit.transform, nextColumn);
-            currentColumn = nextColumn;
-        }
-
-        actionsUnit.HexVision.AddCells(actionsUnit.Grid.GetVisibleCells(newTravelLocation, actionsUnit.VisionRange));
-        t = Time.deltaTime * HexUnit.TravelSpeed;
-        if (newTravelLocation.IsVisible == true && GameConsts.playAnimations)
-        {
-            yield return actionsUnit.LookAt(newTravelLocation.Position);
-            actionsUnit.Animator.SetBool("Walking", true);
-            actionsUnit.HexVision.Visible = true;
-            for (; t < 1f; t += Time.deltaTime * HexUnit.TravelSpeed)
-            {
-                actionsUnit.transform.localPosition = Bezier.GetPoint(a, b, c, t);
-                Vector3 d = Bezier.GetDerivative(a, b, c, t);
-                d.y = 0f;
-                actionsUnit.transform.localRotation = Quaternion.LookRotation(d);
-                yield return null;
-
-            }
-            actionsUnit.Animator.SetBool("Walking", false);
-            t -= 1f;
-        }
-        else
-        {
-            actionsUnit.HexVision.Visible = false;
-            actionsUnit.transform.localPosition = c;
-            t = Time.deltaTime * HexUnit.TravelSpeed;
-        }
-        
-
-        actionsUnit.HexVision.ClearCells();
-        actionsUnit.HexVision.AddCells(actionsUnit.Grid.GetVisibleCells(newTravelLocation, actionsUnit.VisionRange));
-    }
 }
