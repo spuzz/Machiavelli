@@ -64,7 +64,7 @@ public class Agent : Unit {
         {
             abilities.AbilitiesList.Add(abilityConfig);
         }
-
+        //HexUnit.OffSet = new Vector3(0, 0, -4);
     }
 
     public AgentConfig GetAgentConfig()
@@ -134,6 +134,22 @@ public class Agent : Unit {
 
         return false;
 
+    }
+
+
+    public override Vector3 GetPositionInCell(HexCell cell)
+    {
+        HexUnit combatUnit = cell.combatUnit;
+        if (combatUnit)
+        {
+            transform.rotation = combatUnit.transform.rotation;
+            HexUnit.OffSet = combatUnit.transform.rotation * GameConsts.agentBaseOffset;
+            return combatUnit.transform.localPosition + HexUnit.OffSet;
+        }
+        else
+        {
+            return cell.Position;
+        }
     }
 
     public void Save(BinaryWriter writer)

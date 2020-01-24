@@ -103,7 +103,7 @@ public static class PathFindingUtilities
 
     public static HexCell FindFreeCell(HexUnit hexUnit, HexCell hexCell)
     {
-        if (hexCell.hexUnits.Count == 0)
+        if (hexCell.CanUnitMoveToCell(hexUnit))
         {
             return hexCell;
         }

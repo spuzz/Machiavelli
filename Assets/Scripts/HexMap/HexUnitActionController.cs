@@ -106,7 +106,7 @@ public class HexUnitActionController : MonoBehaviour {
         }
         if(action.ActionCell)
         {
-            if(!action.ActionCell.City && actionQueue.GetRange(0,actionQueue.IndexOf(action)).FindAll(c => c.ActionsUnit == action.UnitTarget[0]).Count != 0)
+            if(!action.ActionCell.City && actionQueue.GetRange(0,actionQueue.IndexOf(action)).FindAll(c => c.ActionsUnit == action.UnitTarget).Count != 0)
             {
                 return false;
             }

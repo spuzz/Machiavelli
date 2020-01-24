@@ -2,163 +2,186 @@
 using System.Collections.Generic;
 using System.Linq;
 using System.Text;
+
+public class Combat
+{
+    public enum BATTLE_LIKELY_OUTCOME
+    {
+        CERTAIN_DEFEAT,
+        CLOSE_DEFEAT,
+        CLOSE_VICTORY,
+        CERTAIN_VICTORY
+    };
+
+    public int attackerStrength;
+    public int defenderStrength;
+
+    public bool defenderAmbushed = false;
+    public bool attackerAmbushed = false;
+
+    public BATTLE_LIKELY_OUTCOME likely_outcome;
+
+    public List<HexUnit> defendSupport = new List<HexUnit>();
+    public List<HexUnit> attackSupport = new List<HexUnit>();
+
+    public HexCell attackerCell;
+    public HexCell defenderCell;
+
+    public HexUnit attackerUnit;
+    public HexUnit defenderUnit;
+
+    public bool includeUnseen;
+
+    public Combat(HexCell attackerCell, HexCell defenderCell, bool includeUnseen = true)
+    {
+        this.includeUnseen = includeUnseen;
+        this.attackerCell = attackerCell;
+        this.defenderCell = defenderCell;
+        attackerUnit = attackerCell.combatUnit;
+        defenderUnit = defenderCell.combatUnit;
+        CombatStrength();
+    }
+
+    public void CombatStrength()
+    {
+        ClearData();
+
+
+        attackSupport = CombatSystem.GetSupportUnits(attackerCell, defenderCell, includeUnseen);
+        attackerStrength += CombatSystem.CalculateUnitsStrength(attackerCell.combatUnit, defenderCell.combatUnit, defenderCell, false);
+        foreach (HexUnit hexUnit in attackSupport)
+        {
+            attackerStrength += CombatSystem.CalculateUnitsStrength(hexUnit, defenderCell.combatUnit, defenderCell, false);
+        }
+
+        if (attackerCell.City && !defenderUnit)
+        {
+            defenderStrength = 0;
+        }
+        else
+        {
+            defendSupport = CombatSystem.GetSupportUnits(defenderCell, attackerCell, includeUnseen);
+            defenderStrength += CombatSystem.CalculateUnitsStrength(defenderCell.combatUnit, attackerCell.combatUnit, attackerCell, false);
+            foreach (HexUnit hexUnit in defendSupport)
+            {
+                defenderStrength += CombatSystem.CalculateUnitsStrength(hexUnit, attackerCell.combatUnit, attackerCell, false);
+            }
+
+            bool attackerVision = attackerCell.combatUnit.unit.GetPlayer().visibleCells.Keys.Contains(defenderCell);
+            bool defenderVision = defenderCell.combatUnit.unit.GetPlayer().visibleCells.Keys.Contains(attackerCell);
+            if (attackerVision && !defenderVision)
+            {
+                attackerStrength = (int)((float)attackerStrength * GameConsts.ambushBonus);
+                defenderAmbushed = true;
+            }
+            else if (!attackerVision && defenderVision)
+            {
+                defenderStrength = (int)((float)defenderStrength * GameConsts.ambushBonus);
+                attackerAmbushed = true;
+            }
+        }
+
+
+
+        if (attackerStrength > defenderStrength * 1.2)
+        {
+            likely_outcome = BATTLE_LIKELY_OUTCOME.CERTAIN_VICTORY;
+        }
+        else if (attackerStrength >= defenderStrength)
+        {
+            likely_outcome = BATTLE_LIKELY_OUTCOME.CLOSE_VICTORY;
+        }
+        else if (defenderStrength > attackerStrength * 1.2)
+        {
+            likely_outcome = BATTLE_LIKELY_OUTCOME.CERTAIN_DEFEAT;
+        }
+        else if (defenderStrength > attackerStrength)
+        {
+            likely_outcome = BATTLE_LIKELY_OUTCOME.CLOSE_DEFEAT;
+        }
+
+    }
+
+    private void ClearData()
+    {
+        attackerStrength = 0;
+        defenderStrength = 0;
+        defenderAmbushed = false;
+        attackerAmbushed = false;
+        defendSupport = new List<HexUnit>();
+        attackSupport = new List<HexUnit>();
+    }
+
+    public List<FightResult> Fight()
+    {
+        List<FightResult> results = new List<FightResult>();
+        int defenceDamage = CombatSystem.GetDamage(attackerStrength, defenderStrength);
+        int attackDamage = CombatSystem.GetDamage(defenderStrength, attackerStrength);
+
+        attackerUnit.unit.DamageUnit(attackDamage);
+        defenderUnit.unit.DamageUnit(defenceDamage);
+
+        results.Add(GetFightResult(attackDamage, attackerUnit, defenderUnit, attackerCell, defenderCell, defenderAmbushed));
+        foreach (HexUnit unit in attackSupport)
+        {
+            results.Add(GetFightResult(0, unit, defenderUnit, unit.Location, defenderCell, false));
+        }
+
+        results.Add(GetFightResult(defenceDamage, defenderUnit, attackerUnit, defenderCell, attackerCell, attackerAmbushed));
+        foreach (HexUnit unit in defendSupport)
+        {
+            results.Add(GetFightResult(0, unit, attackerUnit, unit.Location, attackerCell, false));
+        }
+
+        return results;
+    }
+
+    public FightResult GetFightResult(int damage, HexUnit attackerUnit, HexUnit defenderUnit, HexCell attackerCell, HexCell defenderCell, bool ambush)
+    {
+        FightResult fight;
+        fight.damageReceived = damage;
+        fight.unit = attackerUnit;
+
+        if (attackerUnit.unit.HitPoints <= 0)
+        {
+            fight.isKilled = true;
+        }
+        else
+        {
+            fight.isKilled = false;
+        }
+        fight.ambush = ambush;
+        fight.targetUnit = defenderUnit;
+        fight.targetCell = defenderCell;
+        fight.cityFight = false;
+        return fight;
+    }
+}
+
 public struct FightResult
 {
     public HexUnit unit;
+    public HexCell targetCell;
+    public HexUnit targetUnit;
     public int damageReceived;
     public bool isKilled;
     public bool ambush;
+
+    public bool cityFight;
 }
 
 public static class CombatSystem
 {
     static int defaultDamage = 35;
 
-    public static List<FightResult> Fight(HexCell attackCell, HexCell targetCell)
+    public static Combat Fight(HexCell attackCell, HexCell targetCell, bool includeUnseen = true)
     {
-        if (targetCell.City)
-        {
-            return FightCity(attackCell, targetCell.City);
-        }
-        else
-        {
-            return FightUnits(attackCell, targetCell);
-        }
+        Combat combat = new Combat(attackCell, targetCell, includeUnseen);
+        return combat;
     }
 
-    private static List<FightResult> FightCity(HexCell attackCell, City city)
-    {
-        List<FightResult> results = new List<FightResult>();
-        List<HexUnit> attackCellUnits = attackCell.hexUnits.FindAll(c => c.unit.HexUnitType == Unit.UnitType.COMBAT);
-        int attackCombatStrength = 0;
-        int defenceCombatStrength = 0;
-        foreach (HexUnit unit in attackCellUnits)
-        {
-            attackCombatStrength += CalculateStrength(unit, city);
-        }
 
-        defenceCombatStrength = CalculateCityStrength(city);
-
-        int attackDamage = GetDamage(attackCombatStrength, defenceCombatStrength);
-        int defenceDamage = GetDamage(defenceCombatStrength, attackCombatStrength);
-
-        foreach (HexUnit unit in attackCellUnits)
-        {
-            FightResult fight;
-            fight.damageReceived = defenceDamage;
-            fight.unit = unit;
-
-            unit.unit.DamageUnit(defenceDamage);
-            if (unit.unit.HitPoints <= 0)
-            {
-                fight.isKilled = true;
-            }
-            else
-            {
-                fight.isKilled = false;
-            }
-            fight.ambush = false;
-            results.Add(fight);
-        }
-
-        city.DamageCity(attackDamage);
-
-        FightResult result;
-        result.unit = null;
-        result.ambush = false;
-        result.damageReceived = attackDamage;
-        result.isKilled = (city.HitPoints <= 0);
-        results.Add(result);
-
-        if (city.HitPoints <= 0)
-        {
-            city.GetCityState().SetPlayerOnly(attackCellUnits[0].unit.GetPlayer());
-            city.KillAllUnits();
-            city.HitPoints = 100;
-        }
-
-        return results;
-    }
-
-    private static List<FightResult> FightUnits(HexCell attackCell, HexCell targetCell)
-    {
-        List<FightResult> results = new List<FightResult>();
-
-        List<HexUnit> attackCellUnits = attackCell.hexUnits.FindAll(c => c.unit.HexUnitType == Unit.UnitType.COMBAT);
-        List<HexUnit> defenceCellUnits = targetCell.hexUnits.FindAll(c => c.unit.HexUnitType == Unit.UnitType.COMBAT);
-        int attackCombatStrength = 0;
-        int defenceCombatStrength = 0;
-        bool attackAmbush = false;
-        bool defenceAmbush = false;
-        HexUnit frontLineAttackUnit = attackCellUnits[0];
-        HexUnit frontLineDefenceUnit = defenceCellUnits[0];
-        foreach (HexUnit unit in attackCellUnits)
-        {
-            attackCombatStrength += CalculateStrength(unit, frontLineDefenceUnit, targetCell, false);
-        }
-
-        foreach (HexUnit unit in defenceCellUnits)
-        {
-            defenceCombatStrength += CalculateStrength(unit, frontLineAttackUnit, targetCell, false);
-        }
-
-        bool attackerVision = attackCellUnits[0].unit.GetPlayer().visibleCells.Keys.Contains(targetCell);
-        bool defenderVision = defenceCellUnits[0].unit.GetPlayer().visibleCells.Keys.Contains(targetCell);
-        if (attackerVision && !defenderVision)
-        {
-            attackCombatStrength = (int)((float)attackCombatStrength * GameConsts.ambushBonus);
-            attackAmbush = true;
-        }
-        else if (!attackerVision && defenderVision)
-        {
-            defenceCombatStrength = (int)((float)defenceCombatStrength * GameConsts.ambushBonus);
-            defenceAmbush = true;
-        }
-        int attackDamage = GetDamage(attackCombatStrength, defenceCombatStrength);
-        int defenceDamage = GetDamage(defenceCombatStrength, attackCombatStrength);
-
-        foreach (HexUnit unit in attackCellUnits)
-        {
-            FightResult fight;
-            fight.damageReceived = defenceDamage;
-            fight.unit = unit;
-
-            unit.unit.DamageUnit(defenceDamage);
-            if (unit.unit.HitPoints <= 0)
-            {
-                fight.isKilled = true;
-            }
-            else
-            {
-                fight.isKilled = false;
-            }
-            fight.ambush = attackAmbush;
-            results.Add(fight);
-        }
-
-        foreach (HexUnit unit in defenceCellUnits)
-        {
-            FightResult fight;
-            fight.damageReceived = attackDamage;
-            fight.unit = unit;
-
-            unit.unit.DamageUnit(attackDamage);
-            if (unit.unit.HitPoints <= 0)
-            {
-                fight.isKilled = true;
-            }
-            else
-            {
-                fight.isKilled = false;
-            }
-            fight.ambush = defenceAmbush;
-            results.Add(fight);
-
-        }
-        return results;
-    }
-
-    private static int CalculateStrength(HexUnit unit, HexUnit frontLineUnit, HexCell targetCell, bool defending)
+    public static int CalculateUnitsStrength(HexUnit unit, HexUnit frontLineUnit, HexCell targetCell, bool defending)
     {
         CombatUnit combatUnit = unit.unit as CombatUnit;
         CombatUnitConfig config = combatUnit.GetCombatUnitConfig();
@@ -217,9 +240,9 @@ public static class CombatSystem
     private static int CalculateCityStrength(City city)
     {
         int strength = city.Strength;
-        foreach(HexUnit unit in city.GetHexCell().hexUnits.FindAll( c=> c.unit.HexUnitType != Unit.UnitType.AGENT))
+        if(city.GetHexCell().combatUnit)
         {
-            CombatUnit combatUnit = unit.unit as CombatUnit;
+            CombatUnit combatUnit = city.GetHexCell().combatUnit.unit as CombatUnit;
             CombatUnitConfig config = combatUnit.GetCombatUnitConfig();
             strength += config.BaseStrength;
         }
@@ -238,92 +261,32 @@ public static class CombatSystem
         }
     }
 
+    public static List<HexUnit> GetSupportUnits(HexCell ownerCell, HexCell targetCell, bool includeUnseen)
+    {
+        List<HexUnit> combatUnits = new List<HexUnit>();
 
-    //public static KeyValuePair<int, int> UnitFight(Unit fighter, Unit target)
-    //{
-    //    KeyValuePair<int, int> result;
-    //    int targetDamage;
-    //        int fighterDamage;
-    //    if (fighter.Range == 0)
-    //    {
-    //        targetDamage = GetMeleeDamage(fighter.Strength, target.Strength);
-    //        fighterDamage = GetMeleeDamage(target.Strength, fighter.Strength);
-    //    }
-    //    else
-    //    {
-    //        targetDamage = GetRangeDamage(fighter.RangeStrength, target.Strength);
-    //        fighterDamage = 0;
-    //    }
-
-    //    int currentTargetHealth = target.HitPoints;
-    //    int currentFighterHealth = fighter.HitPoints;
-    //    int targetHitpoints = target.HitPoints - targetDamage;
-    //    int fighterHitpoints = fighter.HitPoints - fighterDamage;
-
-    //    if(targetHitpoints <= 0 && fighterHitpoints <= 0)
-    //    {
-    //        if(targetHitpoints > fighterHitpoints)
-    //        {
-    //            targetHitpoints = 1;
-    //        }
-    //        else
-    //        {
-    //            fighterHitpoints = 1;
-    //        }
-    //    }
-
-    //    target.HitPoints = targetHitpoints;
-    //    fighter.HitPoints = fighterHitpoints;
-    //    if (target.HitPoints < 0)
-    //    {
-    //        target.HitPoints = 0;
-    //    }
-
-    //    if (fighter.HitPoints < 0)
-    //    {
-    //        fighter.HitPoints = 0;
-    //    }
-    //    result = new KeyValuePair<int, int>(currentTargetHealth - target.HitPoints, currentFighterHealth - fighter.HitPoints);
-    //    return result;
-    //}
-
-    //public static KeyValuePair<int, int> CityFight(Unit fighter, City target)
-    //{
-    //    KeyValuePair<int, int> result;
-    //    int targetDamage = GetMeleeDamage(fighter.Strength, target.Strength);
-    //    int fighterDamage = GetMeleeDamage(target.Strength, fighter.Strength);
-    //    int currentTargetHealth = target.HitPoints;
-    //    int currentFighterHealth = fighter.HitPoints;
-    //    int targetHitpoints = target.HitPoints - targetDamage;
-    //    int fighterHitpoints = fighter.HitPoints - fighterDamage;
-
-    //    if (targetHitpoints <= 0 && fighterHitpoints <= 0)
-    //    {
-    //        if (targetHitpoints > fighterHitpoints)
-    //        {
-    //            targetHitpoints = 1;
-    //        }
-    //        else
-    //        {
-    //            fighterHitpoints = 1;
-    //        }
-    //    }
-
-    //    target.HitPoints = targetHitpoints;
-    //    fighter.HitPoints = fighterHitpoints;
-    //    if (target.HitPoints < 0)
-    //    {
-    //        target.HitPoints = 0;
-    //    }
-
-    //    if (fighter.HitPoints < 0)
-    //    {
-    //        fighter.HitPoints = 0;
-    //    }
-    //    result = new KeyValuePair<int, int>(currentTargetHealth - target.HitPoints, currentFighterHealth - fighter.HitPoints);
-    //    return result;
-    //}
-
+        for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+        {
+            HexCell neighbour = ownerCell.GetNeighbor(d);
+            HexUnit combatUnit = neighbour.combatUnit;
+            if ((includeUnseen || neighbour.IsVisible) && combatUnit && combatUnit.unit.GetPlayer() == ownerCell.combatUnit.unit.GetPlayer())
+            {
+                if((combatUnit.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.SUPPORT)
+                {
+                    combatUnits.Add(combatUnit);
+                }
+                else if ((combatUnit.unit as CombatUnit).CombatType == CombatUnit.CombatUnitType.MELEE)
+                {
+                    if(neighbour.coordinates.DistanceTo(targetCell.coordinates) <= 1)
+                    {
+                        combatUnits.Add(combatUnit);
+                    }
+                }
+                    
+            }
+        }
+        return combatUnits;
+    }
 
     public static int GetDamage(int strength, int targetStrength)
     {

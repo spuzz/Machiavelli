@@ -20,7 +20,6 @@ public class UnitUI : MonoBehaviour {
     [SerializeField] HexCellTextEffect textEffect;
 
     [SerializeField] Unit unit;
-    [SerializeField] List<Button> unitStackButtons;
     Camera cameraToLookAt;
     bool visible = true;
 
@@ -60,10 +59,6 @@ public class UnitUI : MonoBehaviour {
             cityStateSymbol.color = new Color(color.r, color.g, color.b, 0.6f);
         }
 
-        foreach(Button button in unitStackButtons)
-        {
-            button.image.color = new Color(color.r, color.g, color.b, 0.6f);
-        }
     }
 
 
@@ -114,39 +109,21 @@ public class UnitUI : MonoBehaviour {
         
     }
 
-    public void UpdateStackButtons()
-    {
-        int unitCount = 0;
-        foreach(HexUnit hexUnit in unit.HexUnit.Location.hexUnits)
-        {
-            if(hexUnit != unit.HexUnit)
-            {
-                unitStackButtons[unitCount].gameObject.SetActive(true);
-                unitStackButtons[unitCount].GetComponentInChildren<RawImage>().texture = hexUnit.unit.UnitUI.Symbol;
-                unitCount++;
-            }
-        }
-        for(int a= unitCount; a < unitStackButtons.Count;a++)
-        {
-            unitStackButtons[a].gameObject.SetActive(false);
-        }
-    }
+    //public void SelectUnit(int buttonNumber)
+    //{
+    //    int unitCount = 0;
+    //    foreach (HexUnit hexUnit in unit.HexUnit.Location.hexUnits)
+    //    {
+    //        if (hexUnit != unit.HexUnit)
+    //        {
+    //            if(unitCount == buttonNumber)
+    //            {
+    //                FindObjectOfType<HexGameUI>().SelectCell(hexUnit.Location);
+    //                return;
+    //            }
+    //            unitCount++;
+    //        }
+    //    }
 
-    public void SelectUnit(int buttonNumber)
-    {
-        int unitCount = 0;
-        foreach (HexUnit hexUnit in unit.HexUnit.Location.hexUnits)
-        {
-            if (hexUnit != unit.HexUnit)
-            {
-                if(unitCount == buttonNumber)
-                {
-                    FindObjectOfType<HexGameUI>().SelectUnit(hexUnit);
-                    return;
-                }
-                unitCount++;
-            }
-        }
-
-    }
+    //}
 }

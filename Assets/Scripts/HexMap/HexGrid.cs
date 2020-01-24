@@ -412,11 +412,11 @@ public class HexGrid : MonoBehaviour {
 				current.DisableHighlight();
 				current = current.PathFrom;
 			}
-			current.DisableHighlight();
+			//current.DisableHighlight();
 			currentPathExists = false;
 		}
 		else if (currentPathFrom) {
-			currentPathFrom.DisableHighlight();
+			//currentPathFrom.DisableHighlight();
 			currentPathTo.DisableHighlight();
 		}
 		currentPathFrom = currentPathTo = null;
@@ -431,9 +431,10 @@ public class HexGrid : MonoBehaviour {
 				current.EnableHighlight(Color.white);
 				current = current.PathFrom;
 			}
-		}
-		currentPathFrom.EnableHighlight(Color.blue);
-		currentPathTo.EnableHighlight(Color.red);
+            currentPathTo.EnableHighlight(Color.red);
+        }
+		//currentPathFrom.EnableHighlight(Color.blue);
+
 	}
     public void HighlightCells(List<HexCell> cells)
     {
@@ -630,11 +631,14 @@ public class HexGrid : MonoBehaviour {
         List<HexCell> cells = PathFindingUtilities.GetCellsInRange(hexCell, range);
         foreach(HexCell cell in cells)
         {
-            foreach(HexUnit hexUnit in cell.hexUnits)
-            {
-                units.Add(hexUnit);
+            if(cell.combatUnit)
+            { 
+                units.Add(cell.combatUnit);
             }
-            
+            if (cell.agent)
+            {
+                units.Add(cell.agent);
+            }
         }
         return units;
     }

@@ -56,8 +56,6 @@ public class HexGameUI : MonoBehaviour {
             SetEditMode(grid.EditMode);
         }
 
-
-
     }
 
     private void DoSelectionInput()
@@ -68,6 +66,7 @@ public class HexGameUI : MonoBehaviour {
         }
         if (gameController.TurnOver == false)
         {
+
             if (Input.GetMouseButtonDown(0))
             {
                 if (!EventSystem.current.IsPointerOverGameObject())
@@ -87,6 +86,7 @@ public class HexGameUI : MonoBehaviour {
                     //if (!EventSystem.current.IsPointerOverGameObject())
                     //{
                         DoPathfinding();
+
                     //}
                 }
             }
@@ -119,34 +119,43 @@ public class HexGameUI : MonoBehaviour {
 		UpdateCurrentCell();
 		if (currentCell)
         {
-            if (currentCell.GetTopUnit() && currentCell.GetTopUnit().Controllable)
+            if (currentCell.agent && currentCell.agent.Controllable)
             {
-                SelectUnit(currentCell.GetTopUnit());
+                SelectUnit(currentCell.agent);
+            }
+            else if (currentCell.combatUnit && currentCell.combatUnit.Controllable)
+            {
+                SelectUnit(currentCell.combatUnit);
             }
             else if (currentCell.City)
             {
                 ClearSelection();
                 if (selectedUnit)
                 {
+
                     SetLayerRecursively(selectedUnit.gameObject, 0);
+                    selectedUnit.Location.DisableHighlight();
                 }
                 SelectCity(currentCell.City);
             }
         }
     }
 
-    public void SelectUnit(HexUnit hexUnit)
+    public void SelectUnit(HexUnit unit)
     {
         ClearSelection();
         if (selectedUnit)
         {
             SetLayerRecursively(selectedUnit.gameObject, 0);
+            selectedUnit.Location.DisableHighlight();
         }
-        selectedUnit = hexUnit;
+        selectedUnit = unit;
         SetLayerRecursively(selectedUnit.gameObject, 9);
-        HUD.Unit = selectedUnit.GetComponent<Unit>();
-        selectedUnit.Location.ReOrderUnit(selectedUnit);
+        selectedUnit.Location.EnableHighlight(Color.blue);
         selectedUnit.unit.UpdateUI(0);
+
+        HUD.Unit = selectedUnit.GetComponent<Unit>();
+
     }
 
     private void ClearSelection()
@@ -179,41 +188,57 @@ public class HexGameUI : MonoBehaviour {
         }
     }
 
-    public void SelectUnit(Unit unit)
-    {
-        grid.ClearPath();
-        currentCell = unit.HexUnit.Location;
-        selectedUnit = unit.HexUnit;
-    }
-
     void DoPathfinding () {
 		if (UpdateCurrentCell()) {
-            if (currentCell && (selectedUnit.IsValidDestination(currentCell) || selectedUnit.IsValidAttackDestination(currentCell))) { //) {
-				grid.FindPath(selectedUnit.Location, currentCell, selectedUnit);
-			}
+            if (currentCell && ValidMove(selectedUnit)) { //) {
+                grid.FindPath(selectedUnit.Location, currentCell, selectedUnit);
+                if (grid.GetPath() != null && grid.GetPath().Count != 0 && selectedUnit.IsValidAttackDestination(currentCell) && currentCell.IsVisible)
+                {
+
+                    HUD.ShowCombatPanel(selectedUnit.Location, currentCell);
+                }
+                else
+                {
+                    HUD.HideCombatPanel(grid.GetPath());
+                }
+                
+
+            }
 			else {
 				grid.ClearPath();
-			}
+                HUD.HideCombatPanel(null);
+            }
 		}
 	}
 
+    bool ValidMove(HexUnit unit)
+    {
+
+        if (!unit.IsValidDestination(currentCell) && !unit.IsValidAttackDestination(currentCell))
+        {
+            return false;
+        }
+        return true;
+    }
+
 	void DoMove () {
 		if (grid.HasPath) {
+            selectedUnit.Location.DisableHighlight();
             List<HexCell> path = grid.GetPath();
-            // TODO
             if (path[path.Count - 1].GetFightableUnit(selectedUnit) || (path[path.Count - 1].City && !path[path.Count - 1].City.GetCityState().Player.IsHuman))
             {
                 selectedUnit.GetComponent<Unit>().SetPath(path.GetRange(0, path.Count - 1));
                 selectedUnit.GetComponent<Unit>().AttackCell(path[path.Count - 1]);
+                selectedUnit.DoActions();
             }
             else
             {
                 selectedUnit.GetComponent<Unit>().SetPath(grid.GetPath());
+                selectedUnit.DoActions();
             }
-			
-            selectedUnit.DoActions();
             grid.ClearPath();
             HUD.UpdateUI();
+            selectedUnit.Location.EnableHighlight(Color.blue);
 		}
 	}
     public void DoAbilitySelection(List<HexCell> cellOptions, int index)

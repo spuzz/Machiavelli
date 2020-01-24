@@ -186,6 +186,7 @@ public abstract class Unit : MonoBehaviour {
         set
         {
             hexUnitType = value;
+
         }
     }
 
@@ -387,11 +388,9 @@ public abstract class Unit : MonoBehaviour {
         List<FightResult> results = new List<FightResult>();
         if (targetCell.City || targetCell.GetFightableUnit(hexUnit))
         {
-            results = CombatSystem.Fight(this.HexUnit.Location, targetCell);
-            foreach(HexUnit hexUnit in hexUnit.Location.hexUnits.FindAll(c => c.unit.HexUnitType == UnitType.COMBAT))
-            {
-                hexUnit.unit.SetMovementLeft(0);
-            }
+            Combat combat = CombatSystem.Fight(this.HexUnit.Location, targetCell);
+            results = combat.Fight();
+            hexUnit.unit.SetMovementLeft(0);
             
         }
         return results;
@@ -403,7 +402,6 @@ public abstract class Unit : MonoBehaviour {
         {
             UnitUI.UpdateHealthBar(healthChange);
         }
-        UnitUI.UpdateStackButtons();
     }
 
 
@@ -436,6 +434,21 @@ public abstract class Unit : MonoBehaviour {
             ListPool<HexCell>.Add(cells);
 
         }
+    }
+
+    public void UpdatePositionInCell()
+    {
+        transform.localPosition = GetPositionInCell(hexUnit.Location);
+    }
+
+    public virtual Vector3 GetPositionInCell(HexCell cell)
+    {
+        return cell.Position;
+    }
+
+    public virtual Vector3 GetFightPosition(HexCell cell, HexCell targetCell)
+    {
+        return cell.Position;
     }
 
     public void KillUnit()

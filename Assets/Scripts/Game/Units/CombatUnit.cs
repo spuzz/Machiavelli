@@ -43,6 +43,14 @@ public class CombatUnit : Unit
         set
         {
             combatUnitType = value;
+            //if (CombatType == CombatUnit.CombatUnitType.SUPPORT)
+            //{
+            //    HexUnit.OffSet = new Vector3(4, 0, 0);
+            //}
+            //if (CombatType == CombatUnit.CombatUnitType.SIEGE)
+            //{
+            //    HexUnit.OffSet = new Vector3(-4, 0, 0);
+            //}
         }
     }
 
@@ -85,14 +93,50 @@ public class CombatUnit : Unit
         }
 
 
-
-
     }
     public override Player GetPlayer()
     {
         return player;
     }
 
+    //public override Vector3 GetPositionInCell(HexCell cell)
+    //{
+    //    if (CombatType != CombatUnitType.MELEE)
+    //    {
+    //        HexUnit meleeUnit = cell.hexUnits.Find(c => c.unit.HexUnitType == UnitType.COMBAT && (c.unit as CombatUnit).CombatType == CombatUnitType.MELEE);
+    //        if (meleeUnit)
+    //        {
+    //            transform.rotation = meleeUnit.transform.rotation;
+    //            if (CombatType == CombatUnitType.SUPPORT)
+    //            {
+    //                HexUnit.OffSet = meleeUnit.transform.rotation * GameConsts.supportBaseOffset;
+    //                return meleeUnit.transform.localPosition + HexUnit.OffSet;
+    //            }
+    //        }
+    //        else
+    //        {
+    //            return cell.Position;
+    //        }
+    //    }
+    //    return cell.Position;
+    //}
+
+    //public override Vector3 GetFightPosition(HexCell cell, HexCell targetCell)
+    //{
+    //    if (CombatType != CombatUnitType.MELEE)
+    //    {
+    //        int count = 1;
+    //        for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
+    //        {
+    //            if (cell.GetNeighbor(d) == targetCell)
+    //            {
+    //                HexUnit.OffSet = Quaternion.Euler(0,90,0) * GameConsts.supportBaseOffset;
+    //                return cell.transform.localPosition + HexUnit.OffSet;
+    //            }
+    //        }
+    //    }
+    //    return cell.Position;
+    //}
 
     public void SetCombatUnitConfig(CombatUnitConfig config)
     {

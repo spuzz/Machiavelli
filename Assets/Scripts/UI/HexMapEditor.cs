@@ -268,10 +268,14 @@ public class HexMapEditor : MonoBehaviour {
     }
 	void DestroyUnit () {
 		HexCell cell = GetCellUnderCursor();
-		if (cell && cell.GetTopUnit()) {
-			hexGrid.DestroyUnit(cell.GetTopUnit());
+		if (cell.combatUnit) {
+			hexGrid.DestroyUnit(cell.combatUnit);
 		}
-	}
+        if (cell.agent)
+        {
+            hexGrid.DestroyUnit(cell.agent);
+        }
+    }
 
     void CreateCityStateUnit()
     {

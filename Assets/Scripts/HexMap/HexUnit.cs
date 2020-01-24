@@ -21,6 +21,7 @@ public class HexUnit : MonoBehaviour {
 
     // Attributes
     [SerializeField] Projectile projectilePreFab;
+    [SerializeField] Vector3 offSet;
     const float rotationSpeed = 540f;
 	const float travelSpeed = 3f;
 
@@ -64,7 +65,7 @@ public class HexUnit : MonoBehaviour {
                 {
                     HexVision.AddCells(Grid.GetVisibleCells(location,VisionRange));
                 }
-                transform.localPosition = value.Position;
+                transform.localPosition = value.Position + offSet;
                 Grid.MakeChildOfColumn(transform, value.ColumnIndex);
                 value.AddUnit(this);
                 unit.UpdateOwnerVisiblity(location, true);
@@ -188,12 +189,11 @@ public class HexUnit : MonoBehaviour {
 
     public void Awake()
     {
+
         Animator = GetComponentInChildren<Animator>();
         unit = GetComponent<Unit>();
         hexUnitActionController = FindObjectOfType<HexUnitActionController>();
     }
-
-
 
     public GameObject GetMesh()
     {
@@ -210,14 +210,14 @@ public class HexUnit : MonoBehaviour {
         Animator = GetComponentInChildren<Animator>();
         MaterialColourChanger = GetComponentInChildren<MaterialColourChanger>();
     }
-    public IEnumerator MoveUnit(HexUnit unitToMove, HexCell currentTravelLocation, HexCell newTravelLocation, float t, float percOfFullDistance, bool startMove)
+    public IEnumerator MoveUnit(HexUnit unitToMove, HexCell currentTravelLocation, HexCell newTravelLocation, float t, float percOfFullDistance, bool startMove, Vector3 targetPosition = new Vector3())
     {
         this.t = t;
         if(startMove)
         {
-            a = currentTravelLocation.Position;
+            a = unitToMove.transform.position;
             b = currentTravelLocation.Position;
-            c = currentTravelLocation.Position;
+            c = unitToMove.transform.position;
         }
 
 
@@ -241,8 +241,14 @@ public class HexUnit : MonoBehaviour {
             unitToMove.Grid.MakeChildOfColumn(unitToMove.transform, nextColumn);
             currentColumn = nextColumn;
         }
-
-        c = b + (( newTravelLocation.Position - b) * (0.5f * percOfFullDistance));
+        if(targetPosition == Vector3.zero)
+        {
+            c = b + ((newTravelLocation.Position - b) * (0.5f * percOfFullDistance));
+        }
+        else
+        {
+            c = b + ((targetPosition - b) * (0.5f * percOfFullDistance));
+        }
 
 
         unitToMove.HexVision.AddCells(unitToMove.Grid.GetVisibleCells(newTravelLocation, unitToMove.VisionRange));
@@ -260,7 +266,7 @@ public class HexUnit : MonoBehaviour {
                 unitToMove.transform.localRotation = Quaternion.LookRotation(d);
                 yield return null;
             }
-            unitToMove.Animator.SetBool("Walking", false);
+            //unitToMove.Animator.SetBool("Walking", false);
             t -= 1f;
         }
         else
@@ -275,8 +281,9 @@ public class HexUnit : MonoBehaviour {
 
     public IEnumerator MoveUnitEnd(HexUnit unitToMove, HexCell currentTravelLocation, HexCell newTravelLocation)
     {
+
         a = c;
-        b = newTravelLocation.Position;
+        b = unitToMove.unit.GetPositionInCell(newTravelLocation);
         c = b;
         int currentColumn = currentTravelLocation.ColumnIndex;
         int nextColumn;
@@ -300,7 +307,7 @@ public class HexUnit : MonoBehaviour {
         t = Time.deltaTime * HexUnit.TravelSpeed;
         if (newTravelLocation.IsVisible == true && GameConsts.playAnimations)
         {
-            yield return unitToMove.LookAt(newTravelLocation.Position);
+            yield return unitToMove.LookAt(unitToMove.unit.GetPositionInCell(newTravelLocation));
             unitToMove.Animator.SetBool("Walking", true);
             unitToMove.HexVision.Visible = true;
             for (; t < 1f; t += Time.deltaTime * HexUnit.TravelSpeed)
@@ -325,6 +332,8 @@ public class HexUnit : MonoBehaviour {
 
         unitToMove.HexVision.ClearCells();
         unitToMove.HexVision.AddCells(unitToMove.Grid.GetVisibleCells(newTravelLocation, unitToMove.VisionRange));
+
+
     }
 
     public IEnumerator LookAt (Vector3 point) {
@@ -402,14 +411,9 @@ public class HexUnit : MonoBehaviour {
 
         HexAction action = hexUnitActionController.CreateAction();
         action.ActionsUnit = this;
-        List<HexUnit> combatUnits = Location.hexUnits.FindAll(c => c != this && c.unit.HexUnitType != Unit.UnitType.AGENT);
-        List<HexUnit> enemyCombatUnits = target.hexUnits.FindAll(c => c != this && c.unit.HexUnitType != Unit.UnitType.AGENT);
-        foreach (HexUnit unit in combatUnits)
-        {
-            action.AddExtraUnit(unit);
-        }
-        action.AddAction(target,Location, enemyCombatUnits, results);
-        
+
+        action.AddAction(target,Location, target.combatUnit, results);
+
         actions.Add(action);
     }
 
@@ -475,9 +479,22 @@ public class HexUnit : MonoBehaviour {
         }
     }
 
+    public Vector3 OffSet
+    {
+        get
+        {
+            return offSet;
+        }
+
+        set
+        {
+            offSet = value;
+        }
+    }
+
     public void ValidateLocation()
     {
-        transform.localPosition = location.Position;
+        transform.localPosition = location.Position + offSet;
     }
 
     public void DoActions()
@@ -524,7 +541,16 @@ public class HexUnit : MonoBehaviour {
 
     public bool IsValidAttackDestination(HexCell cell)
     {
-        HexUnit enemyUnit = cell.hexUnits.Find(c => c.unit.HexUnitType == unit.HexUnitType);
+        HexUnit enemyUnit = null;
+        if (unit.HexUnitType == Unit.UnitType.AGENT)
+        {
+            enemyUnit = cell.agent;
+        }
+        else if(unit.HexUnitType == Unit.UnitType.COMBAT)
+        {
+            enemyUnit = cell.combatUnit;
+        }
+
         if(enemyUnit)
         {
             if ((unit.GetCityOwner() && enemyUnit.unit.GetCityOwner() == unit.GetCityOwner()) || (unit.GetPlayer() && enemyUnit.unit.GetPlayer() == unit.GetPlayer()))
@@ -563,8 +589,9 @@ public class HexUnit : MonoBehaviour {
     }
 
     void OnEnable () {
+
 		if (location) {
-			transform.localPosition = location.Position;
+			transform.localPosition = location.Position + offSet;
 			if (currentTravelLocation) {
                 HexVision.ClearCells();
                 HexVision.AddCells(Grid.GetVisibleCells(location, VisionRange));

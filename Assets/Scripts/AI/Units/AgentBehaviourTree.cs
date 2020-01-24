@@ -491,16 +491,13 @@ public class AgentBehaviourTree : MonoBehaviour {
             List<HexCell> targets = new List<HexCell>();
             foreach (HexCell cell in cells)
             {
-                if (cell.hexUnits.Count > 0 && agent.GetPlayer().exploredCells.Contains(cell))
+                if (cell.combatUnit && agent.GetPlayer().exploredCells.Contains(cell))
                 {
-                    foreach (HexUnit unit in cell.hexUnits)
+
+                    if (cell.combatUnit.unit.GetCityOwner())
                     {
-                        if (unit.unit.HexUnitType == Unit.UnitType.COMBAT && unit.unit.GetCityOwner())
-                        {
-                            targets.Add(cell);
-                        }
+                        targets.Add(cell);
                     }
-                    ;
                 }
             }
 
@@ -535,16 +532,13 @@ public class AgentBehaviourTree : MonoBehaviour {
             List<HexCell> targets = new List<HexCell>();
             foreach (HexCell cell in cells)
             {
-                if (cell.hexUnits.Count > 0 && agent.GetPlayer().exploredCells.Contains(cell))
+                if (cell.agent && agent.GetPlayer().exploredCells.Contains(cell))
                 {
-                    foreach (HexUnit unit in cell.hexUnits)
-                    {
-                        if (unit.unit.HexUnitType == Unit.UnitType.AGENT && unit.unit.GetPlayer() && unit.unit.GetPlayer() != agent.GetPlayer())
+
+                        if (cell.agent.unit.GetPlayer() && cell.agent.unit.GetPlayer() != agent.GetPlayer())
                         {
                             targets.Add(cell);
                         }
-                    }
-                    ;
                 }
             }
 
@@ -581,16 +575,13 @@ public class AgentBehaviourTree : MonoBehaviour {
             List<HexCell> targets = new List<HexCell>();
             foreach (HexCell cell in cells)
             {
-                if (cell.hexUnits.Count > 0 && agent.GetPlayer().visibleCells.Keys.Contains(cell) && agent.GetPlayer().visibleCells[cell] > 0)
+                if (cell.combatUnit && agent.GetPlayer().visibleCells.Keys.Contains(cell) && agent.GetPlayer().visibleCells[cell] > 0)
                 {
-                    foreach (HexUnit unit in cell.hexUnits)
-                    {
-                        if (unit.unit.HexUnitType == Unit.UnitType.COMBAT && unit.unit.GetCityOwner())
+
+                        if (cell.combatUnit.unit.GetCityOwner())
                         {
                             targets.Add(cell);
                         }
-                    }
-                    ;
                 }
             }
 

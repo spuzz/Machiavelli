@@ -16,6 +16,8 @@ public class HUD : MonoBehaviour {
     [SerializeField] TextFadeOut newTurnText;
     [SerializeField] GameObject toolTip;
     [SerializeField] TextMeshProUGUI toolTipText;
+    [SerializeField] CombatPanel combatPanel;
+
     Unit unit;
     City city;
     HexCell targetCell;
@@ -118,14 +120,14 @@ public class HUD : MonoBehaviour {
         }
         if (unit)
         {
-            if(unit.HexUnitType == Unit.UnitType.AGENT)
-            {
-                agentPanel.SetActive(unit);
-            }
-            else
-            {
-                agentPanel.SetInactive();
-            }
+            //if(unit.HexUnitType == Unit.UnitType.AGENT)
+            //{
+                agentPanel.SetActive(unit.HexUnit.Location);
+            //}
+            //else
+            //{
+            //    agentPanel.SetInactive();
+            //}
             
         }
         else
@@ -138,6 +140,16 @@ public class HUD : MonoBehaviour {
     {
         TargetCell = Unit.HexUnit.Location;
         Unit.GetComponent<Abilities>().AttemptAbility(abilityNumber, TargetCell);
+    }
+
+    public void ShowCombatPanel(HexCell owner, HexCell target)
+    {
+        combatPanel.Activate(owner,target);
+    }
+
+    public void HideCombatPanel(List<HexCell> path)
+    {
+        combatPanel.Deactivate(path);
     }
 
 

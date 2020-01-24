@@ -49,5 +49,8 @@ static class GameConsts
     public static float fightSpeed = 2f;
     public static int negativePCTurnIncrease = 2;
     public static int maintanencePerPop = 1;
+    public static Vector3 agentBaseOffset = new Vector3(0, 0, -4);
+    public static Vector3 supportBaseOffset = new Vector3(4, 0, -1);
+    public static Vector3 siegeBaseOffset = new Vector3(-4, 0, 0);
 }
 
