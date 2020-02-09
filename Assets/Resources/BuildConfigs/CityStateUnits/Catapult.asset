@@ -1,0 +1,22 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 11ff4f446dbefac40bf1796673187b03, type: 3}
+  m_Name: Catapult
+  m_EditorClassIdentifier: 
+  baseProductionCost: 100
+  basePurchaseCost: 100
+  prerequisites: []
+  focusType: 12
+  buildingImage: {fileID: 21300000, guid: 0e73995a8145b954592a98ac281808fa, type: 3}
+  name: Catapult
+  displayName: Catapult
+  toolTipText: Catapult
+  combatUnitConfig: {fileID: 11400000, guid: 66f966f8111cf6d4ba5670723a818f12, type: 2}

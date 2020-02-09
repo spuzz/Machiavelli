@@ -3,168 +3,185 @@ using UnityEngine;
 
 public class HexMapGenerator : MonoBehaviour {
 
-	public HexGrid grid;
+    public HexGrid grid;
 
-	public bool useFixedSeed;
+    public bool useFixedSeed;
 
-	public int seed;
+    public int seed;
 
-	[Range(0f, 0.5f)]
-	public float jitterProbability = 0.25f;
+    [Range(0f, 0.5f)]
+    public float jitterProbability = 0.25f;
 
-	[Range(20, 200)]
-	public int chunkSizeMin = 30;
+    [Range(20, 200)]
+    public int chunkSizeMin = 30;
 
-	[Range(20, 200)]
-	public int chunkSizeMax = 100;
+    [Range(20, 200)]
+    public int chunkSizeMax = 100;
 
-	[Range(0f, 1f)]
-	public float highRiseProbability = 0.25f;
+    [Range(0f, 1f)]
+    public float highRiseProbability = 0.25f;
 
-	[Range(0f, 0.4f)]
-	public float sinkProbability = 0.2f;
+    [Range(0f, 0.4f)]
+    public float sinkProbability = 0.2f;
 
-	[Range(5, 95)]
-	public int landPercentage = 50;
+    [Range(5, 95)]
+    public int landPercentage = 50;
 
-	[Range(1, 5)]
-	public int waterLevel = 3;
+    [Range(1, 5)]
+    public int waterLevel = 3;
 
-	[Range(-4, 0)]
-	public int elevationMinimum = -2;
+    [Range(-4, 0)]
+    public int elevationMinimum = -2;
 
-	[Range(6, 10)]
-	public int elevationMaximum = 8;
+    [Range(6, 10)]
+    public int elevationMaximum = 8;
 
-	[Range(0, 10)]
-	public int mapBorderX = 5;
+    [Range(0, 10)]
+    public int mapBorderX = 5;
 
-	[Range(0, 10)]
-	public int mapBorderZ = 5;
+    [Range(0, 10)]
+    public int mapBorderZ = 5;
 
-	[Range(0, 10)]
-	public int regionBorder = 5;
+    [Range(0, 10)]
+    public int regionBorder = 5;
 
-	[Range(1, 4)]
-	public int regionCount = 1;
+    [Range(1, 4)]
+    public int regionCount = 1;
 
-	[Range(0, 100)]
-	public int erosionPercentage = 50;
+    [Range(0, 100)]
+    public int erosionPercentage = 50;
 
-	[Range(0f, 1f)]
-	public float startingMoisture = 0.1f;
+    [Range(0f, 1f)]
+    public float startingMoisture = 0.1f;
 
-	[Range(0f, 1f)]
-	public float evaporationFactor = 0.5f;
+    [Range(0f, 1f)]
+    public float evaporationFactor = 0.5f;
 
-	[Range(0f, 1f)]
-	public float precipitationFactor = 0.25f;
+    [Range(0f, 1f)]
+    public float precipitationFactor = 0.25f;
 
-	[Range(0f, 1f)]
-	public float runoffFactor = 0.25f;
+    [Range(0f, 1f)]
+    public float runoffFactor = 0.25f;
 
-	[Range(0f, 1f)]
-	public float seepageFactor = 0.125f;
+    [Range(0f, 1f)]
+    public float seepageFactor = 0.125f;
 
-	public HexDirection windDirection = HexDirection.NW;
+    public HexDirection windDirection = HexDirection.NW;
 
-	[Range(1f, 10f)]
-	public float windStrength = 4f;
+    [Range(1f, 10f)]
+    public float windStrength = 4f;
 
-	[Range(0, 20)]
-	public int riverPercentage = 10;
+    [Range(0, 20)]
+    public int riverPercentage = 10;
 
-	[Range(0f, 1f)]
-	public float extraLakeProbability = 0.25f;
+    [Range(0f, 1f)]
+    public float extraLakeProbability = 0.25f;
 
-	[Range(0f, 1f)]
-	public float lowTemperature = 0f;
+    [Range(0f, 1f)]
+    public float lowTemperature = 0f;
 
-	[Range(0f, 1f)]
-	public float highTemperature = 1f;
+    [Range(0f, 1f)]
+    public float highTemperature = 1f;
 
-	public enum HemisphereMode {
-		Both, North, South
-	}
+    [Range(0, 100)]
+    public int forestPercentage = 20;
 
-	public HemisphereMode hemisphere;
+    public enum HemisphereMode {
+        Both, North, South
+    }
 
-	[Range(0f, 1f)]
-	public float temperatureJitter = 0.1f;
+    public HemisphereMode hemisphere;
 
-	HexCellPriorityQueue searchFrontier;
+    [Range(0f, 1f)]
+    public float temperatureJitter = 0.1f;
 
-	int searchFrontierPhase;
+    HexCellPriorityQueue searchFrontier;
 
-	int cellCount, landCells;
+    int searchFrontierPhase;
 
-	int temperatureJitterChannel;
+    int cellCount, landCells;
 
-	struct MapRegion {
-		public int xMin, xMax, zMin, zMax;
-	}
+    int temperatureJitterChannel;
 
-	List<MapRegion> regions;
+    struct MapRegion {
+        public int xMin, xMax, zMin, zMax;
+    }
 
-	struct ClimateData {
-		public float clouds, moisture;
-	}
+    List<MapRegion> regions;
 
-	List<ClimateData> climate = new List<ClimateData>();
-	List<ClimateData> nextClimate = new List<ClimateData>();
+    struct ClimateData {
+        public float clouds, moisture;
+    }
 
-	List<HexDirection> flowDirections = new List<HexDirection>();
+    List<ClimateData> climate = new List<ClimateData>();
+    List<ClimateData> nextClimate = new List<ClimateData>();
 
-	struct Biome {
-		public int terrain, plant;
+    List<HexDirection> flowDirections = new List<HexDirection>();
 
-		public Biome (int terrain, int plant) {
-			this.terrain = terrain;
-			this.plant = plant;
-		}
-	}
+    struct Biome {
+        public int terrain, plant;
 
-	static float[] temperatureBands = { 0.1f, 0.3f, 0.6f };
+        public Biome(int terrain, int plant) {
+            this.terrain = terrain;
+            this.plant = plant;
+        }
+    }
 
-	static float[] moistureBands = { 0.12f, 0.28f, 0.85f };
+    static float[] temperatureBands = { 0.1f, 0.3f, 0.6f };
 
-	static Biome[] biomes = {
-		new Biome(0, 0), new Biome(4, 0), new Biome(4, 0), new Biome(4, 0),
-		new Biome(0, 0), new Biome(2, 0), new Biome(2, 1), new Biome(2, 2),
-		new Biome(0, 0), new Biome(1, 0), new Biome(1, 1), new Biome(1, 2),
-		new Biome(0, 0), new Biome(1, 1), new Biome(1, 2), new Biome(1, 3)
-	};
+    static float[] moistureBands = { 0.12f, 0.28f, 0.85f };
 
-	public void GenerateMap (int x, int z, bool wrapping) {
-		Random.State originalRandomState = Random.state;
-		if (!useFixedSeed) {
-			seed = Random.Range(0, int.MaxValue);
-			seed ^= (int)System.DateTime.Now.Ticks;
-			seed ^= (int)Time.unscaledTime;
-			seed &= int.MaxValue;
-		}
-		Random.InitState(seed);
+    static Biome[] biomes = {
+        new Biome(0, 0), new Biome(4, 0), new Biome(4, 0), new Biome(4, 0),
+        new Biome(0, 0), new Biome(2, 0), new Biome(2, 1), new Biome(2, 2),
+        new Biome(0, 0), new Biome(1, 0), new Biome(1, 1), new Biome(1, 2),
+        new Biome(0, 0), new Biome(1, 1), new Biome(1, 2), new Biome(1, 3)
+    };
 
-		cellCount = x * z;
-		grid.CreateMap(x, z, wrapping);
-		if (searchFrontier == null) {
-			searchFrontier = new HexCellPriorityQueue();
-		}
-		for (int i = 0; i < cellCount; i++) {
-			grid.GetCell(i).WaterLevel = waterLevel;
-		}
-		CreateRegions();
-		CreateLand();
-		ErodeLand();
-		CreateClimate();
-		CreateRivers();
-		SetTerrainType();
-		for (int i = 0; i < cellCount; i++) {
-			grid.GetCell(i).SearchPhase = 0;
-		}
+    public void GenerateMap(int x, int z, bool wrapping) {
+        Random.State originalRandomState = Random.state;
+        if (!useFixedSeed) {
+            seed = Random.Range(0, int.MaxValue);
+            seed ^= (int)System.DateTime.Now.Ticks;
+            seed ^= (int)Time.unscaledTime;
+            seed &= int.MaxValue;
+        }
+        Random.InitState(seed);
 
-		Random.state = originalRandomState;
-	}
+        cellCount = x * z;
+        grid.CreateMap(x, z, wrapping);
+        if (searchFrontier == null) {
+            searchFrontier = new HexCellPriorityQueue();
+        }
+        for (int i = 0; i < cellCount; i++) {
+            grid.GetCell(i).WaterLevel = waterLevel;
+        }
+        CreateRegions();
+        CreateLand();
+        ErodeLand();
+        CreateClimate();
+        CreateRivers();
+        CreateForests();
+        SetTerrainType();
+        for (int i = 0; i < cellCount; i++) {
+            grid.GetCell(i).SearchPhase = 0;
+        }
+
+        Random.state = originalRandomState;
+    }
+
+    void CreateForests()
+    {
+        for (int i = 0; i < cellCount; i++)
+        {
+            HexCell cell = grid.GetCell(i);
+            if(Random.Range(0, 100) < forestPercentage )
+            {
+                cell.SpecialIndex = 3;
+                cell.Forest = true;
+            }
+        }
+    }
 
 	void CreateRegions () {
 		if (regions == null) {

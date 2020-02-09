@@ -8,6 +8,7 @@ public class MaterialColourChanger : MonoBehaviour {
     public enum MaterialType
     {
         UNIT,
+        UNIT2,
         BUILDING
     }
     [SerializeField] MaterialType type;
@@ -20,6 +21,10 @@ public class MaterialColourChanger : MonoBehaviour {
         if(type == MaterialType.UNIT)
         {
             newMat = colour.UnitMaterial;
+        }
+        else if(type == MaterialType.UNIT2)
+        {
+            newMat = colour.UnitMaterial2;
         }
         else
         {

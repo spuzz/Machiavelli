@@ -41,6 +41,8 @@ public class HexCell : MonoBehaviour {
 
     bool walled;
 
+    bool forest;
+
     bool hasIncomingRiver, hasOutgoingRiver;
     HexDirection incomingRiver, outgoingRiver;
 
@@ -351,7 +353,6 @@ public class HexCell : MonoBehaviour {
         }
     }
 
-
     public HexCellTextEffectHandler TextEffectHandler
     {
         get
@@ -388,6 +389,19 @@ public class HexCell : MonoBehaviour {
         set
         {
             hexCellUI = value;
+        }
+    }
+
+    public bool Forest
+    {
+        get
+        {
+            return forest;
+        }
+
+        set
+        {
+            forest = value;
         }
     }
 
@@ -775,6 +789,7 @@ public class HexCell : MonoBehaviour {
 		}
 		writer.Write((byte)roadFlags);
 		writer.Write(IsExplored);
+        writer.Write(forest);
         HexCellGameData.Save(writer);
 	}
 
@@ -815,6 +830,11 @@ public class HexCell : MonoBehaviour {
 		}
 
         IsExplored = reader.ReadBoolean();
+        if(header >= 4)
+        {
+            forest = reader.ReadBoolean();
+        }
+
         city = null;
 
         HexCellGameData.Load(reader, header);

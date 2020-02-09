@@ -13,5 +13,6 @@ MonoBehaviour:
   m_EditorClassIdentifier: 
   id: 4
   unitMaterial: {fileID: 2100000, guid: e70460ce9ec478f4187568e5ffab3c14, type: 2}
+  unitMaterial2: {fileID: 2100000, guid: b813b7681b0bf9b4181633bc098ca739, type: 2}
   buildingMaterial: {fileID: 2100000, guid: 1fae569ed431bbf48b18f4298538e903, type: 2}
   colour: {r: 0.8867924, g: 0.37226102, b: 0.12967247, a: 1}

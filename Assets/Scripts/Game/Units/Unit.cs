@@ -293,14 +293,41 @@ public abstract class Unit : MonoBehaviour {
             return false;
         }
 
-        if (cell.City || cell.GetFightableUnit(this.HexUnit) )
+        if (cell.GetFightableUnit(this.HexUnit) )
         {
             List<FightResult> results =  Fight(cell);
             hexUnit.Attack(cell, results);
+            if(results.FindAll(C => C.cityTaken == true).Count != 0)
+            {
+                cell.City.GetCityState().SetPlayerOnly(this.GetPlayer());
+                hexUnit.Capture(cell);
+            }
             return true;
         }
 
         return false;
+    }
+
+    public bool CaptureCity(HexCell cell)
+    {
+        if (movementLeft < 1)
+        {
+            return false;
+        }
+        if (cell.coordinates.DistanceTo(HexUnit.Location.coordinates) > 1)
+        {
+            return false;
+        }
+
+        if (cell.City)
+        {
+            cell.City.GetCityState().SetPlayerOnly(this.GetPlayer());
+            hexUnit.Capture(cell);
+            return true;
+        }
+
+        return false;
+
     }
 
     public bool MoveUnit()
@@ -386,7 +413,7 @@ public abstract class Unit : MonoBehaviour {
     public List<FightResult> Fight(HexCell targetCell)
     {
         List<FightResult> results = new List<FightResult>();
-        if (targetCell.City || targetCell.GetFightableUnit(hexUnit))
+        if (targetCell.GetFightableUnit(hexUnit))
         {
             Combat combat = CombatSystem.Fight(this.HexUnit.Location, targetCell);
             results = combat.Fight();

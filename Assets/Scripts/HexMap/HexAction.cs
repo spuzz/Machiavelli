@@ -18,7 +18,8 @@ public class HexAction : MonoBehaviour
         ATTACKCITY,
         ATTACKUNIT,
         MOVE,
-        USEABILITY
+        USEABILITY,
+        CAPTURECITY
     }
     ActionType hexActionType = ActionType.MOVE;
     List<HexCell> path = new List<HexCell>();
@@ -219,6 +220,14 @@ public class HexAction : MonoBehaviour
         HexActionType = ActionType.MOVE;
     }
 
+    public void AddCaptureAction(HexCell actionCell, HexCell startCell)
+    {
+        path.Clear();
+        path.Add(startCell);
+        this.actionCell = actionCell;
+        HexActionType = ActionType.CAPTURECITY;
+    }
+
     public bool AddAction(HexAction action)
     {
         if(action.HexActionType == ActionType.MOVE && HexActionType == ActionType.MOVE)
@@ -293,12 +302,8 @@ public class HexAction : MonoBehaviour
         int actionsToComplete = 0;
         finishedActions = 0;
         bool tempVisibility = false;
-        if(HexActionType == ActionType.ATTACKCITY)
-        {
 
-        }
-
-        if (HexActionType == ActionType.ATTACKUNIT)
+        if (HexActionType == ActionType.ATTACKUNIT || HexActionType == ActionType.ATTACKCITY)
         {
             if (!ActionCell.IsVisible && path[0].IsVisible)
             {
@@ -314,12 +319,6 @@ public class HexAction : MonoBehaviour
                 actionsToComplete++;
                 StartCoroutine(DoActionMove(result.unit, result.targetCell, result.targetUnit));
             }
-
-            //actionsToComplete++;
-            //StartCoroutine(DoActionMove(unitTarget, ActionCell));
-
-            //actionsToComplete++;
-            //StartCoroutine(DoActionMove(actionsUnit, ActionCell));
 
             while (finishedActions != actionsToComplete)
             {
@@ -340,16 +339,42 @@ public class HexAction : MonoBehaviour
                 StartCoroutine(DoActionFight(result.unit, result.targetCell, result.targetUnit));
             }
 
-            //actionsToComplete++;
-            //StartCoroutine(DoActionFight(unitTarget, ActionCell));
-
-            //actionsToComplete++;
-            //StartCoroutine(DoActionFight(actionsUnit, ActionCell));
-
             while (finishedActions != actionsToComplete)
             {
                 yield return new WaitForEndOfFrame();
             }
+
+            //finishedActions = 0;
+            //actionsToComplete = 0;
+
+            //foreach (FightResult result in unitFightResults)
+            //{
+            //    if(result.cityTaken)
+            //    {
+            //        actionsToComplete++;
+            //        StartCoroutine(DoActionCaptureCity(result.unit, result.targetCell, result.targetCell));
+            //    }
+
+            //}
+
+            //while (finishedActions != actionsToComplete)
+            //{
+            //    yield return new WaitForEndOfFrame();
+            //}
+        }
+        else if (HexActionType == ActionType.CAPTURECITY)
+        {
+            if (!ActionCell.IsVisible && path[0].IsVisible)
+            {
+                if (ActionCell.IsVisible == false)
+                {
+                    tempVisibility = true;
+                    ActionCell.IncreaseVisibility(false);
+                }
+            }
+
+            yield return StartCoroutine(DoActionCaptureCity(actionsUnit, path[0], actionCell));
+
         }
 
         actionsUnit.Location.UpdateUnitPositions();
@@ -403,7 +428,7 @@ public class HexAction : MonoBehaviour
             float percOfDistanceToTarget = 1;
             if((targetUnit.unit as CombatUnit).CombatType == (CombatUnit.CombatUnitType.MELEE))
             {
-                percOfDistanceToTarget = 0.66f;
+                percOfDistanceToTarget = 0.33f;
             }
             else
             {
@@ -451,14 +476,14 @@ public class HexAction : MonoBehaviour
         unitToDoAction.unit.UnitUI.gameObject.SetActive(true);
     }
 
-    public IEnumerator DoCityUpdate(City city)
+    private IEnumerator DoActionCaptureCity(HexUnit unitToDoAction, HexCell startCell, HexCell targetCell)
     {
-        yield return new WaitForSeconds(GameConsts.fightSpeed);
-        FightResult result = unitFightResults.Find(c => c.unit == null);
-        city.GetHexCell().TextEffectHandler.AddTextEffect(result.damageReceived.ToString(), city.GetHexCell().transform, Color.red);
-        city.UpdateHealthBar();
-        city.UpdateCity();
+
+        yield return StartCoroutine(unitToDoAction.MoveUnitEnd(unitToDoAction, startCell, unitToDoAction.Location));
+        //city.UpdateHealthBar();
+        targetCell.City.UpdateCity();
     }
+
 
     public IEnumerator DoAbility()
     {

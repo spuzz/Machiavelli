@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: 11ff4f446dbefac40bf1796673187b03, type: 3}
   m_Name: Archer
   m_EditorClassIdentifier: 
-  baseProductionCost: 100
+  baseProductionCost: 70
   basePurchaseCost: 100
   prerequisites: []
   focusType: 10

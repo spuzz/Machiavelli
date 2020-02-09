@@ -121,13 +121,20 @@ public class Combat
         attackerUnit.unit.DamageUnit(attackDamage);
         defenderUnit.unit.DamageUnit(defenceDamage);
 
-        results.Add(GetFightResult(attackDamage, attackerUnit, defenderUnit, attackerCell, defenderCell, defenderAmbushed));
+        FightResult attackerResult = GetFightResult(attackDamage, attackerUnit, defenderUnit, attackerCell, defenderCell, defenderAmbushed);
+        if (defenderCell.City && defenderUnit.unit.HitPoints <= 0)
+        {
+            attackerResult.cityTaken = true;
+        }
+        results.Add(attackerResult);
+
         foreach (HexUnit unit in attackSupport)
         {
             results.Add(GetFightResult(0, unit, defenderUnit, unit.Location, defenderCell, false));
         }
 
         results.Add(GetFightResult(defenceDamage, defenderUnit, attackerUnit, defenderCell, attackerCell, attackerAmbushed));
+        
         foreach (HexUnit unit in defendSupport)
         {
             results.Add(GetFightResult(0, unit, attackerUnit, unit.Location, attackerCell, false));
@@ -153,7 +160,7 @@ public class Combat
         fight.ambush = ambush;
         fight.targetUnit = defenderUnit;
         fight.targetCell = defenderCell;
-        fight.cityFight = false;
+        fight.cityTaken = false;
         return fight;
     }
 }
@@ -166,8 +173,7 @@ public struct FightResult
     public int damageReceived;
     public bool isKilled;
     public bool ambush;
-
-    public bool cityFight;
+    public bool cityTaken;
 }
 
 public static class CombatSystem

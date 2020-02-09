@@ -109,6 +109,14 @@ public class UnitUI : MonoBehaviour {
         
     }
 
+    public void SelectUnit()
+    {
+        if(Unit.GetPlayer() && Unit.GetPlayer().IsHuman)
+        {
+            FindObjectOfType<HexGameUI>().SelectUnit(Unit.HexUnit);
+        }
+
+    }
     //public void SelectUnit(int buttonNumber)
     //{
     //    int unitCount = 0;

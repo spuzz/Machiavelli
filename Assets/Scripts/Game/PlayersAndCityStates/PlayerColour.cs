@@ -7,6 +7,7 @@ public class PlayerColour : ScriptableObject {
 
     [SerializeField] int id;
     [SerializeField] Material unitMaterial;
+    [SerializeField] Material unitMaterial2;
     [SerializeField] Material buildingMaterial;
     [SerializeField] Color colour;
 
@@ -59,6 +60,19 @@ public class PlayerColour : ScriptableObject {
         set
         {
             colour = value;
+        }
+    }
+
+    public Material UnitMaterial2
+    {
+        get
+        {
+            return unitMaterial2;
+        }
+
+        set
+        {
+            unitMaterial2 = value;
         }
     }
 }

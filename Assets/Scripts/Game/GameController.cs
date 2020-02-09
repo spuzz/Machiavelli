@@ -334,7 +334,7 @@ public class GameController : MonoBehaviour
         if (createCityState)
         {
             city.GetComponent<CityState>().SymbolID = PickSymbol();
-
+            city.GetComponent<CityState>().CreatePolitician();
         }
         city.transform.localPosition = HexMetrics.Perturb(cell.Position);
         city.SetHexCell(cell);
@@ -401,7 +401,8 @@ public class GameController : MonoBehaviour
         combatUnit.HexUnitType = Unit.UnitType.COMBAT;
         hexGrid.AddUnit(hexUnit);
         city.AddUnit(hexUnit.GetComponent<CombatUnit>());
-        if(city.GetCityState().Player && city.GetCityState().Player.IsHuman)
+        hexUnit.GetComponent<CombatUnit>().SetCityOwner(city);
+        if (city.GetCityState().Player && city.GetCityState().Player.IsHuman)
         {
             hexUnit.Controllable = true;
         }
@@ -419,6 +420,7 @@ public class GameController : MonoBehaviour
         combatUnit.HexUnitType = Unit.UnitType.COMBAT;
         hexGrid.AddUnit(hexUnit);
         city.AddUnit(hexUnit.GetComponent<CombatUnit>());
+        hexUnit.GetComponent<CombatUnit>().SetCityOwner(city);
         if (city.GetCityState().Player && city.GetCityState().Player.IsHuman)
         {
             hexUnit.Controllable = true;

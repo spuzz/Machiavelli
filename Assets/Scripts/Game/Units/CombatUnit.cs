@@ -99,6 +99,15 @@ public class CombatUnit : Unit
         return player;
     }
 
+    public override City GetCityOwner()
+    {
+        return cityOwner;
+    }
+
+    public void SetCityOwner(City city)
+    {
+        cityOwner = city;
+    }
     //public override Vector3 GetPositionInCell(HexCell cell)
     //{
     //    if (CombatType != CombatUnitType.MELEE)

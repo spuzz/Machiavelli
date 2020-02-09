@@ -63,7 +63,14 @@ public class HexUnit : MonoBehaviour {
             {
                 if (HexVision)
                 {
-                    HexVision.AddCells(Grid.GetVisibleCells(location,VisionRange));
+                    List<HexCell> visibleCells;
+                    List<HexCell> forestCells = new List<HexCell>();
+                    visibleCells = Grid.GetVisibleCells(location, VisionRange);
+                    foreach(HexCell cell in forestCells)
+                    {
+                        cell.IsExplored = true;
+                    }
+                    HexVision.AddCells(visibleCells);
                 }
                 transform.localPosition = value.Position + offSet;
                 Grid.MakeChildOfColumn(transform, value.ColumnIndex);
@@ -376,7 +383,7 @@ public class HexUnit : MonoBehaviour {
         float attackTime = 0;
         if ((Location.IsVisible || target.IsVisible) && GameConsts.playAnimations)
         {
-
+            Animator.SetBool("Walking", false);
             LookAt(target.Position);
             Location.IncreaseVisibility(false);
             Animator.SetBool("Attacking", true);
@@ -384,6 +391,7 @@ public class HexUnit : MonoBehaviour {
             {
                 yield return null;
             }
+
             Animator.SetBool("Attacking", false);
             Location.DecreaseVisibility();
         }
@@ -416,6 +424,24 @@ public class HexUnit : MonoBehaviour {
 
         actions.Add(action);
     }
+
+    public void Capture(HexCell target)
+    {
+
+        HexAction action = hexUnitActionController.CreateAction();
+        action.ActionsUnit = this;
+
+        action.AddCaptureAction(target, Location);
+
+        Location.RemoveUnit(this);
+        SetLocationOnly(target);
+        if (unit.Alive == true)
+        {
+            AddUnitToLocation(target);
+        }
+        actions.Add(action);
+    }
+
 
     public void SetLocationOnly(HexCell cell)
     {

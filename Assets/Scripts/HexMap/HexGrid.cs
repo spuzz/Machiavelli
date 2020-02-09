@@ -501,7 +501,7 @@ public class HexGrid : MonoBehaviour {
 					continue;
 				}
 				if (!unit.IsValidDestination(neighbor, allowUnexplored)) {
-                    // TODO
+
                     if(neighbor != toCell || !unit.IsValidAttackDestination(neighbor))
                     {
                         continue;
@@ -564,7 +564,7 @@ public class HexGrid : MonoBehaviour {
 		}
 	}
 
-	public List<HexCell> GetVisibleCells (HexCell fromCell, int range) {
+	public List<HexCell> GetVisibleCells (HexCell fromCell, int range, bool setForestCellsExplored = true) {
 		List<HexCell> visibleCells = ListPool<HexCell>.Get();
 
 		searchFrontierPhase += 2;
@@ -603,13 +603,31 @@ public class HexGrid : MonoBehaviour {
                     elevation = minElevation;
                 }
 
+
+
                 if (distance + elevation > range ||
 					distance > fromCoordinates.DistanceTo(neighbor.coordinates)
 				) {
 					continue;
 				}
 
-				if (neighbor.SearchPhase < searchFrontierPhase) {
+                if (neighbor.Forest)
+                {
+                    if (setForestCellsExplored && elevation <= minElevation)
+                    {
+                        neighbor.IsExplored = true;
+                    }
+                    elevation += 1;
+                }
+
+                if (distance + elevation > range ||
+                    distance > fromCoordinates.DistanceTo(neighbor.coordinates)
+                )
+                {
+                    continue;
+                }
+
+                if (neighbor.SearchPhase < searchFrontierPhase) {
 					neighbor.SearchPhase = searchFrontierPhase;
 					neighbor.Distance = distance;
 					neighbor.SearchHeuristic = 0;

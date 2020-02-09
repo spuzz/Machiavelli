@@ -404,6 +404,15 @@ public class HexMapEditor : MonoBehaviour {
                     
                 }
 
+                if(activeSpecialIndex == 3)
+                {
+                    cell.Forest = true;
+                }
+                else
+                {
+                    cell.Forest = false;
+                }
+
                 cell.SpecialIndex = activeSpecialIndex;
 			}
 			if (applyUrbanLevel) {

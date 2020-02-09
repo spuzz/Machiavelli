@@ -210,6 +210,7 @@ public class CityState : MonoBehaviour
             politician.ControllingPlayer = player;
             politician.Loyalty = 100;
         }
+        politician.CityState = this;
         politicians.Add(politician);
     }
 

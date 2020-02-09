@@ -225,10 +225,18 @@ public class HexGameUI : MonoBehaviour {
 		if (grid.HasPath) {
             selectedUnit.Location.DisableHighlight();
             List<HexCell> path = grid.GetPath();
-            if (path[path.Count - 1].GetFightableUnit(selectedUnit) || (path[path.Count - 1].City && !path[path.Count - 1].City.GetCityState().Player.IsHuman))
+            HUD.HideCombatPanel(null);
+            City city = path[path.Count - 1].City;
+            if (path[path.Count - 1].GetFightableUnit(selectedUnit))
             {
                 selectedUnit.GetComponent<Unit>().SetPath(path.GetRange(0, path.Count - 1));
                 selectedUnit.GetComponent<Unit>().AttackCell(path[path.Count - 1]);
+                selectedUnit.DoActions();
+            }
+            else if (city && city.GetCityState().Player && !city.GetCityState().Player.IsHuman && selectedUnit.unit.HexUnitType == Unit.UnitType.COMBAT)
+            {
+                selectedUnit.GetComponent<Unit>().SetPath(path.GetRange(0, path.Count - 1));
+                selectedUnit.GetComponent<Unit>().CaptureCity(path[path.Count - 1]);
                 selectedUnit.DoActions();
             }
             else
