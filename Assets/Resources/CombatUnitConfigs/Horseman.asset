@@ -25,5 +25,5 @@ MonoBehaviour:
   siegeModifier: 0
   difficultTerrainModifier: -50
   classModifers:
-  - classification: 5
+  - classification: 0
     modifier: 100

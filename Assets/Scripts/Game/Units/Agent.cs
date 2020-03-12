@@ -12,6 +12,8 @@ public class Agent : Unit {
         EXPLORE,
         USEABILITY
     }
+
+
     Stance currentStance = Stance.UNASSIGNED;
 
     AgentConfig agentConfig;
@@ -19,6 +21,12 @@ public class Agent : Unit {
     
     int energy = 100;
     [SerializeField] int energyRegen = 5;
+
+    [SerializeField] string agentName;
+    [SerializeField] int level = 1;
+    [SerializeField] int unspentPoints = 0;
+    [SerializeField] int maintenance = 0;
+    [SerializeField] int experience = 0;
 
     public Stance CurrentStance
     {
@@ -46,10 +54,81 @@ public class Agent : Unit {
         }
     }
 
+    public int Level
+    {
+        get
+        {
+            return level;
+        }
+
+        set
+        {
+            level = value;
+        }
+    }
+
+    public int UnspentPoints
+    {
+        get
+        {
+            return unspentPoints;
+        }
+
+        set
+        {
+            unspentPoints = value;
+        }
+    }
+
+    public int Maintenance
+    {
+        get
+        {
+            return maintenance;
+        }
+
+        set
+        {
+            maintenance = value;
+        }
+    }
+
+    public string AgentName
+    {
+        get
+        {
+            return agentName;
+        }
+
+        set
+        {
+            agentName = value;
+        }
+    }
+
+    public int Experience
+    {
+        get
+        {
+            return experience;
+        }
+
+        set
+        {
+            experience = value;
+        }
+    }
+
     public override void StartTurn()
     {
+        if(gameController.GetTurn() != 1)
+        {
+            AddExperience(100);
+        }
+
         base.StartTurn();
     }
+
     public void SetAgentConfig(AgentConfig config)
     {
         agentConfig = config;
@@ -80,6 +159,28 @@ public class Agent : Unit {
             HexUnit.MaterialColourChanger.ChangeMaterial(player.GetColour());
         }
 
+    }
+
+    public void SetLevel(int level)
+    {
+        this.Level = level;
+        experience = 0;
+    }
+    
+    public void AddExperience(int exp)
+    {
+        experience += exp;
+        if(experience >= GameConsts.agentLevelXP)
+        {
+            AddLevel(1);
+            experience = experience - GameConsts.agentLevelXP;
+        }
+    }
+
+    public void AddLevel(int levels)
+    {
+        Level += levels;
+        UnspentPoints += GameConsts.pointsPerLevel *levels;
     }
 
     public void SetPlayer(Player player)

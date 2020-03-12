@@ -26,8 +26,8 @@ public class City : MonoBehaviour {
     int cityID;
 
     [SerializeField] List<CityBuilding> buildings;
-    //[SerializeField] List<BuildConfig> buildingOptions;
-    //[SerializeField] List<BuildConfig> trainingOptions;
+    [SerializeField] List<BuildConfig> buildingOptions;
+    [SerializeField] List<BuildConfig> trainingOptions;
 
     int maintenance = 0;
     int population = 1;
@@ -99,6 +99,8 @@ public class City : MonoBehaviour {
         set
         {
             visionRange = value;
+            HexVision.SetCells(PathFindingUtilities.GetCellsInRange(hexCell, visionRange));
+            UpdateVision();
         }
     }
 
@@ -262,14 +264,53 @@ public class City : MonoBehaviour {
         }
     }
 
-    //public IEnumerable<BuildConfig> GetBuildingOptions()
-    //{
-    //    return buildingOptions;
-    //}
-    //public IEnumerable<BuildConfig> GetTrainingOptions()
-    //{
-    //    return trainingOptions;
-    //}
+    public List<BuildConfig> BuildingOptions
+    {
+        get
+        {
+            return buildingOptions;
+        }
+
+        set
+        {
+            buildingOptions = value;
+        }
+    }
+
+    public List<BuildConfig> TrainingOptions
+    {
+        get
+        {
+            return trainingOptions;
+        }
+
+        set
+        {
+            trainingOptions = value;
+        }
+    }
+
+    public void AddBuildingOptions(Player player)
+    {
+        if(player)
+        {
+            foreach(CityPlayerBuildConfig config in player.GetCityPlayerBuildConfigs())
+            {
+                buildingOptions.Add(config);
+            }
+        }
+    }
+    public void AddTrainingOptions(Player player)
+    {
+        if (player)
+        {
+            foreach (CombatUnitBuildConfig config in player.GetCombatUnitBuildConfigs())
+            {
+                trainingOptions.Add(config);
+            }
+        }
+    }
+
 
     public void RemoveUnit(CombatUnit unit)
     {
@@ -297,6 +338,11 @@ public class City : MonoBehaviour {
     public IEnumerable<CombatUnit> GetUnits()
     {
         return cityUnits;
+    }
+
+    public int GetTotalUnits()
+    {
+        return cityUnits.Count();
     }
 
     public void SetCityState(CityState cityState)
@@ -514,6 +560,12 @@ public class City : MonoBehaviour {
             Food = GameConsts.populationFoodReqirements[Population] / 2;
             
         }
+
+        if(cityStateOwner.Player)
+        {
+            cityStateOwner.AddLoyalty(CityResouceController.ResourceBenefits.Loyalty, cityStateOwner.Player);
+        }
+
         NotifyInfoChange();
     }
 
@@ -588,7 +640,7 @@ public class City : MonoBehaviour {
         List<BuildConfig> configs = new List<BuildConfig>();
         if (cityStateOwner.Player)
         {
-            foreach (BuildConfig config in cityStateOwner.Player.GetCityPlayerBuildConfigs())
+            foreach (BuildConfig config in buildingOptions)
             {
                 if (!buildings.Find(C => C.BuildConfig == config))
                 {
@@ -601,16 +653,7 @@ public class City : MonoBehaviour {
 
     public IEnumerable<BuildConfig> GetCombatUnitTrainingOptions()
     {
-        List<BuildConfig> configs = new List<BuildConfig>();
-        if(cityStateOwner.Player)
-        {
-            foreach (BuildConfig config in cityStateOwner.Player.GetCombatUnitBuildConfigs())
-            {
-                configs.Add(config);
-            }
-        }
-
-        return configs;
+        return trainingOptions;
     }
     public IEnumerable<BuildConfig> GetAgentTrainingOptions()
     {
@@ -668,11 +711,48 @@ public class City : MonoBehaviour {
     {
 
         CityBuilding building = gameController.CreateCityPlayerBuilding(config);
+
+        foreach(CityPlayerBuildConfig buildConfig in building.BuildConfigs())
+        {
+            buildingOptions.Add(buildConfig);
+        }
+        foreach (CombatUnitBuildConfig buildConfig in building.UnitConfigs())
+        {
+            trainingOptions.Add(buildConfig);
+
+        }
+
         buildings.Add(building);
+
         cityResouceController.AddBuilding(building);
+        if(building.ResourceBenefit.VisionRange > 0)
+        {
+            VisionRange = cityResouceController.ResourceBenefits.VisionRange + 1;
+        }
         NotifyInfoChange();
         return true;
     }
+
+    public void ResetBuildOptions(Player player)
+    {
+        trainingOptions.Clear();
+        buildingOptions.Clear();
+        AddTrainingOptions(player);
+        AddBuildingOptions(player);
+        foreach(CityBuilding building in buildings)
+        {
+            foreach (CityPlayerBuildConfig buildConfig in building.BuildConfigs())
+            {
+                buildingOptions.Add(buildConfig);
+            }
+            foreach (CombatUnitBuildConfig buildConfig in building.UnitConfigs())
+            {
+                trainingOptions.Add(buildConfig);
+
+            }
+        }
+    }
+
     public void DamageCity(int defenceDamage)
     {
         int hitpointsLeft = HitPoints - defenceDamage;
@@ -726,6 +806,9 @@ public class City : MonoBehaviour {
             city.cityUnits[i].UnitUI.SetCityStateSymbol(gameController.GetCityStateSymbol(city.cityStateOwner.SymbolID));
             city.cityUnits[i].CityStateOwner = city.GetCityState();
         }
+
+        city.AddTrainingOptions(city.GetCityState().Player);
+        city.AddBuildingOptions(city.GetCityState().Player);
         city.UpdateCityBar();
 
     }

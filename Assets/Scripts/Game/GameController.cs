@@ -274,10 +274,11 @@ public class GameController : MonoBehaviour
         }
         CheckWinner();
         TurnOver = false;
+        turn += 1;
         humanPlayer.StartTurn();
 
         hud.StartTurn();
-        turn += 1;
+
     }
 
 

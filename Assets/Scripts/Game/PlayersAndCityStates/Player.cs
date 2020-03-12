@@ -158,7 +158,7 @@ public abstract class Player : MonoBehaviour {
 
     }
 
-    private int CalculateGoldPerTurn()
+    public int CalculateGoldPerTurn()
     {
         int goldPerTurn = GameConsts.HQGold;
         foreach(City city in cities)
@@ -233,6 +233,12 @@ public abstract class Player : MonoBehaviour {
     public void AddCity(City city)
     {
         cities.Add(city);
+        city.onInfoChange += UpdateInfo;
+        NotifyInfoChange();
+    }
+
+    public void UpdateInfo(City city)
+    {
         NotifyInfoChange();
     }
 
@@ -244,12 +250,60 @@ public abstract class Player : MonoBehaviour {
     public void RemoveCity(City city)
     {
         cities.Remove(city);
+        city.onInfoChange -= UpdateInfo;
         NotifyInfoChange();
     }
 
     public IEnumerable<City> GetCities()
     {
         return cities;
+    }
+
+    public int GetTotalCities()
+    {
+        return cities.Count;
+    }
+
+    public int GetTotalPoliticians()
+    {
+        int total = 0;
+        foreach(City city in cities)
+        {
+            total += city.GetCityState().PoliticiansByPlayer(this);
+        }
+        return total;
+    }
+
+    public int GetFalteringPoliticians()
+    {
+        int total = 0;
+        foreach (City city in cities)
+        {
+           foreach(Politician pol in city.GetCityState().GetPoliticians())
+            {
+                if(pol.ControllingPlayer && pol.ControllingPlayer == this && pol.Loyalty < 50)
+                {
+                    total += 1;
+                }
+            }
+        }
+        return total;
+    }
+
+    public int GetLoyalPoliticians()
+    {
+        int total = 0;
+        foreach (City city in cities)
+        {
+            foreach (Politician pol in city.GetCityState().GetPoliticians())
+            {
+                if (pol.ControllingPlayer && pol.ControllingPlayer == this && pol.Loyalty >= 50)
+                {
+                    total += 1;
+                }
+            }
+        }
+        return total;
     }
 
     public IEnumerable<Agent> GetAgents()
@@ -280,6 +334,43 @@ public abstract class Player : MonoBehaviour {
         agents.Clear();
         NotifyInfoChange();
     }
+
+    public int GetTotalUnits()
+    {
+        int total = 0;
+        foreach(City city in cities)
+        {
+           total += city.GetTotalUnits();
+        }
+        return total;
+    }
+
+    public int GetHappyCities()
+    {
+        int total = 0;
+        foreach(City city in cities)
+        {
+            if(city.CityResouceController.GetHappiness() >= 0)
+            {
+                total += 1;
+            }
+        }
+        return total;
+    }
+
+    public int GetUnhappyCities()
+    {
+        int total = 0;
+        foreach (City city in cities)
+        {
+            if (city.CityResouceController.GetHappiness() < 0)
+            {
+                total += 1;
+            }
+        }
+        return total;
+    }
+
 
 
     public void ClearExploredCells()
@@ -364,7 +455,7 @@ public abstract class Player : MonoBehaviour {
     {
         foreach(CityPlayerBuildConfig config in gameController.DefaultBuildings)
         {
-            cityPlayerBuildConfigs.Add(config);
+            AddCityBuildingConfig(config);
         }
 
         foreach (AgentBuildConfig config in gameController.DefaultAgents)
@@ -374,7 +465,7 @@ public abstract class Player : MonoBehaviour {
 
         foreach (CombatUnitBuildConfig config in gameController.DefaultCombatUnits)
         {
-            combatUnitBuildConfigs.Add(config);
+            AddUnitConfig(config);
         }
     }
 
@@ -411,7 +502,11 @@ public abstract class Player : MonoBehaviour {
         List<CityState> keys = cityStatesWithLoyalPoliticians.Keys.ToList();
         foreach (CityState cityState in keys)
         {
-            cityState.LowerLoyalty(lowerLoyalty, this);
+            cityState.GetCity().CityResouceController.RemoveEffect("PlayerLoyalty");
+            ResourceBenefit benefit = new ResourceBenefit();
+            benefit.Loyalty = -lowerLoyalty;
+            cityState.GetCity().CityResouceController.AddEffect("PlayerLoyalty",benefit);
+            //cityState.LowerLoyalty(lowerLoyalty, this);
             cityState.UpdateCityState();
         }
     }
@@ -446,7 +541,7 @@ public abstract class Player : MonoBehaviour {
     {
         foreach(CityPlayerBuildConfig config in research.GetBuildingConfigs())
         {
-            cityPlayerBuildConfigs.Add(config);
+            AddCityBuildingConfig(config);
         }
 
         foreach (AgentBuildConfig config in research.GetAgentConfigs())
@@ -456,10 +551,29 @@ public abstract class Player : MonoBehaviour {
 
         foreach (CombatUnitBuildConfig config in research.GetCombatUnitConfigs())
         {
-            combatUnitBuildConfigs.Add(config);
+            AddUnitConfig(config);
         }
         NotifyInfoChange();
     }
+
+    private void AddUnitConfig(CombatUnitBuildConfig config)
+    {
+        combatUnitBuildConfigs.Add(config);
+        foreach (City city in cities)
+        {
+            city.TrainingOptions.Add(config);
+        }
+    }
+
+    private void AddCityBuildingConfig(CityPlayerBuildConfig config)
+    {
+        cityPlayerBuildConfigs.Add(config);
+        foreach(City city in cities)
+        {
+            city.BuildingOptions.Add(config);
+        }
+    }
+
     public void SavePlayer(BinaryWriter writer)
     {
 

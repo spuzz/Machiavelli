@@ -52,5 +52,8 @@ static class GameConsts
     public static Vector3 agentBaseOffset = new Vector3(0, 0, -4);
     public static Vector3 supportBaseOffset = new Vector3(4, 0, -1);
     public static Vector3 siegeBaseOffset = new Vector3(-4, 0, 0);
+    public static int agentLevelXP = 100;
+    public static int pointsPerLevel = 3;
+
 }
 

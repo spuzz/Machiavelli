@@ -53,6 +53,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   production: {x: 0, y: 0}
+  politicalCapital: {x: 0, y: 0}
   gold: {x: 0, y: 0}
   science: {x: 0, y: 0}
   food: {x: 0, y: 0}
@@ -74,3 +75,7 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceBenefit: {fileID: 114393116081345992}
+  unitConfigs:
+  - {fileID: 11400000, guid: 6dc6daf6916e4f04eade2fae6d730d34, type: 2}
+  - {fileID: 11400000, guid: 29d543c8adbba524b844ef99c49a0219, type: 2}
+  buildingConfigs: []

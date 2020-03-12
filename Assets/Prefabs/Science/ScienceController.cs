@@ -30,6 +30,10 @@ public class ScienceController : MonoBehaviour {
         }
 
     }
+    public int GetTotalReseached()
+    {
+        return finishedResearch.Count;
+    }
 
     public Player Player
     {

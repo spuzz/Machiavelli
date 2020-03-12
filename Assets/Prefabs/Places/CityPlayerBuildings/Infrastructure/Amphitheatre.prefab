@@ -22,7 +22,7 @@ GameObject:
   - component: {fileID: 114455759695828040}
   - component: {fileID: 114393116081345992}
   m_Layer: 0
-  m_Name: Blacksmith
+  m_Name: Amphitheatre
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -53,15 +53,15 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   production: {x: 0, y: 0}
+  politicalCapital: {x: 0, y: 0}
   gold: {x: 0, y: 0}
   science: {x: 0, y: 0}
   food: {x: 0, y: 0}
   defence: {x: 0, y: 0}
-  focusProductionBonus:
-  - type: 7
-    prodBonus: {x: 5, y: 10}
-    percCostReduction: 10
-    maintenanceReduction: 0
+  focusProductionBonus: []
+  visionRange: 0
+  happiness: -5
+  loyalty: 0
 --- !u!114 &114455759695828040
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -74,3 +74,5 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   resourceBenefit: {fileID: 114393116081345992}
+  unitConfigs: []
+  buildingConfigs: []

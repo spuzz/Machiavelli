@@ -54,7 +54,6 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   players: []
-  cityStatesObject: {fileID: 0}
   citiesObject: {fileID: 0}
   playersObject: {fileID: 0}
   aiPlayerPrefab: {fileID: 114520537494477776, guid: b9471c10c1f52a444bbc7af1ac73783e,
@@ -124,31 +123,30 @@ MonoBehaviour:
   - {fileID: 21300000, guid: a22cf533828099e459ce023bcfb54813, type: 3}
   - {fileID: 21300000, guid: 0ecd25dc66b817f42a51dc4dfc5c9def, type: 3}
   - {fileID: 21300000, guid: d0d9051a603e7d740b71f7129ac700c7, type: 3}
+  defaultColour: {fileID: 0}
   possiblePlayerColors:
-  - {r: 0, g: 1, b: 0, a: 0}
-  - {r: 0, g: 0, b: 1, a: 0}
-  - {r: 0.9433962, g: 0.5991757, b: 0, a: 0}
-  - {r: 1, g: 0, b: 0.08701134, a: 0}
-  - {r: 0.7416692, g: 0, b: 1, a: 0}
-  - {r: 0.9747988, g: 1, b: 0, a: 0}
-  - {r: 0, g: 0.9894495, b: 1, a: 0}
-  - {r: 0.15220062, g: 0.4811321, b: 0, a: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  - {fileID: 0}
+  defaultBuildings: []
+  defaultAgents: []
+  defaultCombatUnits: []
   hexMapCamera: {fileID: 0}
   hud: {fileID: 0}
   humanPlayer: {fileID: 0}
   visionSystem: {fileID: 114707304956818400}
   hexUnitActionController: {fileID: 114780388663208930}
-  cityStatePrefab: {fileID: 114520082041238686, guid: d96be0838ad31724f8698ca73d20e7d2,
-    type: 2}
-  opCentrePrefab: {fileID: 114708981004321290, guid: bc556770a2653db4ca827ea44dfc9eac,
-    type: 2}
   cityPrefab: {fileID: 114574744724499650, guid: 8669f55e65f9d5d44ba538a27a15a927,
     type: 2}
   agentPrefab: {fileID: 114637004898301920, guid: eedcdcbc701384b47a52089253ba9401,
     type: 2}
   combatUnitPrefab: {fileID: 114202423551481496, guid: 993aee3baeb162343ac0f468c3646e25,
     type: 2}
-  cityStateBuildingPrefab: {fileID: 0}
 --- !u!114 &114707304956818400
 MonoBehaviour:
   m_ObjectHideFlags: 1

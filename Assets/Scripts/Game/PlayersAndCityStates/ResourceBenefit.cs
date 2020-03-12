@@ -20,6 +20,9 @@ public class ResourceBenefit : MonoBehaviour
     [SerializeField] Vector2 food;
     [SerializeField] Vector2 defence;
     [SerializeField] List<FocusBonus> focusProductionBonus;
+    [SerializeField] int visionRange;
+    [SerializeField] int happiness;
+    [SerializeField] int loyalty;
 
     public Vector2 Production
     {
@@ -112,6 +115,45 @@ public class ResourceBenefit : MonoBehaviour
         }
     }
 
+    public int VisionRange
+    {
+        get
+        {
+            return visionRange;
+        }
+
+        set
+        {
+            visionRange = value;
+        }
+    }
+
+    public int Happiness
+    {
+        get
+        {
+            return happiness;
+        }
+
+        set
+        {
+            happiness = value;
+        }
+    }
+
+    public int Loyalty
+    {
+        get
+        {
+            return loyalty;
+        }
+
+        set
+        {
+            loyalty = value;
+        }
+    }
+
     public void AddBenefit(ResourceBenefit benefit)
     {
         Gold += benefit.Gold;
@@ -120,6 +162,10 @@ public class ResourceBenefit : MonoBehaviour
         Science += benefit.Science;
         Defence += benefit.Defence;
         PoliticalCapital += benefit.PoliticalCapital;
+        VisionRange += benefit.VisionRange;
+        Happiness += benefit.Happiness;
+        Loyalty += benefit.Loyalty;
+
         foreach (FocusBonus bonus in benefit.FocusProductionBonus)
         {
             IEnumerable<FocusBonus> bonuses = focusProductionBonus.Where(c => c.type == bonus.type);
@@ -146,6 +192,9 @@ public class ResourceBenefit : MonoBehaviour
         Science -= benefit.Science;
         Defence -= benefit.Defence;
         PoliticalCapital -= benefit.PoliticalCapital;
+        VisionRange -= benefit.VisionRange;
+        Happiness -= benefit.happiness;
+        Loyalty -= benefit.Loyalty;
 
         foreach (FocusBonus bonus in benefit.FocusProductionBonus)
         {
@@ -169,5 +218,8 @@ public class ResourceBenefit : MonoBehaviour
         Science = new Vector2(0, 0);
         Defence = new Vector2(0, 0);
         PoliticalCapital = new Vector2(0, 0);
+        VisionRange = 0;
+        Happiness = 0;
+        Loyalty = 0;
     }
 }

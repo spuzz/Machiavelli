@@ -40,16 +40,8 @@ public class CityState : MonoBehaviour
 
         set
         {
-            if (player)
-            {
-                player.onInfoChange -= PlayerUpdated;
-            }
             player = value;
 
-            if (player)
-            {
-                player.onInfoChange += PlayerUpdated;
-            }
             foreach (CombatUnit unit in city.GetUnits())
             {
                 unit.SetPlayer(player);
@@ -64,18 +56,27 @@ public class CityState : MonoBehaviour
     {
         if (player)
         {
-            player.onInfoChange -= PlayerUpdated;
             player.RemoveCity(city);
         }
         player = ply;
         if (player)
         {
             player.AddCity(city);
-            player.onInfoChange += PlayerUpdated;
         }
         foreach (CombatUnit unit in city.GetUnits())
         {
             unit.SetPlayer(player);
+        }
+
+        city.TrainingOptions.Clear();
+        city.BuildingOptions.Clear();
+        if(player)
+        {
+            city.ResetBuildOptions(player);
+        }
+        else
+        {
+
         }
 
         NotifyInfoChange();
@@ -91,11 +92,11 @@ public class CityState : MonoBehaviour
         UpdatePoliticalLandscape();
     }
 
-    public void LowerLoyalty(int lowerLoyalty, Player player)
+    public void AddLoyalty(int Loyalty, Player player)
     {
         foreach(Politician pol in politicians.FindAll(c => c.ControllingPlayer == player))
         {
-            pol.Loyalty -= lowerLoyalty;
+            pol.Loyalty += Loyalty;
             CheckPoliciticianLoyalty(pol);
         }
     }
@@ -185,6 +186,11 @@ public class CityState : MonoBehaviour
         return politicians.FindAll(c => c.ControllingPlayer == player).Count;
     }
 
+    public IEnumerable<Politician> GetPoliticians()
+    {
+        return politicians;
+    }
+
     private void Awake()
     {
         gameController = FindObjectOfType<GameController>();
@@ -212,6 +218,56 @@ public class CityState : MonoBehaviour
         }
         politician.CityState = this;
         politicians.Add(politician);
+    }
+    public void UpdatePoliticalLandscape()
+    {
+        Player playerResult = GetOwningPlayer();
+        if (playerResult != Player)
+        {
+            SetPlayerOnly(playerResult);
+        }
+    }
+
+    private Player GetOwningPlayer()
+    {
+        Dictionary<Player, int> players = new Dictionary<Player, int>();
+        foreach (Politician pol in politicians)
+        {
+            Player player = pol.ControllingPlayer;
+            if (player)
+            {
+                if (players.ContainsKey(player))
+                {
+                    players[player]++;
+                }
+                else
+                {
+                    players[player] = 1;
+                }
+            }
+        }
+        if (players.Count == 0)
+        {
+            return null;
+        }
+        Player highestPlayer = players.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
+        if (players[highestPlayer] > politicians.Count / 2)
+        {
+            return highestPlayer;
+        }
+
+        return null;
+    }
+
+
+    public int GetPoliticianMaintenance()
+    {
+        int mnt = 0;
+        foreach (Politician pol in politicians)
+        {
+            mnt += GameConsts.maintanencePerPop;
+        }
+        return mnt;
     }
 
     public void DestroyCityState()
@@ -261,51 +317,7 @@ public class CityState : MonoBehaviour
         }
     }
 
-    public void UpdatePoliticalLandscape()
-    {
-        Player playerResult = GetOwningPlayer();
-        if (playerResult != Player)
-        {
-            SetPlayerOnly(playerResult);
-        }
-    }
 
-    private Player GetOwningPlayer()
-    {
-        Dictionary<Player, int> players = new Dictionary<Player, int>();
-        foreach(Politician pol in politicians)
-        {
-            Player player = pol.ControllingPlayer;
-            if (player)
-            {
-                if(players.ContainsKey(player))
-                {
-                    players[player]++;
-                }
-                else
-                {
-                    players[player] = 1;
-                }
-            }
-        }
-        if(players.Count == 0)
-        {
-            return null;
-        }
-        Player highestPlayer = players.Aggregate((l, r) => l.Value > r.Value ? l : r).Key;
-        if (players[highestPlayer] > politicians.Count / 2)
-        {
-            return highestPlayer;
-        }
-
-        return null;
-    }
-
-    private void PlayerUpdated(Player player)
-    {
-        NotifyInfoChange();
-        city.NotifyInfoChange();
-    }
 
     public void NotifyInfoChange()
     {
@@ -315,13 +327,5 @@ public class CityState : MonoBehaviour
         }
     }
 
-    public int GetPoliticianMaintenance()
-    {
-        int mnt = 0;
-        foreach(Politician pol in politicians)
-        {
-            mnt += GameConsts.maintanencePerPop;
-        }
-        return mnt;
-    }
+
 }

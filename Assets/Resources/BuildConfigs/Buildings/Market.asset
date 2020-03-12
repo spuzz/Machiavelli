@@ -11,7 +11,7 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: ea61b27dab4118a488e2ef2e7b6a504d, type: 3}
   m_Name: Market
   m_EditorClassIdentifier: 
-  baseProductionCost: 100
+  baseProductionCost: 10
   basePurchaseCost: 0
   prerequisites: []
   focusType: 0

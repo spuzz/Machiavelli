@@ -294,6 +294,11 @@ MonoBehaviour:
   baseHitPoints: 100
   abilities: {fileID: 114331002004606780}
   energyRegen: 5
+  agentName: 
+  level: 1
+  unspentPoints: 0
+  maintenance: 0
+  experience: 0
 --- !u!114 &114679445101379214
 MonoBehaviour:
   m_ObjectHideFlags: 1

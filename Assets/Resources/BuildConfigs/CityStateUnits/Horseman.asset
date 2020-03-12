@@ -12,7 +12,7 @@ MonoBehaviour:
   m_Name: Horseman
   m_EditorClassIdentifier: 
   baseProductionCost: 100
-  basePurchaseCost: 100
+  basePurchaseCost: 120
   prerequisites: []
   focusType: 11
   buildingImage: {fileID: 21300000, guid: 322be4200527b3248b0e97da8c1e414d, type: 3}

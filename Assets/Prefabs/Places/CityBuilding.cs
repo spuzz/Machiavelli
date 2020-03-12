@@ -7,6 +7,9 @@ public class CityBuilding : MonoBehaviour {
     protected City cityBuildIn;
     CityPlayerBuildConfig buildConfig;
     [SerializeField] ResourceBenefit resourceBenefit;
+    [SerializeField] List<CombatUnitBuildConfig> unitConfigs;
+    [SerializeField] List<CityPlayerBuildConfig> buildingConfigs;
+
     public City CityBuildIn
     {
         get
@@ -44,6 +47,16 @@ public class CityBuilding : MonoBehaviour {
         {
             resourceBenefit = value;
         }
+    }
+
+    public IEnumerable<CityPlayerBuildConfig> BuildConfigs()
+    {
+        return buildingConfigs;
+    }
+
+    public IEnumerable<CombatUnitBuildConfig> UnitConfigs()
+    {
+        return unitConfigs;
     }
 
     public virtual void Init()

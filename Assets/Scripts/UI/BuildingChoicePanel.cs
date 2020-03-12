@@ -36,7 +36,7 @@ public class BuildingChoicePanel : MonoBehaviour {
     private void OnCityInfoChange(City city)
     {
         int count = 0;
-        foreach (CityPlayerBuildConfig config in cityBuildingUI.HumanPlayer.GetCityPlayerBuildConfigs())
+        foreach (CityPlayerBuildConfig config in city.BuildingOptions)
         {
             ToolTip tooltip = buttons[count].GetComponent<ToolTip>();
             if (tooltip)

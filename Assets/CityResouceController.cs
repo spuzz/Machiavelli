@@ -1,19 +1,23 @@
-﻿using System.Collections;
+﻿using System;
+using System.Collections;
 using System.Collections.Generic;
 using UnityEngine;
 
 public class CityResouceController : MonoBehaviour {
-
 
     [SerializeField] int baseProduction = 5;
     [SerializeField] int baseFood = 0;
     [SerializeField] int baseScience = 2;
     [SerializeField] int baseGold = 5;
     [SerializeField] int basePC = 0;
+    [SerializeField] int baseHappiness = 0;
 
     [SerializeField] City city;
 
     [SerializeField] ResourceBenefit resourceBenefits;
+    Dictionary<string, ResourceBenefit> combinedBenefits;
+
+    GameSettings gameSettings;
 
     public int BaseProduction
     {
@@ -80,14 +84,82 @@ public class CityResouceController : MonoBehaviour {
         }
     }
 
+    public int BaseHappiness
+    {
+        get
+        {
+            return baseHappiness;
+        }
+
+        set
+        {
+            baseHappiness = value;
+        }
+    }
+
     public void AddBuilding(CityBuilding building)
     {
         ResourceBenefits.AddBenefit(building.ResourceBenefit);
+        combinedBenefits.Add(building.BuildConfig.Name, building.ResourceBenefit);
+        if (building.ResourceBenefit.Happiness != 0)
+        {
+            UpdateHappinessEffects();
+        }
+        city.NotifyInfoChange();
     }
 
     public void RemoveBuilding(CityBuilding building)
     {
         ResourceBenefits.RemoveBenefit(building.ResourceBenefit);
+        if (combinedBenefits.ContainsKey(building.BuildConfig.Name))
+        {
+            combinedBenefits.Remove(building.BuildConfig.Name);
+        }
+        if (building.ResourceBenefit.Happiness != 0)
+        {
+            UpdateHappinessEffects();
+        }
+        city.NotifyInfoChange();
+    }
+
+    public void AddEffect(string effectName, ResourceBenefit benefit)
+    {
+        resourceBenefits.AddBenefit(benefit);
+        combinedBenefits.Add(effectName, benefit);
+        if (benefit.Happiness != 0)
+        {
+            UpdateHappinessEffects();
+        }
+        city.NotifyInfoChange();
+    }
+
+
+    public void RemoveEffect(string effectName)
+    {
+        if(combinedBenefits.ContainsKey(effectName))
+        {
+            ResourceBenefit effect = combinedBenefits[effectName];
+            resourceBenefits.RemoveBenefit(effect);
+            combinedBenefits.Remove(effectName);
+            if(effect.Happiness != 0)
+            {
+                UpdateHappinessEffects();
+            }
+            city.NotifyInfoChange();
+        }
+    }
+
+    private void Start()
+    {
+        gameSettings = FindObjectOfType<GameSettings>();
+        combinedBenefits = new Dictionary<string, ResourceBenefit>();
+        AddEffect("Happiness", gameSettings.Happiness.GetHappinessEffect(0));
+    }
+
+    private void UpdateHappinessEffects()
+    {
+        RemoveEffect("Happiness");
+        AddEffect("Happiness", gameSettings.Happiness.GetHappinessEffect(GetHappiness()));
     }
 
     public int GetProduction(FocusType focusType = 0)
@@ -176,8 +248,8 @@ public class CityResouceController : MonoBehaviour {
     {
         float pc = basePC;
 
-        pc += ResourceBenefits.Gold.x;
-        float bonusPerc = ResourceBenefits.Gold.y;
+        pc += ResourceBenefits.PoliticalCapital.x;
+        float bonusPerc = ResourceBenefits.PoliticalCapital.y;
 
         bonusPerc = 1.0f + bonusPerc / 100.0f;
         pc = pc * bonusPerc;
@@ -186,5 +258,14 @@ public class CityResouceController : MonoBehaviour {
         return (int)pc;
 
 
+    }
+
+    public int GetHappiness()
+    {
+        int happiness = baseHappiness;
+
+        happiness += ResourceBenefits.Happiness;
+
+        return happiness;
     }
 }

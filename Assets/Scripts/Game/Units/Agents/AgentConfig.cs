@@ -2,6 +2,16 @@
 using System.Collections.Generic;
 using UnityEngine;
 
+public enum AgentClass
+{
+    ASSASSIN,
+    COUNTERSPY,
+    DIPLOMAT,
+    INFILTRATOR,
+    PRIEST,
+    ROGUE,
+    SABOTEUR
+}
 
 [CreateAssetMenu(menuName = ("Units/Agent"))]
 public class AgentConfig : ScriptableObject
@@ -14,6 +24,7 @@ public class AgentConfig : ScriptableObject
     [SerializeField] Sprite portrait;
     [SerializeField] GameObject meshChild;
     [SerializeField] List<AbilityConfig> abilityConfigs;
+    [SerializeField] AgentClass agentClass;
 
     public IEnumerable<AbilityConfig> GetAbilityConfigs()
     {
@@ -107,6 +118,19 @@ public class AgentConfig : ScriptableObject
         set
         {
             visionRange = value;
+        }
+    }
+
+    public AgentClass AgentClass
+    {
+        get
+        {
+            return agentClass;
+        }
+
+        set
+        {
+            agentClass = value;
         }
     }
 }

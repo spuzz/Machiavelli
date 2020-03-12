@@ -1,4 +1,5 @@
-﻿using UnityEngine;
+﻿using TMPro;
+using UnityEngine;
 using UnityEngine.UI;
 
 // Add a UI Socket transform to your enemy
@@ -17,6 +18,15 @@ public class CityUI : MonoBehaviour
     [SerializeField] City city;
     [SerializeField] RawImage backGround;
     [SerializeField] ToolTip toolTip;
+    [SerializeField] Image happiness;
+    [SerializeField] TextMeshProUGUI loyalPoliticians;
+    [SerializeField] TextMeshProUGUI falteringPoliticians;
+    [SerializeField] TextMeshProUGUI rivalPoliticians;
+
+    [SerializeField] Sprite happy;
+    [SerializeField] Sprite content;
+    [SerializeField] Sprite unhappy;
+
     Camera cameraToLookAt;
     HexGameUI hexGameUI;
     bool visible = true;
@@ -137,5 +147,57 @@ public class CityUI : MonoBehaviour
         toolTip.AddText("");
         population.text = city.Population.ToString();
 
+        UpdateLoyalty(city);
+
+        UpdateHappiness(city);
+    }
+
+    private void UpdateHappiness(City city)
+    {
+        if (city.CityResouceController.GetHappiness() < 0)
+        {
+            happiness.sprite = unhappy;
+        }
+        else if (city.CityResouceController.GetHappiness() == 0)
+        {
+            happiness.sprite = content;
+        }
+        else if (city.CityResouceController.GetHappiness() > 0)
+        {
+            happiness.sprite = happy;
+        }
+    }
+
+    private void UpdateLoyalty(City city)
+    {
+        int loyalPol = 0;
+        int falteringPol = 0;
+        int rivalPol = 0;
+
+        foreach (Politician pol in city.GetCityState().GetPoliticians())
+        {
+            if (pol.ControllingPlayer)
+            {
+                if (pol.ControllingPlayer.IsHuman)
+                {
+                    if (pol.Loyalty >= 50)
+                    {
+                        loyalPol += 1;
+                    }
+                    else
+                    {
+                        falteringPol += 1;
+                    }
+                }
+                else
+                {
+                    rivalPol += 1;
+                }
+            }
+        }
+
+        loyalPoliticians.text = loyalPol.ToString();
+        falteringPoliticians.text = falteringPol.ToString();
+        rivalPoliticians.text = rivalPol.ToString();
     }
 }
