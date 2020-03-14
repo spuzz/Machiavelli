@@ -11,6 +11,22 @@ Prefab:
   m_SourcePrefab: {fileID: 0}
   m_RootGameObject: {fileID: 1662633302711018}
   m_IsPrefabAsset: 1
+--- !u!1 &1020310473296134
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4200316318786026}
+  - component: {fileID: 114427208389757754}
+  m_Layer: 9
+  m_Name: InfluenceEffects
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1098343184107166
 GameObject:
   m_ObjectHideFlags: 1
@@ -82,6 +98,21 @@ GameObject:
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
+--- !u!1 &1555781709565680
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4756856413943704}
+  m_Layer: 9
+  m_Name: CombinedEffects
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
 --- !u!1 &1600749378141380
 GameObject:
   m_ObjectHideFlags: 1
@@ -129,6 +160,9 @@ GameObject:
   - component: {fileID: 114637004898301920}
   - component: {fileID: 114331002004606780}
   - component: {fileID: 114704297993211832}
+  - component: {fileID: 114869887641375696}
+  - component: {fileID: 114628334393824082}
+  - component: {fileID: 114954671919668386}
   m_Layer: 9
   m_Name: Agent
   m_TagString: Untagged
@@ -147,8 +181,36 @@ Transform:
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children:
   - {fileID: 224976265474206426}
+  - {fileID: 4756856413943704}
+  - {fileID: 4200316318786026}
   m_Father: {fileID: 0}
   m_RootOrder: 0
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4200316318786026
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1020310473296134}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4047894028227438}
+  m_RootOrder: 2
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4756856413943704
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1555781709565680}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4047894028227438}
+  m_RootOrder: 1
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &114038851204289312
 MonoBehaviour:
@@ -262,6 +324,40 @@ MonoBehaviour:
   m_FillAmount: 1
   m_FillClockwise: 1
   m_FillOrigin: 0
+--- !u!114 &114427208389757754
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1020310473296134}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a48d6aa49af84ac46993592628470096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectName: 
+  visionRange: 0
+  production: {x: 0, y: 0}
+  politicalCapital: {x: 0, y: 0}
+  gold: {x: 0, y: 0}
+  science: {x: 0, y: 0}
+  food: {x: 0, y: 0}
+  defence: {x: 0, y: 0}
+  focusProductionBonus: []
+  happiness: 0
+  loyalty: 5
+  successChance: 0
+  successChanceOnCity: 0
+  successChanceOnUnit: 0
+  woundedOnFail: 0
+  xpGainPerc: 0
+  xpLevelUpPerc: 0
+  influenceRange: 0
+  influenceEffectPerc: 0
+  combatStrength: 0
+  ambushChance: 0
+  ambushBonus: 0
+  movementSpeed: 0
 --- !u!114 &114571925582089498
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -274,6 +370,40 @@ MonoBehaviour:
   m_Name: 
   m_EditorClassIdentifier: 
   healthBarRawImage: {fileID: 114850450318701156}
+--- !u!114 &114628334393824082
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1662633302711018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a48d6aa49af84ac46993592628470096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectName: TotalEffects
+  visionRange: 0
+  production: {x: 0, y: 0}
+  politicalCapital: {x: 0, y: 0}
+  gold: {x: 0, y: 0}
+  science: {x: 0, y: 0}
+  food: {x: 0, y: 0}
+  defence: {x: 0, y: 0}
+  focusProductionBonus: []
+  happiness: 0
+  loyalty: 5
+  successChance: 0
+  successChanceOnCity: 0
+  successChanceOnUnit: 0
+  woundedOnFail: 0
+  xpGainPerc: 0
+  xpLevelUpPerc: 0
+  influenceRange: 0
+  influenceEffectPerc: 0
+  combatStrength: 0
+  ambushChance: 0
+  ambushBonus: 0
+  movementSpeed: 0
 --- !u!114 &114637004898301920
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -299,6 +429,9 @@ MonoBehaviour:
   unspentPoints: 0
   maintenance: 0
   experience: 0
+  influenceRange: 0
+  randomEffect: {fileID: 114333428916485990, guid: 0e078451dd6da80478c1769356467582,
+    type: 2}
 --- !u!114 &114679445101379214
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -444,6 +577,34 @@ MonoBehaviour:
     y: 0
     width: 0.5
     height: 1
+--- !u!114 &114869887641375696
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1662633302711018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: e267f246565255548963d3eb6f1e3bae, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  prefab: {fileID: 114726906137522746, guid: 77b3775f16d97ec478ed069236327817, type: 2}
+  totalEffects: {fileID: 114628334393824082}
+--- !u!114 &114954671919668386
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1662633302711018}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51a06b988a1bddc46ad977a8e8ebd7c3, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  agent: {fileID: 114637004898301920}
+  currentCell: {fileID: 0}
+  range: -1
+  gameEffects: {fileID: 114427208389757754}
 --- !u!114 &114986030512263326
 MonoBehaviour:
   m_ObjectHideFlags: 1

@@ -14,8 +14,7 @@ public class CityResouceController : MonoBehaviour {
 
     [SerializeField] City city;
 
-    [SerializeField] ResourceBenefit resourceBenefits;
-    Dictionary<string, ResourceBenefit> combinedBenefits;
+    [SerializeField] EffectsController effectsController;
 
     GameSettings gameSettings;
 
@@ -71,19 +70,6 @@ public class CityResouceController : MonoBehaviour {
         }
     }
 
-    public ResourceBenefit ResourceBenefits
-    {
-        get
-        {
-            return resourceBenefits;
-        }
-
-        set
-        {
-            resourceBenefits = value;
-        }
-    }
-
     public int BaseHappiness
     {
         get
@@ -97,10 +83,23 @@ public class CityResouceController : MonoBehaviour {
         }
     }
 
+    public EffectsController EffectsController
+    {
+        get
+        {
+            return effectsController;
+        }
+
+        set
+        {
+            effectsController = value;
+        }
+    }
+
     public void AddBuilding(CityBuilding building)
     {
-        ResourceBenefits.AddBenefit(building.ResourceBenefit);
-        combinedBenefits.Add(building.BuildConfig.Name, building.ResourceBenefit);
+        building.ResourceBenefit.EffectName = building.BuildConfig.Name;
+        EffectsController.AddEffect(building.gameObject, building.ResourceBenefit);
         if (building.ResourceBenefit.Happiness != 0)
         {
             UpdateHappinessEffects();
@@ -110,11 +109,7 @@ public class CityResouceController : MonoBehaviour {
 
     public void RemoveBuilding(CityBuilding building)
     {
-        ResourceBenefits.RemoveBenefit(building.ResourceBenefit);
-        if (combinedBenefits.ContainsKey(building.BuildConfig.Name))
-        {
-            combinedBenefits.Remove(building.BuildConfig.Name);
-        }
+        EffectsController.RemoveEffect(building.gameObject, building.ResourceBenefit.EffectName);
         if (building.ResourceBenefit.Happiness != 0)
         {
             UpdateHappinessEffects();
@@ -122,11 +117,10 @@ public class CityResouceController : MonoBehaviour {
         city.NotifyInfoChange();
     }
 
-    public void AddEffect(string effectName, ResourceBenefit benefit)
+    public void AddEffect(GameObject obj, GameEffect effect)
     {
-        resourceBenefits.AddBenefit(benefit);
-        combinedBenefits.Add(effectName, benefit);
-        if (benefit.Happiness != 0)
+        EffectsController.AddEffect(obj, effect);
+        if (effect.Happiness != 0)
         {
             UpdateHappinessEffects();
         }
@@ -134,32 +128,26 @@ public class CityResouceController : MonoBehaviour {
     }
 
 
-    public void RemoveEffect(string effectName)
+    public void RemoveEffect(GameObject obj, GameEffect gameEffect)
     {
-        if(combinedBenefits.ContainsKey(effectName))
+        EffectsController.AddEffect(obj, gameEffect);
+        if (gameEffect.Happiness != 0)
         {
-            ResourceBenefit effect = combinedBenefits[effectName];
-            resourceBenefits.RemoveBenefit(effect);
-            combinedBenefits.Remove(effectName);
-            if(effect.Happiness != 0)
-            {
-                UpdateHappinessEffects();
-            }
-            city.NotifyInfoChange();
+            UpdateHappinessEffects();
         }
+        city.NotifyInfoChange();
     }
 
     private void Start()
     {
         gameSettings = FindObjectOfType<GameSettings>();
-        combinedBenefits = new Dictionary<string, ResourceBenefit>();
-        AddEffect("Happiness", gameSettings.Happiness.GetHappinessEffect(0));
+        AddEffect(this.gameObject, gameSettings.Happiness.GetHappinessEffect(0));
     }
 
     private void UpdateHappinessEffects()
     {
-        RemoveEffect("Happiness");
-        AddEffect("Happiness", gameSettings.Happiness.GetHappinessEffect(GetHappiness()));
+        RemoveEffect(this.gameObject, gameSettings.Happiness.GetHappinessEffect(0));
+        AddEffect(this.gameObject, gameSettings.Happiness.GetHappinessEffect(GetHappiness()));
     }
 
     public int GetProduction(FocusType focusType = 0)
@@ -171,11 +159,11 @@ public class CityResouceController : MonoBehaviour {
             production += cell.HexCellGameData.Production;
         }
 
-        production += ResourceBenefits.Production.x;
-        ResourceBenefit.FocusBonus bonus = ResourceBenefits.FocusProductionBonus.Find(c => c.type == focusType);
+        production += EffectsController.TotalEffects.Production.x;
+        GameEffect.FocusBonus bonus = EffectsController.TotalEffects.FocusProductionBonus.Find(c => c.type == focusType);
         production += bonus.prodBonus.x;
 
-        float bonusPerc = ResourceBenefits.Production.y;
+        float bonusPerc = EffectsController.TotalEffects.Production.y;
 
         bonusPerc += bonus.prodBonus.y;
 
@@ -194,8 +182,8 @@ public class CityResouceController : MonoBehaviour {
         {
             food += cell.HexCellGameData.Food;
         }
-        food += ResourceBenefits.Food.x;
-        float bonusPerc = ResourceBenefits.Food.y;
+        food += EffectsController.TotalEffects.Food.x;
+        float bonusPerc = EffectsController.TotalEffects.Food.y;
 
         bonusPerc = 1.0f + bonusPerc / 100.0f;
         food = food * bonusPerc;
@@ -215,8 +203,8 @@ public class CityResouceController : MonoBehaviour {
             science += cell.HexCellGameData.Science;
         }
 
-        science += ResourceBenefits.Science.x;
-        float bonusPerc = ResourceBenefits.Science.y;
+        science += EffectsController.TotalEffects.Science.x;
+        float bonusPerc = EffectsController.TotalEffects.Science.y;
 
         bonusPerc = 1.0f + bonusPerc / 100.0f;
         science = science * bonusPerc;
@@ -233,8 +221,8 @@ public class CityResouceController : MonoBehaviour {
             gold += cell.HexCellGameData.Gold;
         }
 
-        gold += ResourceBenefits.Gold.x;
-        float bonusPerc = ResourceBenefits.Gold.y;
+        gold += EffectsController.TotalEffects.Gold.x;
+        float bonusPerc = EffectsController.TotalEffects.Gold.y;
 
         bonusPerc = 1.0f + bonusPerc / 100.0f;
         gold = gold * bonusPerc;
@@ -248,8 +236,8 @@ public class CityResouceController : MonoBehaviour {
     {
         float pc = basePC;
 
-        pc += ResourceBenefits.PoliticalCapital.x;
-        float bonusPerc = ResourceBenefits.PoliticalCapital.y;
+        pc += EffectsController.TotalEffects.PoliticalCapital.x;
+        float bonusPerc = EffectsController.TotalEffects.PoliticalCapital.y;
 
         bonusPerc = 1.0f + bonusPerc / 100.0f;
         pc = pc * bonusPerc;
@@ -264,7 +252,7 @@ public class CityResouceController : MonoBehaviour {
     {
         int happiness = baseHappiness;
 
-        happiness += ResourceBenefits.Happiness;
+        happiness += EffectsController.TotalEffects.Happiness;
 
         return happiness;
     }

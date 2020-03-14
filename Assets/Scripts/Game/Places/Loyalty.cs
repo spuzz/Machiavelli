@@ -6,10 +6,10 @@ public class Loyalty : MonoBehaviour {
 
     [SerializeField] List<int> loyaltyBoundariesPositive;
     [SerializeField] List<int> loyaltyBoundariesNegative;
-    [SerializeField] List<ResourceBenefit> loyaltyEffectPositive;
-    [SerializeField] List<ResourceBenefit> loyaltyEffectNegative;
+    [SerializeField] List<GameEffect> loyaltyEffectPositive;
+    [SerializeField] List<GameEffect> loyaltyEffectNegative;
 
-    public ResourceBenefit GetLoyaltyEffect(int loyalty)
+    public GameEffect GetLoyaltyEffect(int loyalty)
     {
         if (loyalty >= 0)
         {
@@ -21,7 +21,7 @@ public class Loyalty : MonoBehaviour {
         }
     }
 
-    private ResourceBenefit GetPositiveEffect(int loyalty)
+    private GameEffect GetPositiveEffect(int loyalty)
     {
         int count = 0;
         foreach (int boundary in loyaltyBoundariesPositive)
@@ -32,10 +32,10 @@ public class Loyalty : MonoBehaviour {
             }
             count++;
         }
-        return new ResourceBenefit();
+        return new GameEffect();
     }
 
-    private ResourceBenefit GetNegativeEffect(int loyalty)
+    private GameEffect GetNegativeEffect(int loyalty)
     {
         int count = 0;
         foreach (int boundary in loyaltyBoundariesNegative)
@@ -46,6 +46,6 @@ public class Loyalty : MonoBehaviour {
             }
             count++;
         }
-        return new ResourceBenefit();
+        return new GameEffect();
     }
 }

@@ -171,6 +171,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a48d6aa49af84ac46993592628470096, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effectName: Happiness
+  visionRange: 0
   production: {x: 0, y: 15}
   politicalCapital: {x: 0, y: 0}
   gold: {x: 0, y: 15}
@@ -178,9 +180,20 @@ MonoBehaviour:
   food: {x: 0, y: 15}
   defence: {x: 0, y: 0}
   focusProductionBonus: []
-  visionRange: 0
   happiness: 0
   loyalty: 0
+  successChance: 0
+  successChanceOnCity: 0
+  successChanceOnUnit: 0
+  woundedOnFail: 0
+  xpGainPerc: 0
+  xpLevelUpPerc: 0
+  influenceRange: 0
+  influenceEffectPerc: 0
+  combatStrength: 0
+  ambushChance: 0
+  ambushBonus: 0
+  movementSpeed: 0
 --- !u!114 &114378402971316674
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -211,6 +224,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a48d6aa49af84ac46993592628470096, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effectName: Happiness
+  visionRange: 0
   production: {x: 0, y: 5}
   politicalCapital: {x: 0, y: 0}
   gold: {x: 0, y: 5}
@@ -218,9 +233,20 @@ MonoBehaviour:
   food: {x: 0, y: 5}
   defence: {x: 0, y: 0}
   focusProductionBonus: []
-  visionRange: 0
   happiness: 0
   loyalty: 0
+  successChance: 0
+  successChanceOnCity: 0
+  successChanceOnUnit: 0
+  woundedOnFail: 0
+  xpGainPerc: 0
+  xpLevelUpPerc: 0
+  influenceRange: 0
+  influenceEffectPerc: 0
+  combatStrength: 0
+  ambushChance: 0
+  ambushBonus: 0
+  movementSpeed: 0
 --- !u!114 &114589409178687496
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -232,6 +258,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a48d6aa49af84ac46993592628470096, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effectName: Happiness
+  visionRange: 0
   production: {x: 0, y: -50}
   politicalCapital: {x: 0, y: 0}
   gold: {x: 0, y: -50}
@@ -239,9 +267,20 @@ MonoBehaviour:
   food: {x: 0, y: -50}
   defence: {x: 0, y: 0}
   focusProductionBonus: []
-  visionRange: 0
   happiness: 0
   loyalty: -5
+  successChance: 0
+  successChanceOnCity: 0
+  successChanceOnUnit: 0
+  woundedOnFail: 0
+  xpGainPerc: 0
+  xpLevelUpPerc: 0
+  influenceRange: 0
+  influenceEffectPerc: 0
+  combatStrength: 0
+  ambushChance: 0
+  ambushBonus: 0
+  movementSpeed: 0
 --- !u!114 &114757931120798470
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -253,6 +292,8 @@ MonoBehaviour:
   m_Script: {fileID: 11500000, guid: a48d6aa49af84ac46993592628470096, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
+  effectName: Happiness
+  visionRange: 0
   production: {x: 0, y: -10}
   politicalCapital: {x: 0, y: 0}
   gold: {x: 0, y: -10}
@@ -260,6 +301,17 @@ MonoBehaviour:
   food: {x: 0, y: -10}
   defence: {x: 0, y: 0}
   focusProductionBonus: []
-  visionRange: 0
   happiness: 0
   loyalty: -1
+  successChance: 0
+  successChanceOnCity: 0
+  successChanceOnUnit: 0
+  woundedOnFail: 0
+  xpGainPerc: 0
+  xpLevelUpPerc: 0
+  influenceRange: 0
+  influenceEffectPerc: 0
+  combatStrength: 0
+  ambushChance: 0
+  ambushBonus: 0
+  movementSpeed: 0

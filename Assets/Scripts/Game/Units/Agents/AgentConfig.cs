@@ -25,6 +25,7 @@ public class AgentConfig : ScriptableObject
     [SerializeField] GameObject meshChild;
     [SerializeField] List<AbilityConfig> abilityConfigs;
     [SerializeField] AgentClass agentClass;
+    [SerializeField] GameObject gameEffect;
 
     public IEnumerable<AbilityConfig> GetAbilityConfigs()
     {
@@ -131,6 +132,19 @@ public class AgentConfig : ScriptableObject
         set
         {
             agentClass = value;
+        }
+    }
+
+    public GameObject GameEffect
+    {
+        get
+        {
+            return gameEffect;
+        }
+
+        set
+        {
+            gameEffect = value;
         }
     }
 }

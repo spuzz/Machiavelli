@@ -7,10 +7,10 @@ public class Happiness : MonoBehaviour {
 
     [SerializeField] List<int> happinessBoundariesPositive;
     [SerializeField] List<int> happinessBoundariesNegative;
-    [SerializeField] List<ResourceBenefit> happinessEffectPositive;
-    [SerializeField] List<ResourceBenefit> happinessEffectNegative;
+    [SerializeField] List<GameEffect> happinessEffectPositive;
+    [SerializeField] List<GameEffect> happinessEffectNegative;
 
-    public ResourceBenefit GetHappinessEffect(int happiness)
+    public GameEffect GetHappinessEffect(int happiness)
     {
         if(happiness >= 0)
         {
@@ -22,7 +22,7 @@ public class Happiness : MonoBehaviour {
         }
     }
 
-    private ResourceBenefit GetPositiveEffect(int happiness)
+    private GameEffect GetPositiveEffect(int happiness)
     {
         int count = 0;
         foreach( int boundary in happinessBoundariesPositive)
@@ -33,10 +33,10 @@ public class Happiness : MonoBehaviour {
             }
             count++;
         }
-        return new ResourceBenefit();
+        return new GameEffect();
     }
 
-    private ResourceBenefit GetNegativeEffect(int happiness)
+    private GameEffect GetNegativeEffect(int happiness)
     {
         int count = 0;
         foreach (int boundary in happinessBoundariesNegative)
@@ -47,6 +47,6 @@ public class Happiness : MonoBehaviour {
             }
             count++;
         }
-        return new ResourceBenefit();
+        return new GameEffect();
     }
 }

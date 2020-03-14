@@ -9,31 +9,30 @@ Prefab:
     m_Modifications: []
     m_RemovedComponents: []
   m_SourcePrefab: {fileID: 0}
-  m_RootGameObject: {fileID: 1084114713908218}
+  m_RootGameObject: {fileID: 1859739440253042}
   m_IsPrefabAsset: 1
---- !u!1 &1084114713908218
+--- !u!1 &1859739440253042
 GameObject:
   m_ObjectHideFlags: 0
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   serializedVersion: 6
   m_Component:
-  - component: {fileID: 4282270318112918}
-  - component: {fileID: 114455759695828040}
-  - component: {fileID: 114393116081345992}
+  - component: {fileID: 4110232131184092}
+  - component: {fileID: 114420283382285784}
   m_Layer: 0
-  m_Name: Aqueduct
+  m_Name: Assassin
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
   m_StaticEditorFlags: 0
   m_IsActive: 1
---- !u!4 &4282270318112918
+--- !u!4 &4110232131184092
 Transform:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1084114713908218}
+  m_GameObject: {fileID: 1859739440253042}
   m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
@@ -41,29 +40,29 @@ Transform:
   m_Father: {fileID: 0}
   m_RootOrder: 0
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
---- !u!114 &114393116081345992
+--- !u!114 &114420283382285784
 MonoBehaviour:
   m_ObjectHideFlags: 1
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1084114713908218}
+  m_GameObject: {fileID: 1859739440253042}
   m_Enabled: 1
   m_EditorHideFlags: 0
   m_Script: {fileID: 11500000, guid: a48d6aa49af84ac46993592628470096, type: 3}
   m_Name: 
   m_EditorClassIdentifier: 
-  effectName: 
+  effectName: Influence
   visionRange: 0
   production: {x: 0, y: 0}
   politicalCapital: {x: 0, y: 0}
   gold: {x: 0, y: 0}
   science: {x: 0, y: 0}
-  food: {x: 10, y: 20}
+  food: {x: 0, y: 0}
   defence: {x: 0, y: 0}
   focusProductionBonus: []
   happiness: 0
   loyalty: 0
-  successChance: 0
+  successChance: 5
   successChanceOnCity: 0
   successChanceOnUnit: 0
   woundedOnFail: 0
@@ -75,17 +74,3 @@ MonoBehaviour:
   ambushChance: 0
   ambushBonus: 0
   movementSpeed: 0
---- !u!114 &114455759695828040
-MonoBehaviour:
-  m_ObjectHideFlags: 1
-  m_CorrespondingSourceObject: {fileID: 0}
-  m_PrefabInternal: {fileID: 100100000}
-  m_GameObject: {fileID: 1084114713908218}
-  m_Enabled: 1
-  m_EditorHideFlags: 0
-  m_Script: {fileID: 11500000, guid: 8368c5f9851e05c48936964224611bb6, type: 3}
-  m_Name: 
-  m_EditorClassIdentifier: 
-  resourceBenefit: {fileID: 114393116081345992}
-  unitConfigs: []
-  buildingConfigs: []

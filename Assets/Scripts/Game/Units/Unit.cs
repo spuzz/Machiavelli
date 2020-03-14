@@ -372,6 +372,12 @@ public abstract class Unit : MonoBehaviour {
             UpdateOwnerVisiblity(move[a - 1], false);
             UpdateOwnerVisiblity(move[a], true);
         }
+
+        if (HexUnitType == Unit.UnitType.AGENT)
+        {
+            GetComponent<Influence>().UpdateEffects();
+        }
+
         return true;
     }
 

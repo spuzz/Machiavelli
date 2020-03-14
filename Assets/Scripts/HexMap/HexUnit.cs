@@ -78,7 +78,6 @@ public class HexUnit : MonoBehaviour {
                 unit.UpdateOwnerVisiblity(location, true);
                 unit.NotifyInfoChange();
             }
-
         }
     }
 

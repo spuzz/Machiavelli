@@ -6,7 +6,7 @@ public class CityBuilding : MonoBehaviour {
 
     protected City cityBuildIn;
     CityPlayerBuildConfig buildConfig;
-    [SerializeField] ResourceBenefit resourceBenefit;
+    [SerializeField] GameEffect resourceBenefit;
     [SerializeField] List<CombatUnitBuildConfig> unitConfigs;
     [SerializeField] List<CityPlayerBuildConfig> buildingConfigs;
 
@@ -36,7 +36,7 @@ public class CityBuilding : MonoBehaviour {
         }
     }
 
-    public ResourceBenefit ResourceBenefit
+    public GameEffect ResourceBenefit
     {
         get
         {

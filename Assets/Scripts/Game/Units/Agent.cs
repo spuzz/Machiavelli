@@ -27,6 +27,9 @@ public class Agent : Unit {
     [SerializeField] int unspentPoints = 0;
     [SerializeField] int maintenance = 0;
     [SerializeField] int experience = 0;
+    [SerializeField] int influenceRange = 0;
+
+    [SerializeField] GameEffect randomEffect;
 
     public Stance CurrentStance
     {
@@ -119,6 +122,19 @@ public class Agent : Unit {
         }
     }
 
+    public int InfluenceRange
+    {
+        get
+        {
+            return influenceRange;
+        }
+
+        set
+        {
+            influenceRange = value;
+        }
+    }
+
     public override void StartTurn()
     {
         if(gameController.GetTurn() != 1)
@@ -126,6 +142,12 @@ public class Agent : Unit {
             AddExperience(100);
         }
 
+        if(gameController.GetTurn() == 2)
+        {
+            GetComponent<EffectsController>().AddEffect(gameObject, randomEffect);
+        }
+        GetComponent<Influence>().UpdateEffects();
+        
         base.StartTurn();
     }
 
@@ -143,6 +165,8 @@ public class Agent : Unit {
         {
             abilities.AbilitiesList.Add(abilityConfig);
         }
+
+        transform.Find("InfluenceEffects").GetComponent<GameEffect>().AddEffect(config.GameEffect.GetComponent<GameEffect>());
         //HexUnit.OffSet = new Vector3(0, 0, -4);
     }
 

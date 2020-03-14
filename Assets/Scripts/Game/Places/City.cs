@@ -563,7 +563,7 @@ public class City : MonoBehaviour {
 
         if(cityStateOwner.Player)
         {
-            cityStateOwner.AddLoyalty(CityResouceController.ResourceBenefits.Loyalty, cityStateOwner.Player);
+            cityStateOwner.AddLoyalty(CityResouceController.EffectsController.TotalEffects.Loyalty, cityStateOwner.Player);
         }
 
         NotifyInfoChange();
@@ -727,7 +727,7 @@ public class City : MonoBehaviour {
         cityResouceController.AddBuilding(building);
         if(building.ResourceBenefit.VisionRange > 0)
         {
-            VisionRange = cityResouceController.ResourceBenefits.VisionRange + 1;
+            VisionRange = cityResouceController.EffectsController.TotalEffects.VisionRange + 1;
         }
         NotifyInfoChange();
         return true;

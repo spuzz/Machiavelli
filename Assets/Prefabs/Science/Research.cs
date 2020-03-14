@@ -16,7 +16,7 @@ public class Research : MonoBehaviour {
     [SerializeField] ResearchTier researchTier;
     [SerializeField] ScienceController scienceController;
     [SerializeField] string researchName;
-    [SerializeField] ResourceBenefit resourceBenefit;
+    [SerializeField] GameEffect resourceBenefit;
     [SerializeField] List<CityPlayerBuildConfig> buildingOptions;
     [SerializeField] List<AgentBuildConfig> agentTrainingOptions;
     [SerializeField] List<CombatUnitBuildConfig> combatUnitTrainingOptions;

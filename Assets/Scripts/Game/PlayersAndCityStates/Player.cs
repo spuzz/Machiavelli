@@ -502,10 +502,10 @@ public abstract class Player : MonoBehaviour {
         List<CityState> keys = cityStatesWithLoyalPoliticians.Keys.ToList();
         foreach (CityState cityState in keys)
         {
-            cityState.GetCity().CityResouceController.RemoveEffect("PlayerLoyalty");
-            ResourceBenefit benefit = new ResourceBenefit();
+            cityState.GetCity().CityResouceController.EffectsController.RemoveEffect(gameObject,"PlayerLoyalty");
+            GameEffect benefit = new GameEffect();
             benefit.Loyalty = -lowerLoyalty;
-            cityState.GetCity().CityResouceController.AddEffect("PlayerLoyalty",benefit);
+            cityState.GetCity().CityResouceController.AddEffect(gameObject, benefit);
             //cityState.LowerLoyalty(lowerLoyalty, this);
             cityState.UpdateCityState();
         }
