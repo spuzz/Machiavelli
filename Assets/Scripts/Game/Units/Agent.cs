@@ -166,7 +166,8 @@ public class Agent : Unit {
             abilities.AbilitiesList.Add(abilityConfig);
         }
 
-        transform.Find("InfluenceEffects").GetComponent<GameEffect>().AddEffect(config.GameEffect.GetComponent<GameEffect>());
+        transform.Find("FriendlyInfluenceEffects").GetComponent<GameEffect>().AddEffect(config.FriendlyGameEffect.GetComponent<GameEffect>());
+        transform.Find("EnemyInfluenceEffects").GetComponent<GameEffect>().AddEffect(config.EnemyGameEffect.GetComponent<GameEffect>());
         //HexUnit.OffSet = new Vector3(0, 0, -4);
     }
 

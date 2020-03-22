@@ -21,4 +21,7 @@ MonoBehaviour:
   abilityConfigs:
   - {fileID: 11400000, guid: 87ed761bd410c834490b9f3037303927, type: 2}
   agentClass: 0
-  gameEffect: {fileID: 1859739440253042, guid: 947acf582d021924894fd50d2ee21e16, type: 2}
+  friendlyGameEffect: {fileID: 1859739440253042, guid: 947acf582d021924894fd50d2ee21e16,
+    type: 2}
+  enemyGameEffect: {fileID: 1859739440253042, guid: df85496cdfd6183479c9b4c9c9dbed05,
+    type: 2}

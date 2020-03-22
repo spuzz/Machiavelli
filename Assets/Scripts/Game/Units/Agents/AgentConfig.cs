@@ -25,7 +25,8 @@ public class AgentConfig : ScriptableObject
     [SerializeField] GameObject meshChild;
     [SerializeField] List<AbilityConfig> abilityConfigs;
     [SerializeField] AgentClass agentClass;
-    [SerializeField] GameObject gameEffect;
+    [SerializeField] GameObject friendlyGameEffect;
+    [SerializeField] GameObject enemyGameEffect;
 
     public IEnumerable<AbilityConfig> GetAbilityConfigs()
     {
@@ -135,16 +136,29 @@ public class AgentConfig : ScriptableObject
         }
     }
 
-    public GameObject GameEffect
+    public GameObject FriendlyGameEffect
     {
         get
         {
-            return gameEffect;
+            return friendlyGameEffect;
         }
 
         set
         {
-            gameEffect = value;
+            friendlyGameEffect = value;
+        }
+    }
+
+    public GameObject EnemyGameEffect
+    {
+        get
+        {
+            return enemyGameEffect;
+        }
+
+        set
+        {
+            enemyGameEffect = value;
         }
     }
 }

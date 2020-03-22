@@ -21,7 +21,7 @@ GameObject:
   - component: {fileID: 4200316318786026}
   - component: {fileID: 114427208389757754}
   m_Layer: 9
-  m_Name: InfluenceEffects
+  m_Name: EnemyInfluenceEffects
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -40,6 +40,22 @@ GameObject:
   - component: {fileID: 114571925582089498}
   m_Layer: 5
   m_Name: Health Bar
+  m_TagString: Untagged
+  m_Icon: {fileID: 0}
+  m_NavMeshLayer: 0
+  m_StaticEditorFlags: 0
+  m_IsActive: 1
+--- !u!1 &1265761549872076
+GameObject:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  serializedVersion: 6
+  m_Component:
+  - component: {fileID: 4968831568390108}
+  - component: {fileID: 114778153987082668}
+  m_Layer: 9
+  m_Name: FriendlyInfluenceEffects
   m_TagString: Untagged
   m_Icon: {fileID: 0}
   m_NavMeshLayer: 0
@@ -182,6 +198,7 @@ Transform:
   m_Children:
   - {fileID: 224976265474206426}
   - {fileID: 4756856413943704}
+  - {fileID: 4968831568390108}
   - {fileID: 4200316318786026}
   m_Father: {fileID: 0}
   m_RootOrder: 0
@@ -192,12 +209,12 @@ Transform:
   m_CorrespondingSourceObject: {fileID: 0}
   m_PrefabInternal: {fileID: 100100000}
   m_GameObject: {fileID: 1020310473296134}
-  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalRotation: {x: -0, y: -0, z: -0, w: 1}
   m_LocalPosition: {x: 0, y: 0, z: 0}
   m_LocalScale: {x: 1, y: 1, z: 1}
   m_Children: []
   m_Father: {fileID: 4047894028227438}
-  m_RootOrder: 2
+  m_RootOrder: 3
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!4 &4756856413943704
 Transform:
@@ -211,6 +228,19 @@ Transform:
   m_Children: []
   m_Father: {fileID: 4047894028227438}
   m_RootOrder: 1
+  m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
+--- !u!4 &4968831568390108
+Transform:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1265761549872076}
+  m_LocalRotation: {x: 0, y: 0, z: 0, w: 1}
+  m_LocalPosition: {x: 0, y: 0, z: 0}
+  m_LocalScale: {x: 1, y: 1, z: 1}
+  m_Children: []
+  m_Father: {fileID: 4047894028227438}
+  m_RootOrder: 2
   m_LocalEulerAnglesHint: {x: 0, y: 0, z: 0}
 --- !u!114 &114038851204289312
 MonoBehaviour:
@@ -345,7 +375,7 @@ MonoBehaviour:
   defence: {x: 0, y: 0}
   focusProductionBonus: []
   happiness: 0
-  loyalty: 5
+  loyalty: 0
   successChance: 0
   successChanceOnCity: 0
   successChanceOnUnit: 0
@@ -391,7 +421,7 @@ MonoBehaviour:
   defence: {x: 0, y: 0}
   focusProductionBonus: []
   happiness: 0
-  loyalty: 5
+  loyalty: 0
   successChance: 0
   successChanceOnCity: 0
   successChanceOnUnit: 0
@@ -533,6 +563,40 @@ MonoBehaviour:
   m_FallbackScreenDPI: 96
   m_DefaultSpriteDPI: 96
   m_DynamicPixelsPerUnit: 1
+--- !u!114 &114778153987082668
+MonoBehaviour:
+  m_ObjectHideFlags: 1
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 100100000}
+  m_GameObject: {fileID: 1265761549872076}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: a48d6aa49af84ac46993592628470096, type: 3}
+  m_Name: 
+  m_EditorClassIdentifier: 
+  effectName: 
+  visionRange: 0
+  production: {x: 0, y: 0}
+  politicalCapital: {x: 0, y: 0}
+  gold: {x: 0, y: 0}
+  science: {x: 0, y: 0}
+  food: {x: 0, y: 0}
+  defence: {x: 0, y: 0}
+  focusProductionBonus: []
+  happiness: 0
+  loyalty: 0
+  successChance: 0
+  successChanceOnCity: 0
+  successChanceOnUnit: 0
+  woundedOnFail: 0
+  xpGainPerc: 0
+  xpLevelUpPerc: 0
+  influenceRange: 0
+  influenceEffectPerc: 0
+  combatStrength: 0
+  ambushChance: 0
+  ambushBonus: 0
+  movementSpeed: 0
 --- !u!114 &114784200629424832
 MonoBehaviour:
   m_ObjectHideFlags: 1
@@ -604,7 +668,8 @@ MonoBehaviour:
   agent: {fileID: 114637004898301920}
   currentCell: {fileID: 0}
   range: -1
-  gameEffects: {fileID: 114427208389757754}
+  friendlyInfluenceEffects: {fileID: 114778153987082668}
+  enemyInfluenceEffects: {fileID: 114427208389757754}
 --- !u!114 &114986030512263326
 MonoBehaviour:
   m_ObjectHideFlags: 1
