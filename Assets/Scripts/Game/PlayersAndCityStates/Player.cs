@@ -471,13 +471,16 @@ public abstract class Player : MonoBehaviour {
 
     public void StartTurn()
     {
-
-
-
+        List<City> citiesToStartTurn = new List<City>();
         foreach (City city in cities)
+        {
+            citiesToStartTurn.Add(city);
+        }
+        foreach (City city in citiesToStartTurn)
         {
             city.StartTurn();
         }
+
         gold += GoldPerTurn;
         politicalCapital += PCPerTurn;
         if(politicalCapital < 0)

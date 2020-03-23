@@ -39,37 +39,23 @@ public class CityUI : MonoBehaviour
 
         set
         {
-            if(city)
-            {
-                city.onInfoChange -= UpdateInfo;
-            }
             city = value;
-            if (city)
-            {
-                city.onInfoChange += UpdateInfo;
-                cityHealthBar.CityObject = city;
-            }
             UpdateInfo(city);
         }
     }
 
     private void OnEnable()
     {
-        if(city)
-        {
-            city.onInfoChange += UpdateInfo;
-            UpdateInfo(city);
-        }
-        
+        city.onInfoChange += UpdateInfo;
+        UpdateInfo(city);
     }
 
     private void OnDisable()
     {
-        if(city)
-        {
-            city.onInfoChange -= UpdateInfo;
-        }
+        city.onInfoChange -= UpdateInfo;
+        UpdateInfo(city);
     }
+
     public bool Visible
     {
         get
@@ -114,6 +100,12 @@ public class CityUI : MonoBehaviour
         cameraToLookAt = Camera.main;
         cityHealthBar.CityObject = city;
         hexGameUI = FindObjectOfType<HexGameUI>();
+
+    }
+
+    private void Start()
+    {
+        
     }
 
     // Update is called once per frame 
@@ -189,10 +181,10 @@ public class CityUI : MonoBehaviour
                         falteringPol += 1;
                     }
                 }
-                else
-                {
-                    rivalPol += 1;
-                }
+            }
+            else
+            {
+                rivalPol += 1;
             }
         }
 

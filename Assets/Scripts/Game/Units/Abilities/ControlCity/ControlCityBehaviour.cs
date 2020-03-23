@@ -7,7 +7,7 @@ using UnityEngine;
 public class ControlCityBehaviour : AbilityBehaviour
 {
 
-    public override void Use(HexCell target = null)
+    public override bool Use(HexCell target = null)
     {
 
         if (IsValidTarget(target))
@@ -15,7 +15,11 @@ public class ControlCityBehaviour : AbilityBehaviour
             gameObject.GetComponent<Unit>().GetPlayer().PoliticalCapital -= target.City.GetPoliticalCost();
             target.City.GetCityState().SetAllPoliticians(gameObject.GetComponent<Unit>().GetPlayer());
             gameObject.GetComponent<Unit>().GameController.KillUnit(gameObject.GetComponent<Unit>());
+
+            return true;
         }
+        return false;
+
     }
 
     public override void FinishAbility(HexCell target = null)
@@ -35,7 +39,10 @@ public class ControlCityBehaviour : AbilityBehaviour
         return false;
     }
 
-
+    public override int GetSuccessChance(HexCell target)
+    {
+        return 100;
+    }
 }
 
 

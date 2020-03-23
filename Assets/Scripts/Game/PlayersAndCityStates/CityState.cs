@@ -211,13 +211,14 @@ public class CityState : MonoBehaviour
     public void CreatePolitician()
     {
         Politician politician = Instantiate <Politician>(politicianPrefab,transform.Find("Politicians").transform);
-        if(player)
+        politician.CityState = this;
+        politicians.Add(politician);
+        if (player)
         {
             politician.ControllingPlayer = player;
             politician.Loyalty = 100;
         }
-        politician.CityState = this;
-        politicians.Add(politician);
+
     }
     public void UpdatePoliticalLandscape()
     {

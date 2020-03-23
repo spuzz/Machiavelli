@@ -206,6 +206,58 @@ public class GameEffect : MonoBehaviour
         }
     }
 
+    public int SuccessChance
+    {
+        get
+        {
+            return successChance;
+        }
+
+        set
+        {
+            successChance = value;
+        }
+    }
+
+    public int SuccessChanceOnCity
+    {
+        get
+        {
+            return successChanceOnCity;
+        }
+
+        set
+        {
+            successChanceOnCity = value;
+        }
+    }
+
+    public int SuccessChanceOnUnit
+    {
+        get
+        {
+            return successChanceOnUnit;
+        }
+
+        set
+        {
+            successChanceOnUnit = value;
+        }
+    }
+
+    public int WoundedOnFail
+    {
+        get
+        {
+            return woundedOnFail;
+        }
+
+        set
+        {
+            woundedOnFail = value;
+        }
+    }
+
     public void AddEffect(GameEffect effect)
     {
         Gold += effect.Gold;
@@ -218,10 +270,10 @@ public class GameEffect : MonoBehaviour
         Happiness += effect.Happiness;
         Loyalty += effect.Loyalty;
 
-        successChance += effect.successChance;
-        successChanceOnCity += effect.successChanceOnCity;
-        successChanceOnUnit += effect.successChanceOnUnit;
-        woundedOnFail += effect.woundedOnFail;
+        SuccessChance += effect.SuccessChance;
+        SuccessChanceOnCity += effect.SuccessChanceOnCity;
+        SuccessChanceOnUnit += effect.SuccessChanceOnUnit;
+        WoundedOnFail += effect.WoundedOnFail;
         xpGainPerc += effect.xpGainPerc;
         xpLevelUpPerc += effect.xpLevelUpPerc;
         InfluenceRange += effect.InfluenceRange;
@@ -261,10 +313,10 @@ public class GameEffect : MonoBehaviour
         Happiness -= effect.happiness;
         Loyalty -= effect.Loyalty;
 
-        successChance -= effect.successChance;
-        successChanceOnCity -= effect.successChanceOnCity;
-        successChanceOnUnit -= effect.successChanceOnUnit;
-        woundedOnFail -= effect.woundedOnFail;
+        SuccessChance -= effect.SuccessChance;
+        SuccessChanceOnCity -= effect.SuccessChanceOnCity;
+        SuccessChanceOnUnit -= effect.SuccessChanceOnUnit;
+        WoundedOnFail -= effect.WoundedOnFail;
         xpGainPerc -= effect.xpGainPerc;
         xpLevelUpPerc -= effect.xpLevelUpPerc;
         InfluenceRange -= effect.InfluenceRange;
@@ -300,10 +352,10 @@ public class GameEffect : MonoBehaviour
         Loyalty = GetMax(Happiness, effect.Loyalty);
 
 
-        successChance = GetMax(successChance, effect.successChance);
-        successChanceOnCity = GetMax(successChanceOnCity, effect.successChanceOnCity);
-        successChanceOnUnit = GetMax(successChanceOnUnit, effect.successChanceOnUnit);
-        woundedOnFail = GetMax(woundedOnFail, effect.woundedOnFail);
+        SuccessChance = GetMax(SuccessChance, effect.SuccessChance);
+        SuccessChanceOnCity = GetMax(SuccessChanceOnCity, effect.SuccessChanceOnCity);
+        SuccessChanceOnUnit = GetMax(SuccessChanceOnUnit, effect.SuccessChanceOnUnit);
+        WoundedOnFail = GetMax(WoundedOnFail, effect.WoundedOnFail);
         xpGainPerc = GetMax(xpGainPerc, effect.xpGainPerc);
         xpLevelUpPerc = GetMax(xpLevelUpPerc, effect.xpLevelUpPerc);
         InfluenceRange = GetMax(InfluenceRange, effect.InfluenceRange);
@@ -342,10 +394,10 @@ public class GameEffect : MonoBehaviour
         Happiness = 0;
         Loyalty = 0;
 
-        successChance = 0;
-        successChanceOnCity = 0;
-        successChanceOnUnit = 0;
-        woundedOnFail = 0;
+        SuccessChance = 0;
+        SuccessChanceOnCity = 0;
+        SuccessChanceOnUnit = 0;
+        WoundedOnFail = 0;
         xpGainPerc = 0;
         xpLevelUpPerc = 0;
         InfluenceRange = 0;

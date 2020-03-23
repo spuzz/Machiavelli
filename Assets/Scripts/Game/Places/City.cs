@@ -456,8 +456,10 @@ public class City : MonoBehaviour {
 
     public void IncreasePopulation()
     {
+        GetCityState().CreatePolitician();
         Population += 1;
         AdjustWorkedCells();
+        UpdateCity();
     }
 
     public void DecreasePopulation()
@@ -468,6 +470,7 @@ public class City : MonoBehaviour {
         }
         Population -= 1;
         AdjustWorkedCells();
+        UpdateCity();
     }
 
     private void AdjustWorkedCells()
@@ -553,8 +556,7 @@ public class City : MonoBehaviour {
             Food -= GameConsts.populationFoodReqirements[Population];
             IncreasePopulation();
         }
-
-        if (Food <= 0 && Population > 1)
+        else if (Food <= 0 && Population > 1)
         {
             DecreasePopulation();
             Food = GameConsts.populationFoodReqirements[Population] / 2;

@@ -73,7 +73,7 @@ public class HexFeatureManager : MonoBehaviour {
             prefab = forestCollections[0].prefabs[0];
         }
         else
-        {
+        { 
             prefab = PickPrefab(
     urbanCollections, cell.UrbanLevel, hash.a, hash.d
 );

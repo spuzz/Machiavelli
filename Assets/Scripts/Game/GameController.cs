@@ -268,6 +268,11 @@ public class GameController : MonoBehaviour
             yield return new WaitForEndOfFrame();
         }
 
+        foreach(City city in cities.FindAll(c => !c.GetCityState().Player))
+        {
+            city.StartTurn();
+        }
+
         if (humanPlayer.Alive == false)
         {
             EndGame();

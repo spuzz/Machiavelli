@@ -9,7 +9,7 @@ public abstract class AbilityBehaviour : MonoBehaviour
     protected AbilityConfig config;
     protected string abilityText;
     const float PARTICLE_CLEAN_UP_DELAY = 20;
-    public abstract void Use(HexCell target = null);
+    public abstract bool Use(HexCell target = null);
 
     public virtual void ShowAbility(HexCell target = null)
     {
@@ -24,6 +24,8 @@ public abstract class AbilityBehaviour : MonoBehaviour
     public abstract void FinishAbility(HexCell target = null);
 
     public abstract bool IsValidTarget(HexCell target);
+
+    public abstract int GetSuccessChance(HexCell target);
 
     public virtual bool IsGoodTarget(HexCell target) { return true; }
 
