@@ -14,6 +14,8 @@ public class UnitUI : MonoBehaviour {
     [SerializeField] UnitHealthBar unitHealthBar;
     [SerializeField] RawImage unitSymbol;
     [SerializeField] Image cityStateSymbol;
+    [SerializeField] RawImage highlightSymbol;
+    [SerializeField] RawImage highlightHealthBar;
 
     [SerializeField] Texture Symbol;
     [SerializeField] Texture BackGround;
@@ -74,6 +76,18 @@ public class UnitUI : MonoBehaviour {
     public void SetBackground(Texture background)
     {
         unitBackground.texture = background;
+    }
+
+    public void SetSelected()
+    {
+        highlightHealthBar.gameObject.SetActive(true);
+        highlightSymbol.gameObject.SetActive(true);
+    }
+
+    public void Deselect()
+    {
+        highlightHealthBar.gameObject.SetActive(false);
+        highlightSymbol.gameObject.SetActive(false);
     }
 
     private void Awake()

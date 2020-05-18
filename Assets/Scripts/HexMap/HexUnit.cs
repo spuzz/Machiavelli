@@ -3,6 +3,7 @@ using System.Collections;
 using System.Collections.Generic;
 using System.IO;
 using System;
+using UnityEngine.EventSystems;
 
 public class HexUnit : MonoBehaviour {
 
@@ -555,7 +556,7 @@ public class HexUnit : MonoBehaviour {
         for (HexDirection d = HexDirection.NE; d <= HexDirection.NW; d++)
         {
             HexCell neighbour = cell.GetNeighbor(d);
-            if (neighbour.IsExplored)
+            if (!neighbour || neighbour.IsExplored)
             {
                 return true;
             }
@@ -587,6 +588,14 @@ public class HexUnit : MonoBehaviour {
         return false;
 
 
+    }
+
+    private void OnMouseDown()
+    {
+        if (!EventSystem.current.IsPointerOverGameObject())
+        {
+            FindObjectOfType<HexGameUI>().SelectUnit(this);
+        }
     }
 
     public void KillUnit()

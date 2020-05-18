@@ -60,7 +60,7 @@ public class HexGameUI : MonoBehaviour {
 
     private void DoSelectionInput()
     {
-        if (Input.GetKeyDown(KeyCode.Escape) && HUD.City)
+        if (Input.GetKeyDown(KeyCode.Escape))
         {
             ClearSelection();
         }
@@ -119,40 +119,37 @@ public class HexGameUI : MonoBehaviour {
 		UpdateCurrentCell();
 		if (currentCell)
         {
-            if (currentCell.agent && currentCell.agent.Controllable)
-            {
-                SelectUnit(currentCell.agent);
-            }
-            else if (currentCell.combatUnit && currentCell.combatUnit.Controllable)
-            {
-                SelectUnit(currentCell.combatUnit);
-            }
-            else if (currentCell.City)
-            {
-                ClearSelection();
-                if (selectedUnit)
-                {
 
-                    SetLayerRecursively(selectedUnit.gameObject, 0);
-                    selectedUnit.Location.DisableHighlight();
-                }
-                SelectCity(currentCell.City);
-            }
+            //if (currentCell.agent && currentCell.agent.Controllable)
+            //{
+            //    SelectUnit(currentCell.agent);
+            //}
+            //else if (currentCell.combatUnit && currentCell.combatUnit.Controllable)
+            //{
+            //    SelectUnit(currentCell.combatUnit);
+            //}
+            //if (currentCell.City)
+            //{
+            //    ClearSelection();
+            //    if (selectedUnit)
+            //    {
+
+            //        SetLayerRecursively(selectedUnit.gameObject, 0);
+            //        selectedUnit.Location.DisableHighlight();
+            //    }
+            //    SelectCity(currentCell.City);
+            //}
         }
     }
 
     public void SelectUnit(HexUnit unit)
     {
         ClearSelection();
-        if (selectedUnit)
-        {
-            SetLayerRecursively(selectedUnit.gameObject, 0);
-            selectedUnit.Location.DisableHighlight();
-        }
         selectedUnit = unit;
         SetLayerRecursively(selectedUnit.gameObject, 9);
-        selectedUnit.Location.EnableHighlight(Color.blue);
+        //selectedUnit.Location.EnableHighlight(Color.blue);
         selectedUnit.unit.UpdateUI(0);
+        selectedUnit.unit.UnitUI.SetSelected();
 
         HUD.Unit = selectedUnit.GetComponent<Unit>();
 
@@ -162,6 +159,7 @@ public class HexGameUI : MonoBehaviour {
     {
         if (HUD.City)
         {
+            HUD.City.Deselect();
             HUD.City.GetHexCell().HexCellUI.EnableCanvas(false);
             foreach (HexCell cell in HUD.City.GetOwnedCells())
             {
@@ -169,23 +167,35 @@ public class HexGameUI : MonoBehaviour {
             }
             HUD.City = null;
         }
+        else if(selectedUnit)
+        {
+            selectedUnit.unit.UnitUI.Deselect();
+            if (selectedUnit)
+            {
+                SetLayerRecursively(selectedUnit.gameObject, 0);
+                selectedUnit.Location.DisableHighlight();
+            }
+            HUD.Unit = null;
+        }
     }
 
     public void SelectCity(City city)
     {
 
+        ClearSelection();
         grid.ClearPath();
         selectedUnit = null;
         HUD.City = city;
-        city.GetHexCell().HexCellUI.EnableCanvas(true);
-        city.GetHexCell().HexCellUI.CurrentCityOwner = city;
-        city.GetHexCell().HexCellUI.SetToggleLocked(true);
-        foreach (HexCell cell in city.GetOwnedCells())
-        {
-            cell.HexCellUI.EnableCanvas(true);
-            cell.HexCellUI.CurrentCityOwner = city;
-            cell.HexCellUI.SetToggleLocked(false);
-        }
+        city.Select();
+        //city.GetHexCell().HexCellUI.EnableCanvas(true);
+        //city.GetHexCell().HexCellUI.CurrentCityOwner = city;
+        //city.GetHexCell().HexCellUI.SetToggleLocked(true);
+        //foreach (HexCell cell in city.GetOwnedCells())
+        //{w
+        //    cell.HexCellUI.EnableCanvas(true);
+        //    cell.HexCellUI.CurrentCityOwner = city;
+        //    cell.HexCellUI.SetToggleLocked(false);
+        //}
     }
 
     void DoPathfinding () {
@@ -246,7 +256,7 @@ public class HexGameUI : MonoBehaviour {
             }
             grid.ClearPath();
             HUD.UpdateUI();
-            selectedUnit.Location.EnableHighlight(Color.blue);
+            //selectedUnit.Location.EnableHighlight(Color.blue);
 		}
 	}
     public void DoAbilitySelection(List<HexCell> cellOptions, int index)

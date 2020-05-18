@@ -11,12 +11,18 @@ public class BribeBehaviour : AbilityBehaviour
 
     List<int> influenceChanges = new List<int>();
 
+    private void Awake()
+    {
+        abilityText = "Bribe";
+    }
     public override bool Use(HexCell target = null)
     {
         if(UnityEngine.Random.Range(0,100) >= GetSuccessChance(target))
         {
+            failed = true;
             return false;
         }
+        failed = false;
         List<Politician> pols = (target.City.GetCityState().GetPoliticians() as List<Politician>).FindAll(c => c.ControllingPlayer != GetComponent<Unit>().GetPlayer());
         pols = pols.OrderBy(c => c.Loyalty).ToList();
         pols[0].ControllingPlayer = GetComponent<Agent>().GetPlayer();

@@ -4,6 +4,7 @@ using System.Collections.Generic;
 using UnityEngine;
 using System.IO;
 using System.Linq;
+using UnityEngine.EventSystems;
 
 public class City : MonoBehaviour {
 
@@ -16,6 +17,7 @@ public class City : MonoBehaviour {
     // Internal Components
     [SerializeField] CityUI cityUI;
     [SerializeField] CityResouceController cityResouceController;
+    [SerializeField] GameObject selectGlow;
     HexVision hexVision;
 
     // Attributes
@@ -524,6 +526,7 @@ public class City : MonoBehaviour {
     public void Start()
     {
         AdjustWorkedCells();
+        gameObject.transform.position = hexCell.gameObject.transform.position;
     }
 
     public void StartTurn()
@@ -763,6 +766,24 @@ public class City : MonoBehaviour {
             hitpointsLeft = 0;
         }
         HitPoints = hitpointsLeft;
+    }
+
+    private void OnMouseDown()
+    {
+        if (!EventSystem.current.IsPointerOverGameObject())
+        {
+            FindObjectOfType<HexGameUI>().SelectCity(this);
+        }
+    }
+
+    public void Select()
+    {
+        selectGlow.SetActive(true);
+    }
+
+    public void Deselect()
+    {
+        selectGlow.SetActive(false);
     }
 
     public void Save(BinaryWriter writer)

@@ -10,6 +10,7 @@ public abstract class AbilityBehaviour : MonoBehaviour
     protected string abilityText;
     const float PARTICLE_CLEAN_UP_DELAY = 20;
     public abstract bool Use(HexCell target = null);
+    protected bool failed = false;
 
     public virtual void ShowAbility(HexCell target = null)
     {
@@ -17,7 +18,16 @@ public abstract class AbilityBehaviour : MonoBehaviour
         PlayParticleEffect();
         PlayAbilitySound();
         PlayAnimation(target);
-        target.TextEffectHandler.AddTextEffect(abilityText, target.transform, Color.red);
+        string text = abilityText;
+        if(failed)
+        {
+            target.TextEffectHandler.AddTextEffect(abilityText + " FAILED", target.transform, Color.red);
+        }
+        else
+        {
+            target.TextEffectHandler.AddTextEffect(abilityText + " SUCCEDED", target.transform, Color.green);
+        }
+        
     }
 
 
