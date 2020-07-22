@@ -1,0 +1,20 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: b6e837d245bdac04cab51c8ac91480bd, type: 3}
+  m_Name: TalentTree
+  m_EditorClassIdentifier: 
+  talentTree:
+  - talentBrackets:
+    - talents:
+      - {fileID: 11400000, guid: 65b0105a2a0e1db48a75a7413cdeee78, type: 2}
+  - talentBrackets:
+    - talents:
+      - {fileID: 11400000, guid: f0761e73cf4956d46919d5f6a164f4ae, type: 2}

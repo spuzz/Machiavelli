@@ -11,7 +11,6 @@ public class AgentPanel : MonoBehaviour {
     //[SerializeField] Text healthText;
     //[SerializeField] Text strengthText;
     //[SerializeField] Text visibilityText;
-    [SerializeField] Image agentPortrait;
     [SerializeField] Image unitPortrait;
     [SerializeField] GameObject unitObject;
     [SerializeField] GameObject agentObject;
@@ -97,9 +96,9 @@ public class AgentPanel : MonoBehaviour {
 
                     }
 
-                    agentObject.gameObject.SetActive(true);
+                    //agentObject.gameObject.SetActive(true);
                     Agent agent = unit.GetComponent<Agent>();
-                    agentPortrait.sprite = agent.GetAgentConfig().Portrait;
+                    unitPortrait.sprite = agent.GetAgentConfig().Portrait;
                 }
   
                 //typeText.text = agent.GetAgentConfig().Name;
@@ -116,13 +115,13 @@ public class AgentPanel : MonoBehaviour {
 
             if (CurrentCell.combatUnit)
             {
-                unitObject.gameObject.SetActive(true);
+                //unitObject.gameObject.SetActive(true);
                 CombatUnit combatUnit = CurrentCell.combatUnit.GetComponent<CombatUnit>();
                 unitPortrait.sprite = combatUnit.GetCombatUnitConfig().Portrait;
             }
             else
             {
-                unitObject.gameObject.SetActive(false);
+                //unitObject.gameObject.SetActive(false);
             }
         }
     }

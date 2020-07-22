@@ -1,0 +1,18 @@
+%YAML 1.1
+%TAG !u! tag:unity3d.com,2011:
+--- !u!114 &11400000
+MonoBehaviour:
+  m_ObjectHideFlags: 0
+  m_CorrespondingSourceObject: {fileID: 0}
+  m_PrefabInternal: {fileID: 0}
+  m_GameObject: {fileID: 0}
+  m_Enabled: 1
+  m_EditorHideFlags: 0
+  m_Script: {fileID: 11500000, guid: 51acfec8d8b81bb4e97b84ad424eed60, type: 3}
+  m_Name: Scout2
+  m_EditorClassIdentifier: 
+  talentName: Scout2
+  gameEffect: {fileID: 114471359674016528, guid: d3fccae44d73e6146b60a83fecb67bf2,
+    type: 2}
+  description: Scout Range +1
+  abilityConfig: {fileID: 0}

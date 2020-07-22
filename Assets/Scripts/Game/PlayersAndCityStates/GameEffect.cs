@@ -37,6 +37,7 @@ public class GameEffect : MonoBehaviour
     [SerializeField] int woundedOnFail;
     [SerializeField] int xpGainPerc;
     [SerializeField] int xpLevelUpPerc;
+    [SerializeField] List<AbilityEffect> abilityEffects;
 
     [Header("Agent Influence Effects")]
     [SerializeField] int influenceRange;
@@ -283,6 +284,10 @@ public class GameEffect : MonoBehaviour
         ambushBonus += effect.ambushBonus;
         movementSpeed += effect.movementSpeed;
 
+        foreach (AbilityEffect eff in effect.abilityEffects)
+        {
+            AddAbilityEffect(eff);
+        }
 
         foreach (FocusBonus bonus in effect.FocusProductionBonus)
         {
@@ -326,6 +331,12 @@ public class GameEffect : MonoBehaviour
         ambushBonus -= effect.ambushBonus;
 
         movementSpeed += effect.movementSpeed;
+
+        foreach (AbilityEffect eff in effect.abilityEffects)
+        {
+            RemoveAbilityEffect(eff);
+        }
+
         foreach (FocusBonus bonus in effect.FocusProductionBonus)
         {
             IEnumerable<FocusBonus> bonuses = focusProductionBonus.Where(c => c.type == bonus.type);
@@ -351,6 +362,7 @@ public class GameEffect : MonoBehaviour
         Happiness = GetMax(Happiness, effect.Happiness);
         Loyalty = GetMax(Happiness, effect.Loyalty);
 
+        
 
         SuccessChance = GetMax(SuccessChance, effect.SuccessChance);
         SuccessChanceOnCity = GetMax(SuccessChanceOnCity, effect.SuccessChanceOnCity);
@@ -364,6 +376,10 @@ public class GameEffect : MonoBehaviour
         ambushChance = GetMax(ambushChance, effect.ambushChance);
         ambushBonus = GetMax(ambushBonus, effect.ambushBonus);
 
+        foreach(AbilityEffect eff in effect.abilityEffects)
+        {
+            CombineAbilityEffect(eff);
+        }
         //foreach (FocusBonus bonus in effect.FocusProductionBonus)
         //{
         //    IEnumerable<FocusBonus> bonuses = focusProductionBonus.Where(c => c.type == bonus.type);
@@ -381,6 +397,41 @@ public class GameEffect : MonoBehaviour
         //}
     }
 
+    public void AddAbilityEffect(AbilityEffect effect)
+    {
+        int index = abilityEffects.FindIndex(c => c.AbilityName == effect.AbilityName);
+        if (index == -1)
+        {
+            abilityEffects.Add(effect);
+        }
+        else
+        {
+            abilityEffects[index].AddEffect(effect);
+        }
+    }
+
+    public void RemoveAbilityEffect(AbilityEffect effect)
+    {
+        int index = abilityEffects.FindIndex(c => c.AbilityName == effect.AbilityName);
+        if (index != -1)
+        {
+            abilityEffects[index].RemoveEffect(effect);
+        }
+
+    }
+   
+    public void CombineAbilityEffect(AbilityEffect effect)
+    {
+        int index = abilityEffects.FindIndex(c => c.AbilityName == effect.AbilityName);
+        if (index != -1)
+        {
+            abilityEffects[index].CombineAbilityEffect(effect);
+        }
+        else
+        {
+            abilityEffects.Add(effect);
+        }
+    }
 
     public void ResetEffect()
     {
@@ -405,6 +456,8 @@ public class GameEffect : MonoBehaviour
         combatStrength = 0;
         ambushChance = 0;
         ambushBonus = 0;
+
+        abilityEffects = new List<AbilityEffect>();
     }
 
     public static int GetMax(int first, int second)

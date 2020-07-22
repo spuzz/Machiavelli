@@ -30,6 +30,7 @@ public class Agent : Unit {
     [SerializeField] int influenceRange = 0;
 
     [SerializeField] GameEffect randomEffect;
+    [SerializeField] List<Talent> talents;
 
     public Stance CurrentStance
     {
@@ -307,4 +308,20 @@ public class Agent : Unit {
         return agent;
     }
 
+    public void AddTalent(Talent talent)
+    {
+        int index = talents.FindIndex(c => c.TalentName == talent.TalentName);
+        if(index == -1)
+        {
+            talents.Add(talent);
+            GetComponent<EffectsController>().AddEffect(talent.GameEffect.gameObject, talent.GameEffect);
+        }
+        else
+        {
+            talents.Remove(talent);
+            GetComponent<EffectsController>().RemoveEffect(talent.GameEffect.gameObject, talent.GameEffect.EffectName);
+            talents.Add(talent);
+            GetComponent<EffectsController>().AddEffect(talent.GameEffect.gameObject, talent.GameEffect);
+        }
+    }
 }
